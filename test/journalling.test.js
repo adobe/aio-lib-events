@@ -106,6 +106,7 @@ describe('Polling for journal events', () => {
     expect(journalling.subject.observers.length).toBe(1)
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(1)
     jest.advanceTimersByTime(0)
+    await Promise.resolve()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(1)
     await Promise.resolve()
     expect(journalling.subject.observers.length).toBe(0)
