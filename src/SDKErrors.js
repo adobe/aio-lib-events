@@ -29,9 +29,9 @@ const Updater = createUpdater(
  */
 const E = ErrorWrapper(
   // The class name for your SDK Error. Your Error objects will be these objects
-  '{{LIB_NAME}}Error',
+  'EventsSDKError',
   // The name of your SDK. This will be a property in your Error objects
-  '{{LIB_NAME}}SDK',
+  'EventsSDK',
   // the object returned from the CreateUpdater call above
   Updater
   // the base class that your Error class is extending. AioCoreSDKError is the default
@@ -45,4 +45,20 @@ module.exports = {
 
 // Define your error codes with the wrapper
 E('ERROR_SDK_INITIALIZATION', 'SDK initialization error(s). Missing arguments: %s')
-E('ERROR_GET_SOMETHING', 'Something went wrong.')
+E('ERROR_GET_ALL_PROVIDERS', '%s')
+E('ERROR_GET_PROVIDER', '%s')
+E('ERROR_CREATE_PROVIDER', '%s')
+E('ERROR_UPDATE_PROVIDER', '%s')
+E('ERROR_DELETE_PROVIDER', '%s')
+E('ERROR_GET_ALL_EVENTMETADATA', '%s')
+E('ERROR_GET_EVENTMETADATA', '%s')
+E('ERROR_CREATE_EVENTMETADATA', '%s')
+E('ERROR_UPDATE_EVENTMETADATA', '%s')
+E('ERROR_DELETE_ALL_EVENTMETADATA', '%s')
+E('ERROR_DELETE_EVENTMETADATA', '%s')
+E('ERROR_CREATE_REGISTRATION', '%s')
+E('ERROR_GET_REGISTRATION', '%s')
+E('ERROR_GET_ALL_REGISTRATION', '%s')
+E('ERROR_DELETE_REGISTRATION', '%s')
+E('ERROR_GET_JOURNAL_DATA', '%s')
+E('ERROR_PUBLISH_EVENT', '%s')
