@@ -221,8 +221,7 @@ describe('No subscribers to journalling', () => {
 
 /**
  * Mock implementation of get events from journal that returns a mock value
- *
- * @param mockResponse
+ * @private
  */
 function getMockImplementation (mockResponse) {
   return jest.fn().mockImplementation(function (journalUrl, options) {
@@ -234,6 +233,7 @@ function getMockImplementation (mockResponse) {
 
 /**
  * Mock implementation of a function that returns an error
+ * @private
  */
 function getMockErrorResponse () {
   return jest.fn().mockImplementation(function () {

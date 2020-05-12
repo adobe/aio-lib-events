@@ -14,6 +14,8 @@ const { appendQueryParams } = require('./helpers')
 const DEFAULT_INTERVAL = 2000
 const Rx = require('rxjs')
 
+/* global EventsCoreAPI, EventsJournalOptions, EventsJournalPollingOptions, Observer, Subscription */ // for linter
+
 class EventsConsumerFromJournal extends Rx.Subject {
   /**
    * Construct and start an Adobe I/O event emitter.
@@ -51,7 +53,7 @@ class EventsConsumerFromJournal extends Rx.Subject {
    * Overrides the subscribe of the Observable.
    * On subscribing to the observable, we to subscribe to the subject
    *
-   * @param observer Observer to the events arising from polling the journal
+   * @param {Observer} observer to the events arising from polling the journal
    * @returns {Subscription} Returns a subscription to the subject
    */
   subscribe (observer) {

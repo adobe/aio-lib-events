@@ -9,6 +9,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "checkErrorResponse"] }] */
+
 const sdk = require('../src')
 const mock = require('./mock')
 const errorSDK = require('../src/SDKErrors')
