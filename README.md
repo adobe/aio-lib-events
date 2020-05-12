@@ -1,5 +1,5 @@
 <!--
-Copyright 2019 Adobe. All rights reserved.
+Copyright 2020 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -10,10 +10,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 -->
 
-[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-events.svg)](https://www.npmjs.org/package/@adobe/aio-lib-events)
+[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
 [![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
 [![Build Status](https://travis-ci.com/adobe/aio-lib-events.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-events)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Greenkeeper badge](https://badges.greenkeeper.io/.svg)](https://greenkeeper.io/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Greenkeeper badge](https://badges.greenkeeper.io/adobe/aio-lib-events.svg)](https://greenkeeper.io/)
 [![Codecov Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-events/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-events/)
 
 # Adobe I/O Events Lib
@@ -117,7 +117,8 @@ and max number of retries</p>
 ## EventsCoreAPI
 This class provides methods to call your Adobe I/O Events APIs.
 Before calling any method initialize the instance by calling the `init` method on it
-with valid values for organizationId, apiKey and accessToken
+with valid values for organizationId, apiKey, accessToken and optional http options such as timeout
+and max number of retries
 
 **Kind**: global class  
 
@@ -407,7 +408,7 @@ Delete webhook registration
 Publish Cloud Events
 
 Event publishers can publish events to the Adobe I/O Events using this SDK. The events should follow Cloud Events 1.0 specification: https://github.com/cloudevents/spec/blob/v1.0/spec.md. 
-As of now, only application/json is accepted as the content-type for the "data" field of the cloud event. 
+As of now, only application/json is accepted as the content-type for the "data" field of the cloud event.
 If retries are set, publish events are retried on network issues, 5xx and 429 error response codes.
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  

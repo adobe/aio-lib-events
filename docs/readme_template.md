@@ -10,40 +10,40 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 -->
 
-[![Version](https://img.shields.io/npm/v/@{{REPO}}.svg)](https://npmjs.org/package/@{{REPO}})
-[![Downloads/week](https://img.shields.io/npm/dw/@{{REPO}}.svg)](https://npmjs.org/package/@{{REPO}})
-[![Build Status](https://travis-ci.com/{{REPO}}.svg?branch=master)](https://travis-ci.com/{{REPO}})
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Greenkeeper badge](https://badges.greenkeeper.io/{{REPO}}.svg)](https://greenkeeper.io/)
-[![Codecov Coverage](https://img.shields.io/codecov/c/github/{{REPO}}/master.svg?style=flat-square)](https://codecov.io/gh/{{REPO}}/)
+[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
+[![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
+[![Build Status](https://travis-ci.com/adobe/aio-lib-events.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-events)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Greenkeeper badge](https://badges.greenkeeper.io/adobe/aio-lib-events.svg)](https://greenkeeper.io/)
+[![Codecov Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-events/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-events/)
 
-# Adobe I/O Lib
+# Adobe I/O Events Lib
 
 ### Installing
 
 ```bash
-$ npm install @{{REPO}}
+$ npm install @adobe/aio-lib-events
 ```
 
 ### Usage
 1) Initialize the SDK
 
 ```javascript
-const sdk = require('@{{REPO}}')
+const sdk = require('@adobe/aio-lib-events')
 
 async function sdkTest() {
   //initialize sdk
-  const client = await sdk.init('<tenant>', 'x-api-key', '<valid auth token>')
+  const client = await sdk.init('<organization id>', 'x-api-key', '<valid auth token>', '<options>')
 }
 ```
 
 2) Call methods using the initialized SDK
 
 ```javascript
-const sdk = require('@{{REPO}}')
+const sdk = require('@adobe/aio-lib-events')
 
 async function sdkTest() {
   // initialize sdk
-  const client = await sdk.init('<tenant>', 'x-api-key', '<valid auth token>')
+  const client = await sdk.init('<organization id>', 'x-api-key', '<valid auth token>', '<options>')
 
   // call methods
   try {
@@ -57,9 +57,33 @@ async function sdkTest() {
 }
 ```
 
+3) Using the poller for journalling
+
+```javascript
+const sdk = require('@adobe/aio-lib-events')
+
+async function sdkTest() {
+  // initialize sdk
+  const client = await sdk.init('<organization id>', 'x-api-key', '<valid auth token>', '<http options>')
+  // get the journalling observable
+  const journalling = client.getEventsObservableFromJournal('<journal url>', '<journalling options>')
+  // call methods
+  const subscription = journalling.subscribe({
+    next: (v) => console.log(v), // Action to be taken on event
+    error: (e) => console.log(e), // Action to be taken on error
+    complete: () => console.log('Complete') // Action to be taken on complete
+  })
+  
+  // To stop receiving events from this subscription based on a timeout
+  setTimeout(() => this.subscription.unsubscribe(), <timeout in ms>)
+}
+
+``` 
+One observable can have multiple subscribers. Each subscription can be handled differently.
+For more details on using the poller for Journalling check <a href="#EventsCoreAPI+getEventsObservableFromJournal">getEventsObservableFromJournal</a>
+
 {{>main-index~}}
 {{>all-docs~}}
-
 
 ### Debug Logs
 

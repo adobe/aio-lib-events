@@ -14,6 +14,8 @@ governing permissions and limitations under the License.
 
 'use strict'
 
+/* global Observable */ // for linter
+
 const { reduceError, appendQueryParams, parseLinkHeader, parseRetryAfterHeader } = require('./helpers')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
@@ -59,7 +61,8 @@ function init (organizationId, apiKey, accessToken, httpOptions) {
 /**
  * This class provides methods to call your Adobe I/O Events APIs.
  * Before calling any method initialize the instance by calling the `init` method on it
- * with valid values for organizationId, apiKey and accessToken
+ * with valid values for organizationId, apiKey, accessToken and optional http options such as timeout
+ * and max number of retries
  */
 class EventsCoreAPI {
   /**
@@ -370,7 +373,11 @@ class EventsCoreAPI {
    */
 
   /**
-   * Publish cloud events to Adobe I/O Events
+   * Publish Cloud Events
+   *
+   * Event publishers can publish events to the Adobe I/O Events using this SDK. The events should follow Cloud Events 1.0 specification: https://github.com/cloudevents/spec/blob/v1.0/spec.md.
+   * As of now, only application/json is accepted as the content-type for the "data" field of the cloud event.
+   * If retries are set, publish events are retried on network issues, 5xx and 429 error response codes.
    *
    * @param {object} cloudEvent Object to be published to event receiver in cloud event format
    * @returns {Promise<string>} Returns OK/ undefined in case of success and error in case of failure
@@ -455,7 +462,10 @@ class EventsCoreAPI {
    * @property {number} [interval] Interval at which to poll the journal; If not provided, a default value will be used (optional)
    */
   /**
-   * Get observable to start listening to journal events.
+   * getEventsObservableFromJournal returns an RxJS <a href="https://rxjs-dev.firebaseapp.com/guide/observable">Observable</a>
+   *
+   * One can go through the extensive documentation on <a href="https://rxjs-dev.firebaseapp.com/guide/overview">RxJS</a> in order to learn more
+   * and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operators">RxJS Operators</a> to act on emitted events.
    *
    * @param {string} journalUrl URL of the journal or 'next' link to read from (required)
    * @param {EventsJournalOptions} [eventsJournalOptions] Query options to send with the Journal URL
@@ -485,6 +495,7 @@ class EventsCoreAPI {
    *
    * @param {number} retries Max number of retries
    * @returns {Function} retryOnFunction {function(...[*]=)}
+   * @private
    */
   __getRetryOn (retries) {
     return function (attempt, error, response) {
@@ -554,7 +565,6 @@ class EventsCoreAPI {
    * Hides sensitive information
    *
    * @param {object} sdkDetails SDK details to be logged in case of error
-   * @returns {undefined|*} SDK details with sensitive information masked
    * @private
    */
   __maskAuthData (sdkDetails) {
@@ -565,7 +575,7 @@ class EventsCoreAPI {
   /**
    * Set headers for every request
    *
-   * @param headers Empty headers or headers with prefilled custom values
+   * @param {object} headers Empty headers or headers with prefilled custom values
    * @returns {object} Headers common for all requests
    * @private
    */
