@@ -9,68 +9,48 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const { reduceError, requestInterceptor, responseInterceptor, createRequestOptions } = require('../src/helpers')
+const { reduceError, appendQueryParams } = require('../src/helpers')
 
-test('reduceError', () => {
-  // no args produces empty object
-  expect(reduceError()).toEqual({})
-
-  // unexpected properties returns the same error with no reduction
-  const unexpectedError = { foo: 'bar' }
-  expect(reduceError(unexpectedError)).toEqual(unexpectedError)
-
-  // inadequate properties returns the same error with no reduction
-  const unexpectedError2 = { foo: 'bar', response: {} }
-  expect(reduceError(unexpectedError2)).toEqual(unexpectedError2)
-
-  // expected properties returns the object reduced to a string
-  const expectedError = {
-    response: {
-      status: 500,
-      statusText: 'Something went gang aft agley.',
-      body: {
-        error_code: 500101,
-        message: 'I\'m giving it all I got, cap\'n'
-      }
-    }
-  }
-  expect(reduceError(expectedError)).toEqual("500 - Something went gang aft agley. ({\"error_code\":500101,\"message\":\"I'm giving it all I got, cap'n\"})")
-})
-
-test('createRequestOptions', () => {
-  const tenantId = 'my-tenant'
-  const apiKey = 'my-api-key'
-  const accessToken = 'my-token'
-
-  const options = createRequestOptions({
-    tenantId,
-    apiKey,
-    accessToken
+describe('Reduce error test', () => {
+  it('test no args produces empty object', () => {
+    expect(reduceError()).toEqual({})
   })
-
-  expect(options).toEqual({
-    requestBody: {},
-    securities: {
-      authorized: {
-        BearerAuth: { value: accessToken },
-        ApiKeyAuth: { value: apiKey }
+  it('test unexpected properties returns the same error with no reduction', () => {
+    const unexpectedError = { foo: 'bar' }
+    expect(reduceError(unexpectedError)).toEqual(unexpectedError)
+  })
+  it('test inadequate properties returns the same error with no reduction', () => {
+    const unexpectedError2 = { foo: 'bar', response: {} }
+    expect(reduceError(unexpectedError2)).toEqual(unexpectedError2)
+  })
+  it('test expected properties returns the object reduced to a string', () => {
+    const expectedError = {
+      foo: 'bar',
+      response: {
+        status: 500,
+        statusText: 'Something went gang aft agley.',
+        url: 'https://test-helpers.com'
       }
     }
+    expect(reduceError(expectedError.response)).toEqual('500 - Something went gang aft agley. (https://test-helpers.com)')
   })
 })
 
-test('requestInterceptor', () => {
-  const req = {}
-  expect(requestInterceptor(req)).toEqual(req)
-})
-
-test('responseInterceptor', () => {
-  let res
-
-  res = { ok: true, text: '{}' }
-  expect(responseInterceptor(res)).toEqual(res)
-  res = { ok: false, text: '{}' }
-  expect(responseInterceptor(res)).toEqual(res)
-  res = { ok: true, text: '{ malformed' }
-  expect(responseInterceptor(res)).toEqual(res)
+describe('Append query params test', () => {
+  const baseUrl = 'https://base-url.adobe.io'
+  it('Append query params with single key and value', () => {
+    const queryParams1 = { limit: 2 }
+    const url = appendQueryParams(baseUrl, queryParams1)
+    expect(url).toBe('https://base-url.adobe.io?limit=2')
+  })
+  it('Append query params with multiple key and value', () => {
+    const queryParams2 = { limit: 2, latest: true }
+    const url = appendQueryParams(baseUrl, queryParams2)
+    expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true')
+  })
+  it('Append query params to url with existing query params', () => {
+    const queryParams3 = { interval: 10 }
+    const url = appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true&interval=10')
+  })
 })
