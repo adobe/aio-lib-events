@@ -47,7 +47,7 @@ async function sdkTest() {
 
   // call methods
   try {
-    // get profiles by custom filters
+    // use one of the get methods
     const result = await client.getSomething({})
     console.log(result)
 
