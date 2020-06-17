@@ -75,7 +75,7 @@ async function sdkTest() {
   })
   
   // To stop receiving events from this subscription based on a timeout
-  setTimeout(() => this.subscription.unsubscribe(), <timeout in ms>)
+  setTimeout(() => subscription.unsubscribe(), <timeout in ms>)
 }
 
 ``` 
