@@ -18,6 +18,8 @@ governing permissions and limitations under the License.
 
 # Adobe I/O Events Lib
 
+Node Javascript API wrapping the [Adobe I/O Events API](https://www.adobe.io/apis/experienceplatform/events.html).
+
 ### Installing
 
 ```bash
