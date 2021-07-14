@@ -527,6 +527,14 @@ describe('Fetch from journalling', () => {
     expect(retryOnSpy).toHaveBeenCalledWith(3)
     retryOnSpy.mockRestore()
   })
+  it('200 response on fetch from journal with response headers', async () => {
+    const sdkClient = await createSdkClient()
+    mockExponentialBackoff(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
+    const res = await sdkClient.getEventsFromJournal(journalUrl, {}, true)
+    expect(res.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
+    expect(res.events[0].position).toBe('position-2')
+    expect(res.responseHeaders).toBeDefined()
+  })
 })
 
 describe('Get events observable from journal', () => {
