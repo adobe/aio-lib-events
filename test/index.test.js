@@ -475,6 +475,7 @@ describe('Fetch from journalling', () => {
     const res1 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res1.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res1.events[0].position).toBe('position-2')
+    expect(res1.responseHeaders).toBeUndefined()
   })
   it('204 response on fetch from journal with retry after as number', async () => {
     const sdkClient = await createSdkClient()
@@ -526,6 +527,14 @@ describe('Fetch from journalling', () => {
       })
     expect(retryOnSpy).toHaveBeenCalledWith(3)
     retryOnSpy.mockRestore()
+  })
+  it('200 response on fetch from journal with response headers', async () => {
+    const sdkClient = await createSdkClient()
+    mockExponentialBackoff(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
+    const res = await sdkClient.getEventsFromJournal(journalUrl, {}, true)
+    expect(res.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
+    expect(res.events[0].position).toBe('position-2')
+    expect(res.responseHeaders).toBeDefined()
   })
 })
 

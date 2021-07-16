@@ -146,7 +146,7 @@ and max number of retries
     * [.getAllWebhookRegistrations(consumerOrgId, integrationId)](#EventsCoreAPI+getAllWebhookRegistrations) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.deleteWebhookRegistration(consumerOrgId, integrationId, registrationId)](#EventsCoreAPI+deleteWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
-    * [.getEventsFromJournal(journalUrl, [eventsJournalOptions])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
     * [.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>
 
@@ -422,7 +422,7 @@ If retries are set, publish events are retried on network issues, 5xx and 429 er
 
 <a name="EventsCoreAPI+getEventsFromJournal"></a>
 
-### eventsCoreAPI.getEventsFromJournal(journalUrl, [eventsJournalOptions]) ⇒ <code>Promise.&lt;object&gt;</code>
+### eventsCoreAPI.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders]) ⇒ <code>Promise.&lt;object&gt;</code>
 Get events from a journal.
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -432,6 +432,7 @@ Get events from a journal.
 | --- | --- | --- |
 | journalUrl | <code>string</code> | URL of the journal or 'next' link to read from (required) |
 | [eventsJournalOptions] | [<code>EventsJournalOptions</code>](#EventsJournalOptions) | Query options to send with the URL |
+| [fetchResponseHeaders] | <code>boolean</code> | Set this to true if you want to fetch the complete response headers |
 
 <a name="EventsCoreAPI+getEventsObservableFromJournal"></a>
 

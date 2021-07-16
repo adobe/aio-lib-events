@@ -422,9 +422,10 @@ class EventsCoreAPI {
    *
    * @param {string} journalUrl URL of the journal or 'next' link to read from (required)
    * @param {EventsJournalOptions} [eventsJournalOptions] Query options to send with the URL
+   * @param {boolean} [fetchResponseHeaders] Set this to true if you want to fetch the complete response headers
    * @returns {Promise<object>} with the response json includes events and links (if available)
    */
-  async getEventsFromJournal (journalUrl, eventsJournalOptions) {
+  async getEventsFromJournal (journalUrl, eventsJournalOptions, fetchResponseHeaders) {
     const url = appendQueryParams(journalUrl, eventsJournalOptions)
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
@@ -441,6 +442,9 @@ class EventsCoreAPI {
       }
       if (retryAfterHeader) {
         result.retryAfter = parseRetryAfterHeader(retryAfterHeader)
+      }
+      if (fetchResponseHeaders) {
+        result.responseHeaders = response.headers.raw()
       }
       return new Promise((resolve, reject) => {
         resolve(result)
