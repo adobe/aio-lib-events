@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aio-lib-events",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Adobe I/O Events",
   "repository": "https://github.com/adobe/aio-lib-events/",
   "license": "Apache-2.0",
