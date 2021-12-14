@@ -17,7 +17,7 @@ const url = require('url')
  *
  * @param {object} error Error object
  * @returns {object} custom error string
- **/
+ */
 function reduceError (error = {}) {
   const response = error
   if (response.status && response.statusText && response.url) {
