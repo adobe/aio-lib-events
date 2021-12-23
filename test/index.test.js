@@ -32,11 +32,6 @@ const createSdkClient = async () => {
 
 // /////////////////////////////////////////////
 
-const TvmClient = require('@adobe/aio-lib-core-tvm')
-jest.mock('@adobe/aio-lib-core-tvm')
-
-// /////////////////////////////////////////////
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -553,17 +548,17 @@ describe('Get events observable from journal', () => {
 
 describe('Authenticate event', () => {
   const event = '{"event_id":"eventId1","event":{"hello":"world"},"recipient_client_id":"client_id1"}'
-  const clientSecret = ''
+  const clientSecret = 'client-secret'
   const recipientClientId = 'client_id1'
-  const digiSignature1 = 'test-signature'
+  const digiSignature1 = 'NeouQiyeexr/DVfRHUHr1/EW0kTlEbxGa7PiMWFlK5U8a5/ImTe95cJVv/3F6DWeg+H2MF5n5PQaWJk0uWdcK3ugkdTL8qiAax7DXqclx2/u1rJIsxhBD2DyuPgqPZNRWiE6GG7d4oFL3c0dYbNbF9WnPP/ROrH6DK/T83ywuVOvXsumsDwKUHXmCLCAQEkhH/hs63sEd492y4sd71SbFPayztLyXHN6HHGC72ua5TUmVPq5A9qJQ7vLfMIp6rHeBVHSQ+okGQDccaQ2jHxpIqg9pNRKfaO6XIMgzfBzZ7HKaUM+OWAQb2m/6I4XkIx8hnB7LRa1baRZWibwEGTOoQ=='
   const publicKeyUrl1 = 'https://d2wbnl47m3ubk3.cloudfront.net/pub-key-1.pem'
-  const digiSignature2 = ''
-  const publicKeyUrl2 = ''
-  const deprecatedSignature = ''
+  const digiSignature2 = 'NeouQiyeexr/DVfRHUHr1/EW0kTlEbxGa7PiMWFlK5U8a5/ImTe95cJVv/3F6DWeg+H2MF5n5PQaWJk0uWdcK3ugkdTL8qiAax7DXqclx2/u1rJIsxhBD2DyuPgqPZNRWiE6GG7d4oFL3c0dYbNbF9WnPP/ROrH6DK/T83ywuVOvXsumsDwKUHXmCLCAQEkhH/hs63sEd492y4sd71SbFPayztLyXHN6HHGC72ua5TUmVPq5A9qJQ7vLfMIp6rHeBVHSQ+okGQDccaQ2jHxpIqg9pNRKfaO6XIMgzfBzZ7HKaUM+OWAQb2m/6I4XkIx8hnB7LRa1baRZWibwEGTOoP=='
+  const publicKeyUrl2 = 'https://d2wbnl47m3ubk3.cloudfront.net/pub-key-1.pem'
+  const deprecatedSignature = 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ='
   it('Verify event signature successfully', async () => {
     const sdkClient = await createSdkClient()
     const verified = sdkClient.verifySignatureForEvent(event, clientSecret, recipientClientId,
-      deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2)
+      deprecatedSignature, digiSignature1, digiSignature1, publicKeyUrl1, publicKeyUrl1)
     expect(verified).toBe(true)
   })
   it('Verify event signature with error', async () => {

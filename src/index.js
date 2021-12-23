@@ -507,24 +507,19 @@ class EventsCoreAPI {
    * @returns {boolean} If signature matches return true else return false
    */
   async verifySignatureForEvent (event, clientSecret, recipientClientId, deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2) {
-    logger.info('inside the verify signature')
     // check for the old hmac based signature and validate.. TO BE DEPRECATED
-    logger.info('secret is %s', clientSecret)
-    /*if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
+    if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
       const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
       return hmacDigest === deprecatedSignature
-    }*/
+    }
 
-    logger.info('verifying digital signature')
     // check event payload and get proper payload used in I/O Events signing
-    const decodedJsonPayload = await this.__getProperPayload(event)
+    const decodedJsonPayload = this.__getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
     if (this.__isTargetRecipient(decodedJsonPayload, recipientClientId)) {
       logger.info('target recipient is valid')
-      //const stateLib = await State.init()
-      const result = await this.__verifyDigitalSignature(digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2, recipientClientId, JSON.stringify(decodedJsonPayload))
-      return result
+      return this.__verifyDigitalSignature(digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2, recipientClientId, JSON.stringify(decodedJsonPayload))
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
       return this.__errorResponse(401, message)
@@ -564,10 +559,10 @@ class EventsCoreAPI {
    * @param {*} event event payload received by webhook
    * @returns decoded and properly parsed payload
    */
-  async __getProperPayload (event) {
+  __getProperPayload (event) {
     let decodedJsonPayload
     try {
-      if (await this.__isBase64Encoded(event)) {
+      if (this.__isBase64Encoded(event)) {
         decodedJsonPayload = JSON.parse(Buffer.from(event, 'base64').toString('utf-8'))
       } else {
         // parsing for non-encoded json payloads (e.g. custom events)
@@ -575,7 +570,7 @@ class EventsCoreAPI {
       }
     } catch (error) {
       logger.error('error occured while checking payload' + error.message)
-      return await this.__genErrorResponse(400, 'Failed to understand the payload')
+      return this.__genErrorResponse(400, 'Failed to understand the payload')
     }
     return decodedJsonPayload
   }
@@ -586,7 +581,7 @@ class EventsCoreAPI {
    * @param {*} eventPayload - the event payload received by the consumer webhook
    * @returns {boolean} true if encoded or false
    */
-  async __isBase64Encoded (eventPayload) {
+  __isBase64Encoded (eventPayload) {
     return Buffer.from(eventPayload, 'base64').toString('base64') === eventPayload
   }
 
@@ -607,7 +602,6 @@ class EventsCoreAPI {
     let pubKey1Pem, pubKey2Pem
     try {
       const state = await stateLib.init()
-      logger.debug('aio state lib initialized')
       pubKey1Pem = await this.__fetchFromCacheOrApi(pubKeyUrl1, state)
       pubKey2Pem = await this.__fetchFromCacheOrApi(pubKeyUrl2, state)
     } catch (error) {
@@ -616,15 +610,15 @@ class EventsCoreAPI {
       return this.__genErrorResponse(500, 'Error occurred while fetching Public Key')
     }
     // verify the digital signatures using public keys fetched from params
-    return await this.__verifySignature(digiSignature1, digiSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId)
+    return this.__verifySignature(digiSignature1, digiSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId)
   }
 
   /**
    * Wrapper to fetch the key from aio-lib-state, if not present fetch using
    * the cloud front url and set in aio-lib-state 
    * 
-   * @param {*} pubKeyUrl - cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
-   * @param {*} state - aio-lib-state client
+   * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+   * @param {*} state aio-lib-state client
    * @returns public key
    */
   async __fetchFromCacheOrApi (pubKeyUrl, state) {
@@ -659,7 +653,7 @@ class EventsCoreAPI {
    * https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
    * @returns public key
    */
-  async __fetchPublicKey (publicKeyUrl) {
+  __fetchPublicKey (publicKeyUrl) {
     let pubKey
     fetch(publicKeyUrl)
       .then(res => res.text())
@@ -685,14 +679,12 @@ class EventsCoreAPI {
    * @param {*} recipientClientId - target recipient client id
    * @returns {boolean} true if either signatures are valid or false
    */
-  async __verifySignature (digitalSignature1, digitalSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId) {
+  __verifySignature (digitalSignature1, digitalSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId) {
     let result1, result2, publicKey1, publicKey2
-    logger.info('verifying signature for sign -> %s and key -> %s', digitalSignature1, publicKey1)
     try {
       publicKey1 = this.__createCryptoPublicKey(pubKey1Pem)
       result1 = this.__cryptoVerify(digitalSignature1, publicKey1, signedPayload)
       if (result1) {
-        logger.info('valid sign')
         return result1
       } 
 
@@ -713,11 +705,11 @@ class EventsCoreAPI {
    * @param {*} signedPayload I/O Events signed payload 
    * @returns {boolean} true or false
    */
-  async __cryptoVerify (signature, pubKey, signedPayload) {
+  __cryptoVerify (signature, pubKey, signedPayload) {
     return crypto.verify('rsa-sha256', new TextEncoder().encode(signedPayload), pubKey, Buffer.from(signature, 'base64'))
   }
 
-  async __createCryptoPublicKey (publicKey) {
+  __createCryptoPublicKey (publicKey) {
     return crypto.createPublicKey(
       {
         key: publicKey,
@@ -748,7 +740,7 @@ class EventsCoreAPI {
    * @param {*} statusCode HTTP error codes
    * @param {*} message custom error message
    */
-  async __genErrorResponse (statusCode, message) {
+  __genErrorResponse (statusCode, message) {
     const response = {
       statusCode: statusCode,
       body: message,
