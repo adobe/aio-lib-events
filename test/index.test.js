@@ -32,6 +32,11 @@ const createSdkClient = async () => {
 
 // /////////////////////////////////////////////
 
+const TvmClient = require('@adobe/aio-lib-core-tvm')
+jest.mock('@adobe/aio-lib-core-tvm')
+
+// /////////////////////////////////////////////
+
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -547,14 +552,24 @@ describe('Get events observable from journal', () => {
 })
 
 describe('Authenticate event', () => {
+  const event = '{"event_id":"eventId1","event":{"hello":"world"},"recipient_client_id":"client_id1"}'
+  const clientSecret = ''
+  const recipientClientId = 'client_id1'
+  const digiSignature1 = 'test-signature'
+  const publicKeyUrl1 = 'https://d2wbnl47m3ubk3.cloudfront.net/pub-key-1.pem'
+  const digiSignature2 = ''
+  const publicKeyUrl2 = ''
+  const deprecatedSignature = ''
   it('Verify event signature successfully', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = sdkClient.verifySignatureForEvent(event, clientSecret, recipientClientId,
+      deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2)
     expect(verified).toBe(true)
   })
   it('Verify event signature with error', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = sdkClient.verifySignatureForEvent(event, clientSecret, recipientClientId,
+      deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2)
     expect(verified).toBe(false)
   })
 })
