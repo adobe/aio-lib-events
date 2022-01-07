@@ -494,6 +494,7 @@ class EventsCoreAPI {
    * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
    * @param {string} deprecatedSignature Value of x-adobe-signature header in each POST request to the registered webhook URL
    * @returns {boolean} If signature matches return true else return false
+   * @deprecated
    */
   verifySignatureForEvent(event, clientSecret, deprecatedSignature) { 
     if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
