@@ -520,8 +520,9 @@ class EventsCoreAPI {
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
     if (isTargetRecipient(decodedJsonPayload, recipientClientId)) {
-      return await verifyDigitalSignature(signatureOptions.digiSignature1, signatureOptions.digiSignature2,
-        signatureOptions.publicKeyUrl1, signatureOptions.publicKeyUrl2, recipientClientId, JSON.stringify(decodedJsonPayload))
+      const result = await verifyDigitalSignature(signatureOptions, recipientClientId, JSON.stringify(decodedJsonPayload))
+      logger.info('result is ' + result)
+      return result
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
       return genErrorResponse(401, message)
