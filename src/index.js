@@ -500,6 +500,9 @@ class EventsCoreAPI {
     if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
       const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
       return hmacDigest === deprecatedSignature
+    } else { 
+      logger.error('invalid or missing client secret')
+      return false
     }
   }
   
