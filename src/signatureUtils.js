@@ -17,11 +17,12 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
     { level: process.env.LOG_LEVEL })
 
 /**
-* Wrapper to check the event received by webhook
-* and return decoded (if encoded) and properly parsed payload
-* @param {*} event event payload received by webhook
-* @returns decoded and properly parsed payload
-*/
+ * Wrapper to check the event received by webhook
+ * and return decoded (if encoded) and properly parsed payload
+ *
+ * @param {*} event event payload received by webhook
+ * @returns decoded and properly parsed payload
+ */
 function getProperPayload(event) {
     let decodedJsonPayload
     try {
@@ -52,28 +53,39 @@ function isBase64Encoded(eventPayload) {
  * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
  * and verify the digital signatures
  * 
- * @param {*} digiSignature1 - I/O Events generated digital signature1
- * @param {*} digiSignature2 - I/O Events generated digital signature2
- * @param {*} pubKeyUrl1 - Cloud Front public key url1
- * @param {*} pubKeyUrl2 - Cloud Front public key url2
+ * @param {*} signatureOptions map of all digital signature header values consisting fields as below
+ * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+ * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+ * publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
+ * publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
  * @param {*} recipientClientId - target recipient client id
  * @param {*} signedPayload - I/O Events proper signed payload
  * @returns {boolean} true if either signatures are valid or false 
  */
-async function verifyDigitalSignature(digiSignature1, digiSignature2, pubKeyUrl1, pubKeyUrl2, recipientClientId, signedPayload) {
-    let pubKey1Pem, pubKey2Pem
+async function verifyDigitalSignature(signatureOptions, recipientClientId, signedPayload) {
+    var signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
+    var keys = await fetchPemEncodedPublicKeys(signatureOptions.publicKeyUrl1, signatureOptions.publicKeyUrl2)
+    return await verifySignature(signatures, signedPayload, keys, recipientClientId)
+}
+
+/**
+ * Feteched the pem encoded public keys either from the state lib cache or directly via cloud front url
+ * 
+ * @param {*} pubKeyUrl1 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+ * @param {*} pubKeyUrl2 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+ * @returns {array} of two public keys
+ */
+async function fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2) {
+    var pubKey1Pem, pubKey2Pem
     try {
         const state = await stateLib.init()
-        pubKey1Pem = await fetchFromCacheOrApi(pubKeyUrl1, state)
-        pubKey2Pem = await fetchFromCacheOrApi(pubKeyUrl2, state)
+        pubKey1Pem = await fetchPubKeyFromCacheOrApi(pubKeyUrl1, state)
+        pubKey2Pem = await fetchPubKeyFromCacheOrApi(pubKeyUrl2, state)
     } catch (error) {
-        logger.error('error occurred while fetching from the public key url %s or %s for client %s due to %s',
-            pubKeyUrl1, pubKeyUrl2, recipientClientId, error.message)
-        return genErrorResponse(500, 'Error occurred while fetching Public Key')
+        logger.error('error occurred while fetching pem encoded public keys either from cache or public key urls due to %s', error.message)
+        return genErrorResponse(500, 'Error occurred while fetching pem encoded Public Key')
     }
-    var signatures = [digiSignature1, digiSignature2] 
-    var keys = [pubKey1Pem, pubKey2Pem] 
-    return await verifySignatureHelper(signatures, signedPayload, keys, recipientClientId)
+    return [pubKey1Pem, pubKey2Pem]
 }
 
 /**
@@ -84,27 +96,39 @@ async function verifyDigitalSignature(digiSignature1, digiSignature2, pubKeyUrl1
  * @param {*} state aio-lib-state client
  * @returns public key
  */
-async function fetchFromCacheOrApi(pubKeyUrl, state) {
-    var publicKey
-    let publicKeyFileName
-    try {
-        // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
-        publicKeyFileName = pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
-        publicKey = await state.get(publicKeyFileName)
-    } catch (error) {
-        logger.error('error fetching from aio lib state due to => %s', error.message)
-        throw error
-    }
+async function fetchPubKeyFromCacheOrApi(pubKeyUrl, state) {
 
+    const publicKeyFileName = await getPubKeyFileName(pubKeyUrl)
+    let publicKey = await getKeyFromCache(state, publicKeyFileName)
     if (publicKey) {
         return publicKey
     }
-
-    logger.info('public key for url %s not present in aio state lib cache, fetching from api..', pubKeyUrl)
+    logger.info('public key %s not present in aio state lib cache, fetching directly from the url..', publicKeyFileName)
     // fetch from api and set in cache default expiry 24h
     publicKey = await fetchPublicKeyFromCloudFront(pubKeyUrl)
     await state.put(publicKeyFileName, publicKey)
     return publicKey
+}
+
+/**
+ * Gets the public key from cache
+ * 
+ * @param {*} state aio state lib instance
+ * @param {*} publicKeyFileNameAsKey public key file name in format pub-key-1.pem
+ * @returns public key
+ */
+async function getKeyFromCache(state, publicKeyFileNameAsKey) {
+    return await state.get(publicKeyFileNameAsKey)
+}
+
+/**
+ * Parses the cloud front pub key url and returns the key file name
+ * 
+ * @param {*} pubKeyUrl the cloud front public key url
+ */
+async function getPubKeyFileName(pubKeyUrl) {
+    // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+    return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
 
 /**
@@ -122,9 +146,9 @@ async function fetchPublicKeyFromCloudFront(publicKeyUrl) {
             logger.info('successfully fetched the public key %s from cloud front url %s', text, publicKeyUrl)
             pubKey = text
         })
-        .catch(err => {
-            logger.error('error fetching the public key from cloud front url %s due to => %s', publicKeyUrl, err.message)
-            throw err
+        .catch(error => {
+            logger.error('error fetching the public key from cloud front url %s due to => %s', publicKeyUrl, error.message)
+            throw error
         })
     return pubKey
 }
@@ -132,29 +156,25 @@ async function fetchPublicKeyFromCloudFront(publicKeyUrl) {
 /**
  * Digital Signature Verification Helper
  * 
- * @param {*} digitalSignature1 - I/O Events generated digital signature1
- * @param {*} digitalSignature2 - I/O Events generated digital signature2
+ * @param {*} digitalSignatures - Array of both I/O Events generated digital signatures
  * @param {*} signedPayload - I/O Events proper signed payload
- * @param {*} pubKey1Pem - I/O Events generated PEM encoded public key1
- * @param {*} pubKey2Pem - I/O Events generated PEM encoded public key1
+ * @param {*} publicKeys - Array of both I/O Events PEM encoded public keys
  * @param {*} recipientClientId - target recipient client id
  * @returns {boolean} true if either signatures are valid or false
  */
-async function verifySignatureHelper(digitalSignatures, signedPayload, publicKeys, recipientClientId) {
+async function verifySignature(digitalSignatures, signedPayload, publicKeys, recipientClientId) {
     let result, publicKey
     try {
-        for (i = 0; i < digitalSignatures.length; i++) { 
+        for (i = 0; i < digitalSignatures.length; i++) {
             publicKey = await createCryptoPublicKey(publicKeys[i])
             result = await cryptoVerify(digitalSignatures[i], publicKey, signedPayload)
             if (result) {
-                break;
-                //return result1
+                return result
             }
         }
-        return result
     } catch (error) {
         logger.error('error occured while verifying digital signature for client id %s due to %s ', recipientClientId, error.message)
-        return genErrorResponse(500, 'error occured while verifying digital signature')
+        return false
     }
 }
 
@@ -196,7 +216,7 @@ function isTargetRecipient(decodedJsonPayload, recipientClientId) {
     if (targetRecipient !== null && typeof (targetRecipient) !== 'undefined') {
         return targetRecipient === recipientClientId
     }
-    logger.info('target recipient client id is either null or missing')
+    logger.error('target recipient client id is either null or missing')
     return false
 }
 
@@ -223,5 +243,11 @@ module.exports = {
     verifyDigitalSignature,
     isTargetRecipient,
     genErrorResponse,
-    getProperPayload
+    getProperPayload,
+    fetchPemEncodedPublicKeys,
+    cryptoVerify,
+    verifySignature,
+    fetchPublicKeyFromCloudFront,
+    getPubKeyFileName,
+    getKeyFromCache
 }

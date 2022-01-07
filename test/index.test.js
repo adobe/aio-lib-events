@@ -560,21 +560,21 @@ describe('Get events observable from journal', () => {
 describe('Authenticate event with deprecated hmac signature', () => {
   it('Verify event signature successfully', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(true)
   })
   it('Verify event signature with error', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(false)
   })
 })
 
 describe('Authenticate event with digital signatures', () => {
   const event = mock.data.testEvent.event
-  var signatureOptions = mock.data.signatureOptions.params
+  const signatureOptions = mock.data.signatureOptions.params
   const recipientClientId = mock.data.testClientId.recipientClientId
- 
+
   it('Verify event signature successfully', async () => {
     const validTestPubKey = mock.data.testPubKeys.validTestPubKey
     fetch.mockImplementation(() => {
@@ -591,7 +591,6 @@ describe('Authenticate event with digital signatures', () => {
     });
     const sdkClient = await createSdkClient()
     const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
-    console.log('verified is ' + verified)
     expect(verified).toBe(false)
   })
 
@@ -603,41 +602,41 @@ describe('Authenticate event with digital signatures', () => {
   })
 })
 
-  /**
-   * Mock for exponential backoff module used for fetch with retries
-   *
-   * @param {object} mockResponse Mock response expected
-   * @param {object} mockHeader Mock headers expected
-   * @private
-   */
-  function mockExponentialBackoff(mockResponse, mockHeader) {
-    fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
-      new Promise((resolve) => {
-        if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
-        const resp = new Response(mockResponse, mockHeader)
-        resolve(resp)
-      }))
-  }
+/**
+ * Mock for exponential backoff module used for fetch with retries
+ *
+ * @param {object} mockResponse Mock response expected
+ * @param {object} mockHeader Mock headers expected
+ * @private
+ */
+function mockExponentialBackoff(mockResponse, mockHeader) {
+  fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
+    new Promise((resolve) => {
+      if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
+      const resp = new Response(mockResponse, mockHeader)
+      resolve(resp)
+    }))
+}
 
-  /**
-   * Check error response matches expected name and code
-   *
-   * @param {string} fn Function under test
-   * @param {object} error Expected error
-   * @param {Array} args Arguments to be passed to the function under test
-   * @private
-   */
-  async function checkErrorResponse(fn, error, args = []) {
-    const client = await createSdkClient()
-    return new Promise((resolve, reject) => {
-      (client[fn].apply(client, args))
-        .then(res => {
-          reject(new Error(' No error response'))
-        })
-        .catch(e => {
-          expect(e.name).toEqual(error.name)
-          expect(e.code).toEqual(error.code)
-          resolve()
-        })
-    })
-  }
+/**
+ * Check error response matches expected name and code
+ *
+ * @param {string} fn Function under test
+ * @param {object} error Expected error
+ * @param {Array} args Arguments to be passed to the function under test
+ * @private
+ */
+async function checkErrorResponse(fn, error, args = []) {
+  const client = await createSdkClient()
+  return new Promise((resolve, reject) => {
+    (client[fn].apply(client, args))
+      .then(res => {
+        reject(new Error(' No error response'))
+      })
+      .catch(e => {
+        expect(e.name).toEqual(error.name)
+        expect(e.code).toEqual(error.code)
+        resolve()
+      })
+  })
+}
