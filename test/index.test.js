@@ -11,14 +11,25 @@ governing permissions and limitations under the License.
 
 /* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "checkErrorResponse"] }] */
 
+const mockStateInstance = {
+  get: jest.fn(),
+  delete: jest.fn(),
+  put: jest.fn()
+}
+jest.mock('@adobe/aio-lib-state', () => ({
+  init: jest.fn().mockResolvedValue(mockStateInstance)
+}))
+
 const sdk = require('../src')
 const mock = require('./mock')
 const errorSDK = require('../src/SDKErrors')
+const fetch = require('node-fetch')
 const { Response } = jest.requireActual('node-fetch')
 const fetchRetry = require('@adobe/aio-lib-core-networking')
 const Rx = require('rxjs')
 
 // /////////////////////////////////////////////
+
 const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
@@ -546,64 +557,87 @@ describe('Get events observable from journal', () => {
   })
 })
 
-describe('Authenticate event', () => {
-  const event = '{"event_id":"eventId1","event":{"hello":"world"},"recipient_client_id":"client_id1"}'
-  const clientSecret = 'client-secret'
-  const recipientClientId = 'client_id1'
-  const digiSignature1 = 'NeouQiyeexr/DVfRHUHr1/EW0kTlEbxGa7PiMWFlK5U8a5/ImTe95cJVv/3F6DWeg+H2MF5n5PQaWJk0uWdcK3ugkdTL8qiAax7DXqclx2/u1rJIsxhBD2DyuPgqPZNRWiE6GG7d4oFL3c0dYbNbF9WnPP/ROrH6DK/T83ywuVOvXsumsDwKUHXmCLCAQEkhH/hs63sEd492y4sd71SbFPayztLyXHN6HHGC72ua5TUmVPq5A9qJQ7vLfMIp6rHeBVHSQ+okGQDccaQ2jHxpIqg9pNRKfaO6XIMgzfBzZ7HKaUM+OWAQb2m/6I4XkIx8hnB7LRa1baRZWibwEGTOoQ=='
-  const publicKeyUrl1 = 'https://d2wbnl47m3ubk3.cloudfront.net/pub-key-1.pem'
-  const digiSignature2 = 'NeouQiyeexr/DVfRHUHr1/EW0kTlEbxGa7PiMWFlK5U8a5/ImTe95cJVv/3F6DWeg+H2MF5n5PQaWJk0uWdcK3ugkdTL8qiAax7DXqclx2/u1rJIsxhBD2DyuPgqPZNRWiE6GG7d4oFL3c0dYbNbF9WnPP/ROrH6DK/T83ywuVOvXsumsDwKUHXmCLCAQEkhH/hs63sEd492y4sd71SbFPayztLyXHN6HHGC72ua5TUmVPq5A9qJQ7vLfMIp6rHeBVHSQ+okGQDccaQ2jHxpIqg9pNRKfaO6XIMgzfBzZ7HKaUM+OWAQb2m/6I4XkIx8hnB7LRa1baRZWibwEGTOoP=='
-  const publicKeyUrl2 = 'https://d2wbnl47m3ubk3.cloudfront.net/pub-key-1.pem'
-  const deprecatedSignature = 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ='
+describe('Authenticate event with deprecated hmac signature', () => {
   it('Verify event signature successfully', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent(event, clientSecret, recipientClientId,
-      deprecatedSignature, digiSignature1, digiSignature1, publicKeyUrl1, publicKeyUrl1)
+    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(true)
   })
   it('Verify event signature with error', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent(event, clientSecret, recipientClientId,
-      deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2)
+    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(false)
   })
 })
 
-/**
- * Mock for exponential backoff module used for fetch with retries
- *
- * @param {object} mockResponse Mock response expected
- * @param {object} mockHeader Mock headers expected
- * @private
- */
-function mockExponentialBackoff (mockResponse, mockHeader) {
-  fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
-    new Promise((resolve) => {
-      if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
-      const resp = new Response(mockResponse, mockHeader)
-      resolve(resp)
-    }))
-}
-
-/**
- * Check error response matches expected name and code
- *
- * @param {string} fn Function under test
- * @param {object} error Expected error
- * @param {Array} args Arguments to be passed to the function under test
- * @private
- */
-async function checkErrorResponse (fn, error, args = []) {
-  const client = await createSdkClient()
-  return new Promise((resolve, reject) => {
-    (client[fn].apply(client, args))
-      .then(res => {
-        reject(new Error(' No error response'))
-      })
-      .catch(e => {
-        expect(e.name).toEqual(error.name)
-        expect(e.code).toEqual(error.code)
-        resolve()
-      })
+describe('Authenticate event with digital signatures', () => {
+  const event = mock.data.testEvent.event
+  var signatureOptions = mock.data.signatureOptions.params
+  const recipientClientId = mock.data.testClientId.recipientClientId
+ 
+  it('Verify event signature successfully', async () => {
+    const validTestPubKey = mock.data.testPubKeys.validTestPubKey
+    fetch.mockImplementation(() => {
+      return Promise.resolve(new Response(Buffer.from(validTestPubKey, 'base64').toString('utf-8')))
+    });
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
+    expect(verified).toBe(true)
   })
-}
+  it('Verify event signature with error', async () => {
+    const invalidTestPubKey = mock.data.testPubKeys.invalidTestPubKey
+    fetch.mockImplementation(() => {
+      return Promise.resolve(new Response(Buffer.from(invalidTestPubKey, 'base64').toString('utf-8')))
+    });
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
+    console.log('verified is ' + verified)
+    expect(verified).toBe(false)
+  })
+
+  it('Verify invalid target recipient', async () => {
+    const eventPayload = mock.data.testEvent.event
+    const sdkClient = await createSdkClient()
+    const response = await sdkClient.verifyDigitalSignatureForEvent(eventPayload, 'testInvalidClient')
+    expect(response.error.statusCode).toBe(401)
+  })
+})
+
+  /**
+   * Mock for exponential backoff module used for fetch with retries
+   *
+   * @param {object} mockResponse Mock response expected
+   * @param {object} mockHeader Mock headers expected
+   * @private
+   */
+  function mockExponentialBackoff(mockResponse, mockHeader) {
+    fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
+      new Promise((resolve) => {
+        if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
+        const resp = new Response(mockResponse, mockHeader)
+        resolve(resp)
+      }))
+  }
+
+  /**
+   * Check error response matches expected name and code
+   *
+   * @param {string} fn Function under test
+   * @param {object} error Expected error
+   * @param {Array} args Arguments to be passed to the function under test
+   * @private
+   */
+  async function checkErrorResponse(fn, error, args = []) {
+    const client = await createSdkClient()
+    return new Promise((resolve, reject) => {
+      (client[fn].apply(client, args))
+        .then(res => {
+          reject(new Error(' No error response'))
+        })
+        .catch(e => {
+          expect(e.name).toEqual(error.name)
+          expect(e.code).toEqual(error.code)
+          resolve()
+        })
+    })
+  }
