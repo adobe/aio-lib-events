@@ -17,14 +17,16 @@ governing permissions and limitations under the License.
 /* global Observable */ // for linter
 
 const { reduceError, appendQueryParams, parseLinkHeader, parseRetryAfterHeader } = require('./helpers')
+const { 
+  verifyDigitalSignature,
+  isTargetRecipient,
+  genErrorResponse,
+  getProperPayload } = require('./signatureUtils')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
 const { codes } = require('./SDKErrors')
 const fetchRetryClient = require('@adobe/aio-lib-core-networking')
-const stateLib = require('@adobe/aio-lib-state')
-const fetch = require('node-fetch')
-const crypto = require('crypto')
 const hmacSHA256 = require('crypto-js/hmac-sha256')
 const Base64 = require('crypto-js/enc-base64')
 
@@ -486,43 +488,43 @@ class EventsCoreAPI {
   }
 
   /**
-   * Authenticating events by verifying signature
+   * Authenticating events by verifying hmac signature
    *
    * @param {object} event JSON payload delivered to the registered webhook URL
    * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
-   * @param {string} signatureHeaderValue Value of x-adobe-signature header in each POST request to the registered webhook URL
+   * @param {string} deprecatedSignature Value of x-adobe-signature header in each POST request to the registered webhook URL
    * @returns {boolean} If signature matches return true else return false
    */
-  /**
-   * Authenticating events by verifying signature
-   * 
-   * @param {*} event JSON payload delivered to the registered webhook URL
-   * @param {*} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
-   * @param {*} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
-   * @param {*} deprecatedSignature Value of HMAC signature retrieved from the x-adobe-signature header in each POST request to the registered webhook URL
-   * @param {*} digiSignature1 Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
-   * @param {*} digiSignature2 Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
-   * @param {*} publicKeyUrl1 Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
-   * @param {*} publicKeyUrl2 Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
-   * @returns {boolean} If signature matches return true else return false
-   */
-  async verifySignatureForEvent (event, clientSecret, recipientClientId, deprecatedSignature, digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2) {
-    // check for the old hmac based signature and validate.. TO BE DEPRECATED
+  verifySignatureForEvent(event, clientSecret, deprecatedSignature) { 
     if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
       const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
       return hmacDigest === deprecatedSignature
     }
-
+  }
+  
+  /**
+   * Authenticating events by verifying digital signature
+   * 
+   * @param {*} event JSON payload delivered to the registered webhook URL
+   * @param {*} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
+   * @param {*} signatureOptions map of all digital signature header values consisting fields as below
+   * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+   * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+   * publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
+   * publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
+   * @returns {boolean} If signature matches return true else return false
+   */
+  async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
     // check event payload and get proper payload used in I/O Events signing
-    const decodedJsonPayload = this.__getProperPayload(event)
+    const decodedJsonPayload = getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
-    if (this.__isTargetRecipient(decodedJsonPayload, recipientClientId)) {
-      logger.info('target recipient is valid')
-      return this.__verifyDigitalSignature(digiSignature1, digiSignature2, publicKeyUrl1, publicKeyUrl2, recipientClientId, JSON.stringify(decodedJsonPayload))
+    if (isTargetRecipient(decodedJsonPayload, recipientClientId)) {
+      return await verifyDigitalSignature(signatureOptions.digiSignature1, signatureOptions.digiSignature2,
+        signatureOptions.publicKeyUrl1, signatureOptions.publicKeyUrl2, recipientClientId, JSON.stringify(decodedJsonPayload))
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
-      return this.__errorResponse(401, message)
+      return genErrorResponse(401, message)
     }
   }
 
@@ -552,206 +554,6 @@ class EventsCoreAPI {
    * Utilities
    * =========================================================================
    */
-
-  /**
-   * Wrapper to check the event received by webhook
-   * and return decoded (if encoded) and properly parsed payload
-   * @param {*} event event payload received by webhook
-   * @returns decoded and properly parsed payload
-   */
-  __getProperPayload (event) {
-    let decodedJsonPayload
-    try {
-      if (this.__isBase64Encoded(event)) {
-        decodedJsonPayload = JSON.parse(Buffer.from(event, 'base64').toString('utf-8'))
-      } else {
-        // parsing for non-encoded json payloads (e.g. custom events)
-        decodedJsonPayload = JSON.parse(event)
-      }
-    } catch (error) {
-      logger.error('error occured while checking payload' + error.message)
-      return this.__genErrorResponse(400, 'Failed to understand the payload')
-    }
-    return decodedJsonPayload
-  }
-
-  /**
-   * Checks for the payload type if it is base64 encode or not
-   * 
-   * @param {*} eventPayload - the event payload received by the consumer webhook
-   * @returns {boolean} true if encoded or false
-   */
-  __isBase64Encoded (eventPayload) {
-    return Buffer.from(eventPayload, 'base64').toString('base64') === eventPayload
-  }
-
-  /**
-   * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
-   * and verify the digital signatures
-   * 
-   * @param {*} digiSignature1 - I/O Events generated digital signature1
-   * @param {*} digiSignature2 - I/O Events generated digital signature2
-   * @param {*} pubKeyUrl1 - Cloud Front public key url1
-   * @param {*} pubKeyUrl2 - Cloud Front public key url2
-   * @param {*} recipientClientId - target recipient client id
-   * @param {*} signedPayload - I/O Events proper signed payload
-   * @returns {boolean} true if either signatures are valid or false 
-   */
-  async __verifyDigitalSignature (digiSignature1, digiSignature2, pubKeyUrl1, pubKeyUrl2, recipientClientId, signedPayload) {
-    // fetch the encoded public keys from the shared package default params
-    let pubKey1Pem, pubKey2Pem
-    try {
-      const state = await stateLib.init()
-      pubKey1Pem = await this.__fetchFromCacheOrApi(pubKeyUrl1, state)
-      pubKey2Pem = await this.__fetchFromCacheOrApi(pubKeyUrl2, state)
-    } catch (error) {
-      logger.error('error occurred while fetching from the public key url %s or %s for client %s due to %s',
-        pubKeyUrl1, pubKeyUrl2, recipientClientId, error.message)
-      return this.__genErrorResponse(500, 'Error occurred while fetching Public Key')
-    }
-    // verify the digital signatures using public keys fetched from params
-    return this.__verifySignature(digiSignature1, digiSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId)
-  }
-
-  /**
-   * Wrapper to fetch the key from aio-lib-state, if not present fetch using
-   * the cloud front url and set in aio-lib-state 
-   * 
-   * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
-   * @param {*} state aio-lib-state client
-   * @returns public key
-   */
-  async __fetchFromCacheOrApi (pubKeyUrl, state) {
-    let publicKey, publicKeyFileName
-    try {
-      // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
-      publicKeyFileName = pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
-      const res = await state.get(publicKeyFileName)
-      publicKey = res.value
-      logger.info('public key %s fetched from aio lib state', publicKey)
-    } catch (error) {
-      logger.error('error fetching from aio lib state due to => %s', error.message)
-      throw error
-    }
-
-    if (publicKey) {
-      return publicKey
-    }
-
-    logger.info('public key for url %s not present in state lib cache, fetching from api..', pubKeyUrl)
-    // fetch from api and set in cache default expiry 24h
-    publicKey = this.__fetchPublicKey(pubKeyUrl)
-    await state.put(publicKeyFileName, { anObject: publicKey })
-    logger.info('fetched key set in the aio lib state')
-    return publicKey
-  }
-
-  /**
-   * Fetches public key using the cloud front public key url
-   * 
-   * @param {*} publicKeyUrl - cloud front public key url of format 
-   * https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
-   * @returns public key
-   */
-  __fetchPublicKey (publicKeyUrl) {
-    let pubKey
-    fetch(publicKeyUrl)
-      .then(res => res.text())
-      .then(text => {
-        logger.debug('successfully fetched the public key %s from api', text)
-        pubKey = text
-      })
-      .catch(err => {
-        logger.error('error fetching the public key from api due to => %s', err.message)
-        throw err
-      })
-    return pubKey
-  }
-
-  /**
-   * Digital Signature Verification Helper
-   * 
-   * @param {*} digitalSignature1 - I/O Events generated digital signature1
-   * @param {*} digitalSignature2 - I/O Events generated digital signature2
-   * @param {*} signedPayload - I/O Events proper signed payload
-   * @param {*} pubKey1Pem - I/O Events generated PEM encoded public key1
-   * @param {*} pubKey2Pem - I/O Events generated PEM encoded public key1
-   * @param {*} recipientClientId - target recipient client id
-   * @returns {boolean} true if either signatures are valid or false
-   */
-  __verifySignature (digitalSignature1, digitalSignature2, signedPayload, pubKey1Pem, pubKey2Pem, recipientClientId) {
-    let result1, result2, publicKey1, publicKey2
-    try {
-      publicKey1 = this.__createCryptoPublicKey(pubKey1Pem)
-      result1 = this.__cryptoVerify(digitalSignature1, publicKey1, signedPayload)
-      if (result1) {
-        return result1
-      } 
-
-      publicKey2 = this.__createCryptoPublicKey(pubKey2Pem)
-      result2 = this.__cryptoVerify(digitalSignature2, publicKey2, signedPayload)
-      return result2
-    } catch (error) {
-      logger.error('error occured while verifying digital signature for client id %s due to %s ', recipientClientId, error.message)
-      return this.__genErrorResponse(500, 'error occured while verifying digital signature')
-    }
-  }
-
-  /**
-   * Crypto verifies the signature of the I/O Events signed payload
-   * 
-   * @param {*} signature I/O Events digital signature
-   * @param {*} pubKey I/O Events public key
-   * @param {*} signedPayload I/O Events signed payload 
-   * @returns {boolean} true or false
-   */
-  __cryptoVerify (signature, pubKey, signedPayload) {
-    return crypto.verify('rsa-sha256', new TextEncoder().encode(signedPayload), pubKey, Buffer.from(signature, 'base64'))
-  }
-
-  __createCryptoPublicKey (publicKey) {
-    return crypto.createPublicKey(
-      {
-        key: publicKey,
-        format: 'pem',
-        type: 'spki'
-      })
-  }
-
-  /**
-   * Checks if the recipient client id is the valid target recipient of the event payload
-   * 
-   * @param {*} decodedJsonPayload a valid json event payload used in I/O Events signing
-   * @param {*} recipientClientId target recipient client id
-   * @returns {boolean} true if valid target recipient or false 
-   */
-  __isTargetRecipient (decodedJsonPayload, recipientClientId) {
-    const targetRecipient = decodedJsonPayload.recipient_client_id
-    if (targetRecipient !== null && typeof (targetRecipient) !== 'undefined') {
-      return targetRecipient === recipientClientId
-    }
-    logger.info('target recipient client id is either null or missing')
-    return false
-  }
-
-  /**
-   * Generates generic error json response object based on HTTP error codes and message
-   * 
-   * @param {*} statusCode HTTP error codes
-   * @param {*} message custom error message
-   */
-  __genErrorResponse (statusCode, message) {
-    const response = {
-      statusCode: statusCode,
-      body: message,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-    return {
-      error: response
-    }
-  }
 
   /**
    * Handle HTTP requests and return a promise
