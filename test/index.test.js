@@ -609,7 +609,7 @@ describe('Authenticate event with digital signatures', () => {
  * @param {object} mockHeader Mock headers expected
  * @private
  */
-function mockExponentialBackoff(mockResponse, mockHeader) {
+function mockExponentialBackoff (mockResponse, mockHeader) {
   fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
     new Promise((resolve) => {
       if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
@@ -626,7 +626,7 @@ function mockExponentialBackoff(mockResponse, mockHeader) {
  * @param {Array} args Arguments to be passed to the function under test
  * @private
  */
-async function checkErrorResponse(fn, error, args = []) {
+async function checkErrorResponse (fn, error, args = []) {
   const client = await createSdkClient()
   return new Promise((resolve, reject) => {
     (client[fn].apply(client, args))

@@ -16,12 +16,16 @@ governing permissions and limitations under the License.
 
 /* global Observable */ // for linter
 
-const { reduceError, appendQueryParams, parseLinkHeader, parseRetryAfterHeader } = require('./helpers')
-const { 
-  verifyDigitalSignature,
-  isTargetRecipient,
+const {
+  reduceError,
+  appendQueryParams,
+  parseLinkHeader,
+  parseRetryAfterHeader,
   genErrorResponse,
-  getProperPayload } = require('./signatureUtils')
+  getProperPayload } = require('./helpers')
+const {
+  verifyDigitalSignature,
+  isTargetRecipient } = require('./signatureUtils')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
@@ -54,7 +58,7 @@ function init (organizationId, apiKey, accessToken, httpOptions) {
 
     clientWrapper.init(organizationId, apiKey, accessToken, httpOptions)
       .then(initializedSDK => {
-        
+
         logger.debug('sdk initialized successfully')
         resolve(initializedSDK)
       })
@@ -496,16 +500,16 @@ class EventsCoreAPI {
    * @returns {boolean} If signature matches return true else return false
    * @deprecated
    */
-  verifySignatureForEvent(event, clientSecret, deprecatedSignature) { 
+  verifySignatureForEvent (event, clientSecret, deprecatedSignature) {
     if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
       const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
       return hmacDigest === deprecatedSignature
-    } else { 
+    } else {
       logger.error('invalid or missing client secret')
       return false
     }
   }
-  
+
   /**
    * Authenticating events by verifying digital signature
    * 

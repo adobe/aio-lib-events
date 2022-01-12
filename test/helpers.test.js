@@ -9,7 +9,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const { reduceError, appendQueryParams } = require('../src/helpers')
+const { reduceError, appendQueryParams, getProperPayload } = require('../src/helpers')
+const mock = require('./mock')
 
 describe('Reduce error test', () => {
   it('test no args produces empty object', () => {
@@ -52,5 +53,19 @@ describe('Append query params test', () => {
     const queryParams3 = { interval: 10 }
     const url = appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
     expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true&interval=10')
+  })
+})
+
+describe('Proper Payload Test', () => {
+  it('test encoded payload is valid', async () => {
+      const encodedValidPayload = mock.data.testEncodedPayload.event
+      const decodedJsonPayload = mock.data.testEvent.event
+      const res = await getProperPayload(encodedValidPayload)
+      expect(JSON.stringify(res)).toEqual(decodedJsonPayload)
+  })
+  it('test invalid payload returns error', async () => {
+      const encodedInvalidPayload = mock.data.testEncodedInvalidPayload.event
+      const res = await getProperPayload(encodedInvalidPayload)
+      expect(res.error.statusCode).toBe(400)
   })
 })

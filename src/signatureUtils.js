@@ -8,46 +8,13 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
-
+const { genErrorResponse } = require('./helpers')
 const stateLib = require('@adobe/aio-lib-state')
 const fetch = require('node-fetch')
 const crypto = require('crypto')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
     { level: process.env.LOG_LEVEL })
-
-/**
- * Wrapper to check the event received by webhook
- * and return decoded (if encoded) and properly parsed payload
- *
- * @param {*} event event payload received by webhook
- * @returns decoded and properly parsed payload
- */
-function getProperPayload(event) {
-    let decodedJsonPayload
-    try {
-        if (isBase64Encoded(event)) {
-            decodedJsonPayload = JSON.parse(Buffer.from(event, 'base64').toString('utf-8'))
-        } else {
-            // parsing for non-encoded json payloads (e.g. custom events)
-            decodedJsonPayload = JSON.parse(event)
-        }
-    } catch (error) {
-        logger.error('error occured while checking payload' + error.message)
-        return genErrorResponse(400, 'Failed to understand the payload')
-    }
-    return decodedJsonPayload
-}
-
-/**
- * Checks for the payload type if it is base64 encode or not
- * 
- * @param {*} eventPayload - the event payload received by the consumer webhook
- * @returns {boolean} true if encoded or false
- */
-function isBase64Encoded(eventPayload) {
-    return Buffer.from(eventPayload, 'base64').toString('base64') === eventPayload
-}
 
 /**
  * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
@@ -62,7 +29,7 @@ function isBase64Encoded(eventPayload) {
  * @param {*} signedPayload - I/O Events proper signed payload
  * @returns {boolean} true if either signatures are valid or false 
  */
-async function verifyDigitalSignature(signatureOptions, recipientClientId, signedPayload) {
+async function verifyDigitalSignature (signatureOptions, recipientClientId, signedPayload) {
     var signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
     var keys = await fetchPemEncodedPublicKeys(signatureOptions.publicKeyUrl1, signatureOptions.publicKeyUrl2)
     return await verifySignature(signatures, signedPayload, keys, recipientClientId)
@@ -75,7 +42,7 @@ async function verifyDigitalSignature(signatureOptions, recipientClientId, signe
  * @param {*} pubKeyUrl2 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
  * @returns {array} of two public keys
  */
-async function fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2) {
+async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
     var pubKey1Pem, pubKey2Pem
     try {
         const state = await stateLib.init()
@@ -96,7 +63,7 @@ async function fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2) {
  * @param {*} state aio-lib-state client
  * @returns public key
  */
-async function fetchPubKeyFromCacheOrApi(pubKeyUrl, state) {
+async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
 
     const publicKeyFileName = await getPubKeyFileName(pubKeyUrl)
     let publicKey = await getKeyFromCache(state, publicKeyFileName)
@@ -117,7 +84,7 @@ async function fetchPubKeyFromCacheOrApi(pubKeyUrl, state) {
  * @param {*} publicKeyFileNameAsKey public key file name in format pub-key-1.pem
  * @returns public key
  */
-async function getKeyFromCache(state, publicKeyFileNameAsKey) {
+async function getKeyFromCache (state, publicKeyFileNameAsKey) {
     return await state.get(publicKeyFileNameAsKey)
 }
 
@@ -126,7 +93,7 @@ async function getKeyFromCache(state, publicKeyFileNameAsKey) {
  * 
  * @param {*} pubKeyUrl the cloud front public key url
  */
-async function getPubKeyFileName(pubKeyUrl) {
+async function getPubKeyFileName (pubKeyUrl) {
     // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
     return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
@@ -138,7 +105,7 @@ async function getPubKeyFileName(pubKeyUrl) {
  * https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
  * @returns public key
  */
-async function fetchPublicKeyFromCloudFront(publicKeyUrl) {
+async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
     var pubKey
     await fetch(publicKeyUrl)
         .then(response => response.text())
@@ -162,7 +129,7 @@ async function fetchPublicKeyFromCloudFront(publicKeyUrl) {
  * @param {*} recipientClientId - target recipient client id
  * @returns {boolean} true if either signatures are valid or false
  */
-async function verifySignature(digitalSignatures, signedPayload, publicKeys, recipientClientId) {
+async function verifySignature (digitalSignatures, signedPayload, publicKeys, recipientClientId) {
     let result, publicKey
     try {
         for (i = 0; i < digitalSignatures.length; i++) {
@@ -186,7 +153,7 @@ async function verifySignature(digitalSignatures, signedPayload, publicKeys, rec
  * @param {*} signedPayload I/O Events signed payload 
  * @returns {boolean} true or false
  */
-async function cryptoVerify(signature, pubKey, signedPayload) {
+async function cryptoVerify (signature, pubKey, signedPayload) {
     try {
         return crypto.verify('rsa-sha256', new TextEncoder().encode(signedPayload), pubKey, Buffer.from(signature, 'base64'))
     } catch (error) {
@@ -195,7 +162,7 @@ async function cryptoVerify(signature, pubKey, signedPayload) {
     }
 }
 
-async function createCryptoPublicKey(publicKey) {
+async function createCryptoPublicKey (publicKey) {
     return crypto.createPublicKey(
         {
             key: publicKey,
@@ -211,7 +178,7 @@ async function createCryptoPublicKey(publicKey) {
  * @param {*} recipientClientId target recipient client id
  * @returns {boolean} true if valid target recipient or false 
  */
-function isTargetRecipient(decodedJsonPayload, recipientClientId) {
+function isTargetRecipient (decodedJsonPayload, recipientClientId) {
     const targetRecipient = decodedJsonPayload.recipient_client_id
     if (targetRecipient !== null && typeof (targetRecipient) !== 'undefined') {
         return targetRecipient === recipientClientId
@@ -220,34 +187,11 @@ function isTargetRecipient(decodedJsonPayload, recipientClientId) {
     return false
 }
 
-/**
- * Generates generic error json response object based on HTTP error codes and message
- * 
- * @param {*} statusCode HTTP error codes
- * @param {*} message custom error message
- */
-function genErrorResponse(statusCode, message) {
-    const response = {
-        statusCode: statusCode,
-        body: message,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }
-    return {
-        error: response
-    }
-}
-
 module.exports = {
     verifyDigitalSignature,
     isTargetRecipient,
-    genErrorResponse,
-    getProperPayload,
     fetchPemEncodedPublicKeys,
     cryptoVerify,
     verifySignature,
-    fetchPublicKeyFromCloudFront,
-    getPubKeyFileName,
-    getKeyFromCache
+    fetchPublicKeyFromCloudFront
 }

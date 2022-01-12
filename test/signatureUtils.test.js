@@ -17,26 +17,12 @@ jest.mock('@adobe/aio-lib-state', () => ({
     init: jest.fn().mockResolvedValue(mockStateInstance)
 }))
 
-const { isTargetRecipient, getProperPayload, fetchPemEncodedPublicKeys, cryptoVerify, verifySignature,
+const { isTargetRecipient, fetchPemEncodedPublicKeys, cryptoVerify, verifySignature,
     fetchPublicKeyFromCloudFront } = require('../src/signatureUtils')
 
 const mock = require('./mock')
 const fetch = require('node-fetch')
 const { Response } = jest.requireActual('node-fetch')
-
-describe('Proper Payload Test', () => {
-    it('test encoded payload is valid', async () => {
-        const encodedValidPayload = mock.data.testEncodedPayload.event
-        const decodedJsonPayload = mock.data.testEvent.event
-        const res = await getProperPayload(encodedValidPayload)
-        expect(JSON.stringify(res)).toEqual(decodedJsonPayload)
-    })
-    it('test invalid payload returns error', async () => {
-        const encodedInvalidPayload = mock.data.testEncodedInvalidPayload.event
-        const res = await getProperPayload(encodedInvalidPayload)
-        expect(res.error.statusCode).toBe(400)
-    })
-})
 
 describe('Invalid Cloud Front Public Key Urls Test', () => {
     it('verify pem public keys fetched with invalid urls', async () => {
