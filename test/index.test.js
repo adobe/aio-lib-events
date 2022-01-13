@@ -579,7 +579,7 @@ describe('Authenticate event with digital signatures', () => {
     const validTestPubKey = mock.data.testPubKeys.validTestPubKey
     fetch.mockImplementation(() => {
       return Promise.resolve(new Response(Buffer.from(validTestPubKey, 'base64').toString('utf-8')))
-    });
+    })
     const sdkClient = await createSdkClient()
     const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
     expect(verified).toBe(true)
@@ -588,7 +588,7 @@ describe('Authenticate event with digital signatures', () => {
     const invalidTestPubKey = mock.data.testPubKeys.invalidTestPubKey
     fetch.mockImplementation(() => {
       return Promise.resolve(new Response(Buffer.from(invalidTestPubKey, 'base64').toString('utf-8')))
-    });
+    })
     const sdkClient = await createSdkClient()
     const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
     expect(verified).toBe(false)

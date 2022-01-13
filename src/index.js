@@ -22,10 +22,12 @@ const {
   parseLinkHeader,
   parseRetryAfterHeader,
   genErrorResponse,
-  getProperPayload } = require('./helpers')
+  getProperPayload
+} = require('./helpers')
 const {
   verifyDigitalSignature,
-  isTargetRecipient } = require('./signatureUtils')
+  isTargetRecipient
+} = require('./signatureUtils')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
@@ -58,7 +60,6 @@ function init (organizationId, apiKey, accessToken, httpOptions) {
 
     clientWrapper.init(organizationId, apiKey, accessToken, httpOptions)
       .then(initializedSDK => {
-
         logger.debug('sdk initialized successfully')
         resolve(initializedSDK)
       })
@@ -512,7 +513,7 @@ class EventsCoreAPI {
 
   /**
    * Authenticating events by verifying digital signature
-   * 
+   *
    * @param {*} event JSON payload delivered to the registered webhook URL
    * @param {*} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
    * @param {*} signatureOptions map of all digital signature header values consisting fields as below
