@@ -137,11 +137,15 @@ function genErrorResponse (statusCode, message) {
   }
 }
 
-module.exports = {
+const exportFunctions = {
   reduceError,
   appendQueryParams,
   parseLinkHeader,
   parseRetryAfterHeader,
   getProperPayload,
   genErrorResponse
+}
+
+module.exports = {
+  exportFunctions
 }

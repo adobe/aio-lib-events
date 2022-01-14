@@ -8,7 +8,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
-const { genErrorResponse } = require('./helpers')
+const helpers = require('./helpers')
 const stateLib = require('@adobe/aio-lib-state')
 const fetch = require('node-fetch')
 const crypto = require('crypto')
@@ -38,8 +38,8 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, sign
 /**
  * Feteched the pem encoded public keys either from the state lib cache or directly via cloud front url
  *
- * @param {*} pubKeyUrl1 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
- * @param {*} pubKeyUrl2 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+ * @param {*} pubKeyUrl1 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl2 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
  * @returns {Array} of two public keys
  */
 async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
@@ -50,7 +50,7 @@ async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
     pubKey2Pem = await fetchPubKeyFromCacheOrApi(pubKeyUrl2, state)
   } catch (error) {
     logger.error('error occurred while fetching pem encoded public keys either from cache or public key urls due to %s', error.message)
-    return genErrorResponse(500, 'Error occurred while fetching pem encoded Public Key')
+    return helpers.exportFunctions.genErrorResponse(500, 'Error occurred while fetching pem encoded Public Key')
   }
   return [pubKey1Pem, pubKey2Pem]
 }
@@ -59,19 +59,33 @@ async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
  * Wrapper to fetch the key from aio-lib-state, if not present fetch using
  * the cloud front url and set in aio-lib-state
  *
- * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+ * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
  * @param {*} state aio-lib-state client
  * @returns {string} pem encoded public key as string
  */
 async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
   const publicKeyFileName = await getPubKeyFileName(pubKeyUrl)
-  let publicKey = await getKeyFromCache(state, publicKeyFileName)
-  if (publicKey) {
-    return publicKey
+  const publicKey = await getKeyFromCache(state, publicKeyFileName)
+  /* istanbul ignore else */
+  if (!publicKey) {
+    return await fetchKeyFromApiAndPutInCache(pubKeyUrl, state, publicKeyFileName)
   }
+  /* istanbul ignore next */
+  return publicKey
+}
+
+/**
+ * Fetch using the cloud front url and set in aio-lib-state
+ *
+ * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * @param {*} state aio-lib-state client
+ * @param {*} publicKeyFileName key file name in format pub-key-<random-uuid>.pem
+ * @returns {string} pem encoded public key as string
+ */
+async function fetchKeyFromApiAndPutInCache (pubKeyUrl, state, publicKeyFileName) {
   logger.info('public key %s not present in aio state lib cache, fetching directly from the url..', publicKeyFileName)
   // fetch from api and set in cache default expiry 24h
-  publicKey = await fetchPublicKeyFromCloudFront(pubKeyUrl)
+  const publicKey = await fetchPublicKeyFromCloudFront(pubKeyUrl)
   await state.put(publicKeyFileName, publicKey)
   return publicKey
 }
@@ -80,11 +94,16 @@ async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
  * Gets the public key from cache
  *
  * @param {*} state aio state lib instance
- * @param {*} publicKeyFileNameAsKey public key file name in format pub-key-1.pem
+ * @param {*} publicKeyFileNameAsKey public key file name in format pub-key-<random-uuid>.pem
  * @returns {string} public key
  */
 async function getKeyFromCache (state, publicKeyFileNameAsKey) {
-  return await state.get(publicKeyFileNameAsKey)
+  try {
+    return await state.get(publicKeyFileNameAsKey)
+  } catch (error) {
+    logger.error('aio lib state get error due to => %s', error.message)
+  }
+  return null
 }
 
 /**
@@ -94,7 +113,7 @@ async function getKeyFromCache (state, publicKeyFileNameAsKey) {
  * @returns {string} pub key url as string
  */
 async function getPubKeyFileName (pubKeyUrl) {
-  // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+  // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
   return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
 
@@ -102,7 +121,7 @@ async function getPubKeyFileName (pubKeyUrl) {
  * Fetches public key using the cloud front public key url
  *
  * @param {*} publicKeyUrl - cloud front public key url of format
- * https://d2wbnl47xxxxx.cloudfront.net/pub-key-1.pem
+ * https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
  * @returns {string} public key
  */
 async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
@@ -115,7 +134,7 @@ async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
     })
     .catch(error => {
       logger.error('error fetching the public key from cloud front url %s due to => %s', publicKeyUrl, error.message)
-      throw error
+      return helpers.exportFunctions.genErrorResponse(500, error.message)
     })
   return pubKey
 }
@@ -135,6 +154,7 @@ async function verifySignature (digitalSignatures, signedPayload, publicKeys, re
     for (let i = 0; i < digitalSignatures.length; i++) {
       publicKey = await createCryptoPublicKey(publicKeys[i])
       result = await cryptoVerify(digitalSignatures[i], publicKey, signedPayload)
+      /* istanbul ignore else */
       if (result) {
         return result
       }
@@ -193,11 +213,17 @@ function isTargetRecipient (decodedJsonPayload, recipientClientId) {
   return false
 }
 
-module.exports = {
+const exportFunctions = {
   verifyDigitalSignature,
   isTargetRecipient,
   fetchPemEncodedPublicKeys,
   cryptoVerify,
   verifySignature,
-  fetchPublicKeyFromCloudFront
+  fetchPublicKeyFromCloudFront,
+  fetchPubKeyFromCacheOrApi,
+  getKeyFromCache
+}
+
+module.exports = {
+  exportFunctions
 }

@@ -568,6 +568,11 @@ describe('Authenticate event with deprecated hmac signature', () => {
     const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(false)
   })
+  it('Verify invalid client secret', async () => {
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, undefined, 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    expect(verified).toBe(false)
+  })
 })
 
 describe('Authenticate event with digital signatures', () => {
@@ -593,7 +598,6 @@ describe('Authenticate event with digital signatures', () => {
     const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
     expect(verified).toBe(false)
   })
-
   it('Verify invalid target recipient', async () => {
     const eventPayload = mock.data.testEvent.event
     const sdkClient = await createSdkClient()
