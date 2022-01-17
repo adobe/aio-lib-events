@@ -10,7 +10,7 @@ governing permissions and limitations under the License.
 */
 'use strict'
 
-const helpers = require('./helpers')
+const helpers = require('./helpers').exportFunctions
 const DEFAULT_INTERVAL = 2000
 const Rx = require('rxjs')
 
@@ -28,7 +28,7 @@ class EventsConsumerFromJournal extends Rx.Subject {
   constructor (ioEvents, journalUrl, eventsJournalOptions, eventsJournalPollingOptions) {
     super()
     this.ioEvents = ioEvents
-    this.journalUrl = helpers.exportFunctions.appendQueryParams(journalUrl, eventsJournalOptions)
+    this.journalUrl = helpers.appendQueryParams(journalUrl, eventsJournalOptions)
     this.nextLink = this.journalUrl
     this.interval = eventsJournalPollingOptions && eventsJournalPollingOptions.interval
     this.subject = new Rx.Subject()

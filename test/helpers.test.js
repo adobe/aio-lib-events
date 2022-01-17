@@ -9,20 +9,20 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const helpers = require('../src/helpers')
+const helpers = require('../src/helpers').exportFunctions
 const mock = require('./mock')
 
 describe('Reduce error test', () => {
   it('test no args produces empty object', () => {
-    expect(helpers.exportFunctions.reduceError()).toEqual({})
+    expect(helpers.reduceError()).toEqual({})
   })
   it('test unexpected properties returns the same error with no reduction', () => {
     const unexpectedError = { foo: 'bar' }
-    expect(helpers.exportFunctions.reduceError(unexpectedError)).toEqual(unexpectedError)
+    expect(helpers.reduceError(unexpectedError)).toEqual(unexpectedError)
   })
   it('test inadequate properties returns the same error with no reduction', () => {
     const unexpectedError2 = { foo: 'bar', response: {} }
-    expect(helpers.exportFunctions.reduceError(unexpectedError2)).toEqual(unexpectedError2)
+    expect(helpers.reduceError(unexpectedError2)).toEqual(unexpectedError2)
   })
   it('test expected properties returns the object reduced to a string', () => {
     const expectedError = {
@@ -33,7 +33,7 @@ describe('Reduce error test', () => {
         url: 'https://test-helpers.com'
       }
     }
-    expect(helpers.exportFunctions.reduceError(expectedError.response)).toEqual('500 - Something went gang aft agley. (https://test-helpers.com)')
+    expect(helpers.reduceError(expectedError.response)).toEqual('500 - Something went gang aft agley. (https://test-helpers.com)')
   })
 })
 
@@ -41,17 +41,17 @@ describe('Append query params test', () => {
   const baseUrl = 'https://base-url.adobe.io'
   it('Append query params with single key and value', () => {
     const queryParams1 = { limit: 2 }
-    const url = helpers.exportFunctions.appendQueryParams(baseUrl, queryParams1)
+    const url = helpers.appendQueryParams(baseUrl, queryParams1)
     expect(url).toBe('https://base-url.adobe.io?limit=2')
   })
   it('Append query params with multiple key and value', () => {
     const queryParams2 = { limit: 2, latest: true }
-    const url = helpers.exportFunctions.appendQueryParams(baseUrl, queryParams2)
+    const url = helpers.appendQueryParams(baseUrl, queryParams2)
     expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true')
   })
   it('Append query params to url with existing query params', () => {
     const queryParams3 = { interval: 10 }
-    const url = helpers.exportFunctions.appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
+    const url = helpers.appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
     expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true&interval=10')
   })
 })
@@ -60,12 +60,12 @@ describe('Proper Payload Test', () => {
   it('test encoded payload is valid', async () => {
     const encodedValidPayload = mock.data.testEncodedPayload.event
     const decodedJsonPayload = mock.data.testEvent.event
-    const res = await helpers.exportFunctions.getProperPayload(encodedValidPayload)
+    const res = await helpers.getProperPayload(encodedValidPayload)
     expect(JSON.stringify(res)).toEqual(decodedJsonPayload)
   })
   it('test invalid payload returns error', async () => {
     const encodedInvalidPayload = mock.data.testEncodedInvalidPayload.event
-    const res = await helpers.exportFunctions.getProperPayload(encodedInvalidPayload)
+    const res = await helpers.getProperPayload(encodedInvalidPayload)
     expect(res.error.statusCode).toBe(400)
   })
 })

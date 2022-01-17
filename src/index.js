@@ -16,8 +16,8 @@ governing permissions and limitations under the License.
 
 /* global Observable */ // for linter
 
-const helpers = require('./helpers')
-const signatureUtils = require('../src/signatureUtils')
+const helpers = require('./helpers').exportFunctions
+const signatureUtils = require('../src/signatureUtils').exportFunctions
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
@@ -396,7 +396,7 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
-            throw Error(helpers.exportFunctions.reduceError(response))
+            throw Error(helpers.reduceError(response))
           }
           if (response.status === 200) { resolve(response.text()) } else { resolve() }
         })
@@ -428,7 +428,7 @@ class EventsCoreAPI {
    * @returns {Promise<object>} with the response json includes events and links (if available)
    */
   async getEventsFromJournal (journalUrl, eventsJournalOptions, fetchResponseHeaders) {
-    const url = helpers.exportFunctions.appendQueryParams(journalUrl, eventsJournalOptions)
+    const url = helpers.appendQueryParams(journalUrl, eventsJournalOptions)
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const sdkDetails = { requestOptions: requestOptions, url: url }
@@ -440,10 +440,10 @@ class EventsCoreAPI {
       const linkHeader = response.headers.get('link')
       const retryAfterHeader = response.headers.get('retry-after')
       if (linkHeader) {
-        result.link = helpers.exportFunctions.parseLinkHeader(journalUrl, linkHeader)
+        result.link = helpers.parseLinkHeader(journalUrl, linkHeader)
       }
       if (retryAfterHeader) {
-        result.retryAfter = helpers.exportFunctions.parseRetryAfterHeader(retryAfterHeader)
+        result.retryAfter = helpers.parseRetryAfterHeader(retryAfterHeader)
       }
       if (fetchResponseHeaders) {
         result.responseHeaders = response.headers.raw()
@@ -515,14 +515,14 @@ class EventsCoreAPI {
    */
   async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
     // check event payload and get proper payload used in I/O Events signing
-    const decodedJsonPayload = helpers.exportFunctions.getProperPayload(event)
+    const decodedJsonPayload = helpers.getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
-    if (signatureUtils.exportFunctions.isTargetRecipient(decodedJsonPayload, recipientClientId)) {
-      return await signatureUtils.exportFunctions.verifyDigitalSignature(signatureOptions, recipientClientId, JSON.stringify(decodedJsonPayload))
+    if (signatureUtils.isTargetRecipient(decodedJsonPayload, recipientClientId)) {
+      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, JSON.stringify(decodedJsonPayload))
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
-      return helpers.exportFunctions.genErrorResponse(401, message)
+      return helpers.genErrorResponse(401, message)
     }
   }
 
@@ -569,7 +569,7 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
-            throw Error(helpers.exportFunctions.reduceError(response))
+            throw Error(helpers.reduceError(response))
           }
           if (response.status === 204) { resolve() } else { resolve(response.json()) }
         })
