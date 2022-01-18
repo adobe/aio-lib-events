@@ -149,6 +149,7 @@ and max number of retries
     * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
     * [.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>
+    * [.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)](#EventsCoreAPI+verifyDigitalSignatureForEvent) ⇒ <code>boolean</code>
 
 <a name="EventsCoreAPI+httpOptions"></a>
 
@@ -464,6 +465,24 @@ Authenticating events by verifying signature
 | event | <code>object</code> | JSON payload delivered to the registered webhook URL |
 | clientSecret | <code>string</code> | Client secret can be retrieved from the Adobe I/O Console integration |
 | signatureHeaderValue | <code>string</code> | Value of x-adobe-signature header in each POST request to the registered webhook URL |
+
+<a name="EventsCoreAPI+verifyDigitalSignatureForEvent"></a>
+
+### eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions) ⇒ <code>boolean</code>
+Authenticating events by verifying digital signature
+
+**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
+**Returns**: <code>boolean</code> - If signature matches return true else return false  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>object</code> | JSON payload delivered to the registered webhook URL |
+| recipientClientId | <code>string</code> | Target recipient client id retrieved from the Adobe I/O Console integration |
+| signatureOptions | <code>map</code> | signatureOptions map of all digital signature header in each POST request to webhook values consisting fields as below :: 
+                          digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header
+                          digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header
+                          publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header
+                          publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header
 
 <a name="init"></a>
 
