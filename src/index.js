@@ -16,7 +16,8 @@ governing permissions and limitations under the License.
 
 /* global Observable */ // for linter
 
-const { reduceError, appendQueryParams, parseLinkHeader, parseRetryAfterHeader } = require('./helpers')
+const helpers = require('./helpers').exportFunctions
+const signatureUtils = require('../src/signatureUtils').exportFunctions
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
@@ -24,6 +25,7 @@ const { codes } = require('./SDKErrors')
 const fetchRetryClient = require('@adobe/aio-lib-core-networking')
 const hmacSHA256 = require('crypto-js/hmac-sha256')
 const Base64 = require('crypto-js/enc-base64')
+
 const EventsConsumerFromJournal = require('./journalling')
 
 const EVENTS_BASE_URL = process.env.EVENTS_BASE_URL || 'https://api.adobe.io'
@@ -394,7 +396,7 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
-            throw Error(reduceError(response))
+            throw Error(helpers.reduceError(response))
           }
           if (response.status === 200) { resolve(response.text()) } else { resolve() }
         })
@@ -426,7 +428,7 @@ class EventsCoreAPI {
    * @returns {Promise<object>} with the response json includes events and links (if available)
    */
   async getEventsFromJournal (journalUrl, eventsJournalOptions, fetchResponseHeaders) {
-    const url = appendQueryParams(journalUrl, eventsJournalOptions)
+    const url = helpers.appendQueryParams(journalUrl, eventsJournalOptions)
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const sdkDetails = { requestOptions: requestOptions, url: url }
@@ -438,10 +440,10 @@ class EventsCoreAPI {
       const linkHeader = response.headers.get('link')
       const retryAfterHeader = response.headers.get('retry-after')
       if (linkHeader) {
-        result.link = parseLinkHeader(journalUrl, linkHeader)
+        result.link = helpers.parseLinkHeader(journalUrl, linkHeader)
       }
       if (retryAfterHeader) {
-        result.retryAfter = parseRetryAfterHeader(retryAfterHeader)
+        result.retryAfter = helpers.parseRetryAfterHeader(retryAfterHeader)
       }
       if (fetchResponseHeaders) {
         result.responseHeaders = response.headers.raw()
@@ -481,16 +483,47 @@ class EventsCoreAPI {
   }
 
   /**
-   * Authenticating events by verifying signature
+   * Authenticating events by verifying hmac signature
    *
    * @param {object} event JSON payload delivered to the registered webhook URL
    * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
-   * @param {string} signatureHeaderValue Value of x-adobe-signature header in each POST request to the registered webhook URL
+   * @param {string} deprecatedSignature Value of x-adobe-signature header in each POST request to the registered webhook URL
+   * @returns {boolean} If signature matches return true else return false
+   * @deprecated
+   */
+  verifySignatureForEvent (event, clientSecret, deprecatedSignature) {
+    if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
+      const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
+      return hmacDigest === deprecatedSignature
+    } else {
+      logger.error('invalid or missing client secret')
+      return false
+    }
+  }
+
+  /**
+   * Authenticating events by verifying digital signature
+   *
+   * @param {*} event JSON payload delivered to the registered webhook URL
+   * @param {*} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
+   * @param {*} signatureOptions map of all digital signature header values consisting fields as below
+   * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+   * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+   * publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
+   * publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
    * @returns {boolean} If signature matches return true else return false
    */
-  verifySignatureForEvent (event, clientSecret, signatureHeaderValue) {
-    const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
-    return hmacDigest === signatureHeaderValue
+  async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
+    // check event payload and get proper payload used in I/O Events signing
+    const decodedJsonPayload = helpers.getProperPayload(event)
+
+    // check if the target recipient is present in event and is a valid one, then verify the signature else return error
+    if (signatureUtils.isTargetRecipient(decodedJsonPayload, recipientClientId)) {
+      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, JSON.stringify(decodedJsonPayload))
+    } else {
+      const message = 'Unable to authenticate, not a valid target recipient'
+      return helpers.genErrorResponse(401, message)
+    }
   }
 
   /**
@@ -504,8 +537,8 @@ class EventsCoreAPI {
   __getRetryOn (retries) {
     return function (attempt, error, response) {
       if (attempt < retries && (error !== null ||
-          response.status === 429 ||
-          (response.status > 499 && response.status < 600))) {
+        response.status === 429 ||
+        (response.status > 499 && response.status < 600))) {
         const msg = `Retrying after attempt ${attempt + 1}. failed: ${error || response.statusText}`
         logger.debug(msg)
         return true
@@ -536,7 +569,7 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
-            throw Error(reduceError(response))
+            throw Error(helpers.reduceError(response))
           }
           if (response.status === 204) { resolve() } else { resolve(response.json()) }
         })

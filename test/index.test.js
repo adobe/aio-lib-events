@@ -11,14 +11,25 @@ governing permissions and limitations under the License.
 
 /* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "checkErrorResponse"] }] */
 
+const mockStateInstance = {
+  get: jest.fn(),
+  delete: jest.fn(),
+  put: jest.fn()
+}
+jest.mock('@adobe/aio-lib-state', () => ({
+  init: jest.fn().mockResolvedValue(mockStateInstance)
+}))
+
 const sdk = require('../src')
 const mock = require('./mock')
 const errorSDK = require('../src/SDKErrors')
+const fetch = require('node-fetch')
 const { Response } = jest.requireActual('node-fetch')
 const fetchRetry = require('@adobe/aio-lib-core-networking')
 const Rx = require('rxjs')
 
 // /////////////////////////////////////////////
+
 const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
@@ -546,16 +557,52 @@ describe('Get events observable from journal', () => {
   })
 })
 
-describe('Authenticate event', () => {
+describe('Authenticate event with deprecated hmac signature', () => {
   it('Verify event signature successfully', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(true)
   })
   it('Verify event signature with error', async () => {
     const sdkClient = await createSdkClient()
-    const verified = sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
     expect(verified).toBe(false)
+  })
+  it('Verify invalid client secret', async () => {
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, undefined, 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
+    expect(verified).toBe(false)
+  })
+})
+
+describe('Authenticate event with digital signatures', () => {
+  const event = mock.data.testEvent.event
+  const signatureOptions = mock.data.signatureOptions.params
+  const recipientClientId = mock.data.testClientId.recipientClientId
+
+  it('Verify event signature successfully', async () => {
+    const validTestPubKey = mock.data.testPubKeys.validTestPubKey
+    fetch.mockImplementation(() => {
+      return Promise.resolve(new Response(Buffer.from(validTestPubKey, 'base64').toString('utf-8')))
+    })
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
+    expect(verified).toBe(true)
+  })
+  it('Verify event signature with error', async () => {
+    const invalidTestPubKey = mock.data.testPubKeys.invalidTestPubKey
+    fetch.mockImplementation(() => {
+      return Promise.resolve(new Response(Buffer.from(invalidTestPubKey, 'base64').toString('utf-8')))
+    })
+    const sdkClient = await createSdkClient()
+    const verified = await sdkClient.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)
+    expect(verified).toBe(false)
+  })
+  it('Verify invalid target recipient', async () => {
+    const eventPayload = mock.data.testEvent.event
+    const sdkClient = await createSdkClient()
+    const response = await sdkClient.verifyDigitalSignatureForEvent(eventPayload, 'testInvalidClient')
+    expect(response.error.statusCode).toBe(401)
   })
 })
 

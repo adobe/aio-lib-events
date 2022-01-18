@@ -17,6 +17,7 @@
     "@adobe/aio-lib-core-errors": "^3.0.0",
     "@adobe/aio-lib-core-logging": "^1.1.2",
     "@adobe/aio-lib-core-networking": "^1.0.0",
+    "@adobe/aio-lib-state": "^1.1.2",
     "cross-fetch": "^3.0.4",
     "crypto-js": "^4.0.0",
     "http-link-header": "^1.0.2",
@@ -42,7 +43,7 @@
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^10.0.0",
     "jest-plugin-fs": "^2.9.0",
-    "jsdoc": "^3.6.3",
+    "jsdoc": "^3.6.7",
     "jsdoc-to-markdown": "^5.0.3",
     "openapi-schema-validator": "^3.0.3",
     "querystring": "^0.2.0",
@@ -51,6 +52,6 @@
     "typescript": "^4.5.4"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=12.0.0"
   }
 }
