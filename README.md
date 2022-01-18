@@ -124,45 +124,31 @@ and max number of retries
 
 **Kind**: global class  
 
-- [Adobe I/O Events Lib](#adobe-io-events-lib)
-    - [Installing](#installing)
-    - [Usage](#usage)
-  - [Classes](#classes)
-  - [Functions](#functions)
-  - [Typedefs](#typedefs)
-  - [EventsCoreAPI](#eventscoreapi)
-    - [eventsCoreAPI.httpOptions](#eventscoreapihttpoptions)
-    - [eventsCoreAPI.organizationId](#eventscoreapiorganizationid)
-    - [eventsCoreAPI.apiKey](#eventscoreapiapikey)
-    - [eventsCoreAPI.accessToken](#eventscoreapiaccesstoken)
-    - [eventsCoreAPI.init(organizationId, apiKey, accessToken, [httpOptions]) ⇒ <code>Promise.&lt;EventsCoreAPI&gt;</code>](#eventscoreapiinitorganizationid-apikey-accesstoken-httpoptions--promiseeventscoreapi)
-    - [eventsCoreAPI.getAllProviders(consumerOrgId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigetallprovidersconsumerorgid--promiseobject)
-    - [eventsCoreAPI.getProvider(providerId, [fetchEventMetadata]) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigetproviderproviderid-fetcheventmetadata--promiseobject)
-    - [eventsCoreAPI.createProvider(consumerOrgId, projectId, workspaceId, body) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapicreateproviderconsumerorgid-projectid-workspaceid-body--promiseobject)
-    - [eventsCoreAPI.updateProvider(consumerOrgId, projectId, workspaceId, providerId, body) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapiupdateproviderconsumerorgid-projectid-workspaceid-providerid-body--promiseobject)
-    - [eventsCoreAPI.deleteProvider(consumerOrgId, projectId, workspaceId, providerId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapideleteproviderconsumerorgid-projectid-workspaceid-providerid--promiseobject)
-    - [eventsCoreAPI.getAllEventMetadataForProvider(providerId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigetalleventmetadataforproviderproviderid--promiseobject)
-    - [eventsCoreAPI.getEventMetadataForProvider(providerId, eventCode) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigeteventmetadataforproviderproviderid-eventcode--promiseobject)
-    - [eventsCoreAPI.createEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, body) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapicreateeventmetadataforproviderconsumerorgid-projectid-workspaceid-providerid-body--promiseobject)
-    - [eventsCoreAPI.updateEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, eventCode, body) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapiupdateeventmetadataforproviderconsumerorgid-projectid-workspaceid-providerid-eventcode-body--promiseobject)
-    - [eventsCoreAPI.deleteEventMetadata(consumerOrgId, projectId, workspaceId, providerId, eventCode) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapideleteeventmetadataconsumerorgid-projectid-workspaceid-providerid-eventcode--promiseobject)
-    - [eventsCoreAPI.deleteAllEventMetadata(consumerOrgId, projectId, workspaceId, providerId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapideletealleventmetadataconsumerorgid-projectid-workspaceid-providerid--promiseobject)
-    - [eventsCoreAPI.createWebhookRegistration(consumerOrgId, integrationId, body) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapicreatewebhookregistrationconsumerorgid-integrationid-body--promiseobject)
-    - [eventsCoreAPI.getWebhookRegistration(consumerOrgId, integrationId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigetwebhookregistrationconsumerorgid-integrationid-registrationid--promiseobject)
-    - [eventsCoreAPI.getAllWebhookRegistrations(consumerOrgId, integrationId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigetallwebhookregistrationsconsumerorgid-integrationid--promiseobject)
-    - [eventsCoreAPI.deleteWebhookRegistration(consumerOrgId, integrationId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapideletewebhookregistrationconsumerorgid-integrationid-registrationid--promiseobject)
-    - [eventsCoreAPI.publishEvent(cloudEvent) ⇒ <code>Promise.&lt;string&gt;</code>](#eventscoreapipublisheventcloudevent--promisestring)
-    - [eventsCoreAPI.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders]) ⇒ <code>Promise.&lt;object&gt;</code>](#eventscoreapigeteventsfromjournaljournalurl-eventsjournaloptions-fetchresponseheaders--promiseobject)
-    - [eventsCoreAPI.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions]) ⇒ <code>Observable</code>](#eventscoreapigeteventsobservablefromjournaljournalurl-eventsjournaloptions-eventsjournalpollingoptions--observable)
-    - [eventsCoreAPI.verifySignatureForEvent(event, clientSecret, signatureHeaderValue) ⇒ <code>boolean</code>](#eventscoreapiverifysignatureforeventevent-clientsecret-signatureheadervalue--boolean)
-    - [eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions) ⇒ <code>boolean</code>](#eventscoreapiverifydigitalsignatureforeventevent-recipientclientid-signatureoptions--boolean)
-  - [init(organizationId, apiKey, accessToken, [httpOptions]) ⇒ <code>Promise.&lt;EventsCoreAPI&gt;</code>](#initorganizationid-apikey-accesstoken-httpoptions--promiseeventscoreapi)
-  - [EventsCoreAPIOptions : <code>object</code>](#eventscoreapioptions--object)
-  - [EventsJournalOptions : <code>object</code>](#eventsjournaloptions--object)
-  - [EventsJournalPollingOptions : <code>object</code>](#eventsjournalpollingoptions--object)
-    - [Debug Logs](#debug-logs)
-    - [Contributing](#contributing)
-    - [Licensing](#licensing)
+* [EventsCoreAPI](#EventsCoreAPI)
+    * [.httpOptions](#EventsCoreAPI+httpOptions)
+    * [.organizationId](#EventsCoreAPI+organizationId)
+    * [.apiKey](#EventsCoreAPI+apiKey)
+    * [.accessToken](#EventsCoreAPI+accessToken)
+    * [.init(organizationId, apiKey, accessToken, [httpOptions])](#EventsCoreAPI+init) ⇒ [<code>Promise.&lt;EventsCoreAPI&gt;</code>](#EventsCoreAPI)
+    * [.getAllProviders(consumerOrgId)](#EventsCoreAPI+getAllProviders) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getProvider(providerId, [fetchEventMetadata])](#EventsCoreAPI+getProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.createProvider(consumerOrgId, projectId, workspaceId, body)](#EventsCoreAPI+createProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.updateProvider(consumerOrgId, projectId, workspaceId, providerId, body)](#EventsCoreAPI+updateProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.deleteProvider(consumerOrgId, projectId, workspaceId, providerId)](#EventsCoreAPI+deleteProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getAllEventMetadataForProvider(providerId)](#EventsCoreAPI+getAllEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getEventMetadataForProvider(providerId, eventCode)](#EventsCoreAPI+getEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.createEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, body)](#EventsCoreAPI+createEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.updateEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, eventCode, body)](#EventsCoreAPI+updateEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.deleteEventMetadata(consumerOrgId, projectId, workspaceId, providerId, eventCode)](#EventsCoreAPI+deleteEventMetadata) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.deleteAllEventMetadata(consumerOrgId, projectId, workspaceId, providerId)](#EventsCoreAPI+deleteAllEventMetadata) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.createWebhookRegistration(consumerOrgId, integrationId, body)](#EventsCoreAPI+createWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getWebhookRegistration(consumerOrgId, integrationId, registrationId)](#EventsCoreAPI+getWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getAllWebhookRegistrations(consumerOrgId, integrationId)](#EventsCoreAPI+getAllWebhookRegistrations) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.deleteWebhookRegistration(consumerOrgId, integrationId, registrationId)](#EventsCoreAPI+deleteWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
+    * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
+    * [.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>
 
 <a name="EventsCoreAPI+httpOptions"></a>
 
@@ -478,24 +464,6 @@ Authenticating events by verifying signature
 | event | <code>object</code> | JSON payload delivered to the registered webhook URL |
 | clientSecret | <code>string</code> | Client secret can be retrieved from the Adobe I/O Console integration |
 | signatureHeaderValue | <code>string</code> | Value of x-adobe-signature header in each POST request to the registered webhook URL |
-
-<a name="EventsCoreAPI+verifyDigitalSignatureForEvent"></a>
-
-### eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions) ⇒ <code>boolean</code>
-Authenticating events by verifying digital signature
-
-**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
-**Returns**: <code>boolean</code> - If signature matches return true else return false  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| event | <code>object</code> | JSON payload delivered to the registered webhook URL |
-| recipientClientId | <code>string</code> | Target recipient client id retrieved from the Adobe I/O Console integration |
-| signatureOptions | <code>map</code> | map of all digital signature header values in each POST request to webhook, consisting fields as ::  
-                          digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header 
-                          digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header
-                          publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header
-                          publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header
 
 <a name="init"></a>
 
