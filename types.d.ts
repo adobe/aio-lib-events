@@ -223,6 +223,15 @@ declare class EventsCoreAPI {
      * @returns {boolean} If signature matches return true else return false
      */
     verifySignatureForEvent(event: any, clientSecret: string, signatureHeaderValue: string): boolean;
+
+    /**
+     * Authenticating events by verifying digital signature
+     * @param {object} event JSON payload delivered to the registered webhook URL
+     * @param {string} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
+     * @param {SignatureOptions} signatureOptions Map of all digital signature header values consisting fields defined in SignatureOptions
+     * @returns {boolean} If signature matches return true else return false
+     */
+    verifyDigitalSignatureForEvent(event: any, recipientClientId: string, signatureOptions?: SignatureOptions): boolean;
 }
 
 /**
@@ -243,5 +252,19 @@ declare type EventsJournalOptions = {
  */
 declare type EventsJournalPollingOptions = {
     interval?: number;
+};
+
+/**
+ * @typedef {object} SignatureOptions
+ * @property {string} [digiSignature1] Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+ * @property {string} [digiSignature2] Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+ * @property {string} [publicKeyUrl1] Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
+ * @property {string} [publicKeyUrl2] Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
+ */
+declare type SignatureOptions = {
+    digiSignature1?: string;
+    digiSignature2?: string;
+    publicKeyUrl1?: string;
+    publicKeyUrl2?: string;
 };
 
