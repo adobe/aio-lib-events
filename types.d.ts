@@ -221,6 +221,7 @@ declare class EventsCoreAPI {
      * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
      * @param {string} signatureHeaderValue Value of x-adobe-signature header in each POST request to the registered webhook URL
      * @returns {boolean} If signature matches return true else return false
+     * @deprecated
      */
     verifySignatureForEvent(event: any, clientSecret: string, signatureHeaderValue: string): boolean;
 
@@ -262,9 +263,9 @@ declare type EventsJournalPollingOptions = {
  * @property {string} [publicKeyUrl2] Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
  */
 declare type SignatureOptions = {
-    digiSignature1?: string;
-    digiSignature2?: string;
-    publicKeyUrl1?: string;
-    publicKeyUrl2?: string;
+    digiSignature1: string;
+    digiSignature2: string;
+    publicKeyUrl1: string;
+    publicKeyUrl2: string;
 };
 
