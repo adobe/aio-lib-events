@@ -150,6 +150,7 @@ and max number of retries
     * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
     * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
+        ##### Below method is deprecated
     * [.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>
     * [.verifyDigitalSignatureForEvent(event, recipientClientId, [signatureOptions])](#EventsCoreAPI+verifyDigitalSignatureForEvent) ⇒ <code>boolean</code>
 
@@ -456,6 +457,7 @@ and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operato
 
 <a name="EventsCoreAPI+verifySignatureForEvent"></a>
 
+#### This method is deprecated
 ### eventsCoreAPI.verifySignatureForEvent(event, clientSecret, signatureHeaderValue) ⇒ <code>boolean</code>
 Authenticating events by verifying signature
 
