@@ -112,6 +112,8 @@ and max number of retries</p>
 <dd></dd>
 <dt><a href="#EventsJournalPollingOptions">EventsJournalPollingOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#SignatureOptions">SignatureOptions</a> : <code>object</code></dt>
+<dd></dd>
 </dl>
 
 <a name="EventsCoreAPI"></a>
@@ -148,7 +150,8 @@ and max number of retries
     * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
     * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
-    * [.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>
+    * ~~[.verifySignatureForEvent(event, clientSecret, signatureHeaderValue)](#EventsCoreAPI+verifySignatureForEvent) ⇒ <code>boolean</code>~~
+    * [.verifyDigitalSignatureForEvent(event, recipientClientId, [signatureOptions])](#EventsCoreAPI+verifyDigitalSignatureForEvent) ⇒ <code>boolean</code>
 
 <a name="EventsCoreAPI+httpOptions"></a>
 
@@ -453,7 +456,9 @@ and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operato
 
 <a name="EventsCoreAPI+verifySignatureForEvent"></a>
 
-### eventsCoreAPI.verifySignatureForEvent(event, clientSecret, signatureHeaderValue) ⇒ <code>boolean</code>
+### ~~eventsCoreAPI.verifySignatureForEvent(event, clientSecret, signatureHeaderValue) ⇒ <code>boolean</code>~~
+***Deprecated***
+
 Authenticating events by verifying signature
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -464,6 +469,21 @@ Authenticating events by verifying signature
 | event | <code>object</code> | JSON payload delivered to the registered webhook URL |
 | clientSecret | <code>string</code> | Client secret can be retrieved from the Adobe I/O Console integration |
 | signatureHeaderValue | <code>string</code> | Value of x-adobe-signature header in each POST request to the registered webhook URL |
+
+<a name="EventsCoreAPI+verifyDigitalSignatureForEvent"></a>
+
+### eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, [signatureOptions]) ⇒ <code>boolean</code>
+Authenticating events by verifying digital signature
+
+**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
+**Returns**: <code>boolean</code> - If signature matches return true else return false  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>object</code> | JSON payload delivered to the registered webhook URL |
+| recipientClientId | <code>string</code> | Target recipient client id retrieved from the Adobe I/O Console integration |
+| [signatureOptions] | [<code>SignatureOptions</code>](#SignatureOptions) | Map of digital signature header fields defined in SignatureOptions |
+
 
 <a name="init"></a>
 
@@ -512,6 +532,19 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | Name | Type | Description |
 | --- | --- | --- |
 | [interval] | <code>number</code> | Interval at which to poll the journal; If not provided, a default value will be used (optional) |
+
+<a name="SignatureOptions"></a>
+
+## SignatureOptions : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [digiSignature1] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature1 header |
+| [digiSignature2] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature2 header |
+| [publicKeyUrl1] | <code>string</code> | Value of public key url retrieved from the x-adobe-public-key1-url header |
+| [publicKeyUrl2] | <code>string</code> | Value of public key url retrieved from the x-adobe-public-key2-url header |
 
 ### Debug Logs
 
