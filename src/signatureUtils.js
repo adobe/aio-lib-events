@@ -8,6 +8,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
+const validUrl = require('valid-url')
 const helpers = require('./helpers')
 const stateLib = require('@adobe/aio-lib-state')
 const fetch = require('node-fetch')
@@ -37,8 +38,14 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, sign
   // url format for stage is - https://adobeioevents.com/stage/keys/pub-key-<random-uuid>.pem
   const pubKeyUrl1 = ADOBE_IOEVENTS_DOMAIN + signatureOptions.publicKeyPath1
   const pubKeyUrl2 = ADOBE_IOEVENTS_DOMAIN + signatureOptions.publicKeyPath2
-  const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
-  return await verifySignature(signatures, signedPayload, keys, recipientClientId)
+  /* istanbul ignore else */
+  if (validUrl.isHttpsUri(pubKeyUrl1) && validUrl.isHttpsUri(pubKeyUrl2)) {
+    const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
+    return await verifySignature(signatures, signedPayload, keys, recipientClientId)
+  } else {
+    logger.error('either or both public key urls %s and %s are not valid', pubKeyUrl1, pubKeyUrl2)
+    return false
+  }
 }
 
 /**
