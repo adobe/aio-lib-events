@@ -509,8 +509,8 @@ class EventsCoreAPI {
    * @param {*} signatureOptions map of all digital signature header values consisting fields as below
    * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
    * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
-   * publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
-   * publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
+   * publicKeyPath1 : Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header in each POST request to webhook
+   * publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook
    * @returns {boolean} If signature matches return true else return false
    */
   async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
