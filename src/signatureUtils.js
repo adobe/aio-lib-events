@@ -83,7 +83,7 @@ async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
     return await fetchKeyFromApiAndPutInCache(pubKeyUrl, state, publicKeyFileName)
   }
   /* istanbul ignore next */
-  return publicKey
+  return publicKey.toString()
 }
 
 /**
@@ -98,6 +98,13 @@ async function fetchKeyFromApiAndPutInCache (pubKeyUrl, state, publicKeyFileName
   logger.info('public key %s not present in aio state lib cache, fetching directly from the url..', publicKeyFileName)
   // fetch from api and set in cache default expiry 24h
   const publicKey = await fetchPublicKeyFromCloudFront(pubKeyUrl)
+  /**
+   * key json obj stored in cache in below format
+   * {
+   *     "value":"pem public key",
+   *     "expiration":"24h timestamp"
+   * }
+   */
   await state.put(publicKeyFileName, publicKey)
   return publicKey
 }
@@ -111,7 +118,15 @@ async function fetchKeyFromApiAndPutInCache (pubKeyUrl, state, publicKeyFileName
  */
 async function getKeyFromCache (state, publicKeyFileNameAsKey) {
   try {
-    return await state.get(publicKeyFileNameAsKey)
+    const keyObj = await state.get(publicKeyFileNameAsKey)
+    /**
+     * key json obj fetched from cache in below format
+     * {
+     *     "value":"pem public key",
+     *     "expiration":"24h timestamp"
+     * }
+     */
+    return keyObj.value
   } catch (error) {
     logger.error('aio lib state get error due to => %s', error.message)
   }
