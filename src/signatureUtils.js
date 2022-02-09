@@ -16,7 +16,7 @@ const crypto = require('crypto')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
-const ADOBE_IOEVENTS_SECURITY_SUBDOMAIN = 'https://static.adobeioevents.com'
+const ADOBE_IOEVENTS_SECURITY_DOMAIN = 'https://static.adobeioevents.com'
 
 /**
  * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
@@ -35,8 +35,8 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, sign
   const signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
   // complete public key url is the concatenation of the fixed adobe ioevents domain and the relative path of key
   // example url format - https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
-  const pubKeyUrl1 = ADOBE_IOEVENTS_SECURITY_SUBDOMAIN + signatureOptions.publicKeyPath1
-  const pubKeyUrl2 = ADOBE_IOEVENTS_SECURITY_SUBDOMAIN + signatureOptions.publicKeyPath2
+  const pubKeyUrl1 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath1
+  const pubKeyUrl2 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath2
   /* istanbul ignore else */
   if (validUrl.isHttpsUri(pubKeyUrl1) && validUrl.isHttpsUri(pubKeyUrl2)) {
     const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
