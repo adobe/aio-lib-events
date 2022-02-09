@@ -16,7 +16,7 @@ const crypto = require('crypto')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
-const ADOBE_IOEVENTS_SECURITY_DOMAIN = 'https://adobeioevents.com'
+const ADOBE_IOEVENTS_SECURITY_SUBDOMAIN = 'https://static.adobeioevents.com'
 
 /**
  * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
@@ -34,9 +34,9 @@ const ADOBE_IOEVENTS_SECURITY_DOMAIN = 'https://adobeioevents.com'
 async function verifyDigitalSignature (signatureOptions, recipientClientId, signedPayload) {
   const signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
   // complete public key url is the concatenation of the fixed adobe ioevents domain and the relative path of key
-  // example url format - https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
-  const pubKeyUrl1 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath1
-  const pubKeyUrl2 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath2
+  // example url format - https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+  const pubKeyUrl1 = ADOBE_IOEVENTS_SECURITY_SUBDOMAIN + signatureOptions.publicKeyPath1
+  const pubKeyUrl2 = ADOBE_IOEVENTS_SECURITY_SUBDOMAIN + signatureOptions.publicKeyPath2
   /* istanbul ignore else */
   if (validUrl.isHttpsUri(pubKeyUrl1) && validUrl.isHttpsUri(pubKeyUrl2)) {
     const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
@@ -50,8 +50,8 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, sign
 /**
  * Feteched the pem encoded public keys either from the state lib cache or directly via cloud front url
  *
- * @param {*} pubKeyUrl1 cloud front url of format https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
- * @param {*} pubKeyUrl2 cloud front url of format https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl1 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl2 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @returns {Array} of two public keys
  */
 async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
@@ -71,7 +71,7 @@ async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
  * Wrapper to fetch the key from aio-lib-state, if not present fetch using
  * the cloud front url and set in aio-lib-state
  *
- * @param {*} pubKeyUrl cloud front url of format https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @param {*} state aio-lib-state client
  * @returns {string} pem encoded public key as string
  */
@@ -89,7 +89,7 @@ async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
 /**
  * Fetch using the cloud front url and set in aio-lib-state
  *
- * @param {*} pubKeyUrl cloud front url of format https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @param {*} state aio-lib-state client
  * @param {*} publicKeyFileName key file name in format pub-key-<random-uuid>.pem
  * @returns {string} pem encoded public key as string
@@ -125,7 +125,7 @@ async function getKeyFromCache (state, publicKeyFileNameAsKey) {
  * @returns {string} pub key url as string
  */
 async function getPubKeyFileName (pubKeyUrl) {
-  // public key url is the cloud front url in this format https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+  // public key url is the cloud front url in this format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
   return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
 
@@ -133,7 +133,7 @@ async function getPubKeyFileName (pubKeyUrl) {
  * Fetches public key using the cloud front public key url
  *
  * @param {*} publicKeyUrl - cloud front public key url of format
- * https://adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @returns {string} public key
  */
 async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
