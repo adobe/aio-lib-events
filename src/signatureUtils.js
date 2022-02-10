@@ -8,6 +8,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
+const validUrl = require('valid-url')
 const helpers = require('./helpers')
 const stateLib = require('@adobe/aio-lib-state')
 const fetch = require('node-fetch')
@@ -15,6 +16,7 @@ const crypto = require('crypto')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
+const ADOBE_IOEVENTS_SECURITY_DOMAIN = 'https://static.adobeioevents.com'
 
 /**
  * Wrapper to fetch the public key (either through aio-lib-state or cloud front url)
@@ -23,23 +25,33 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
  * @param {*} signatureOptions map of all digital signature header values consisting fields as below
  * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
  * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
- * publicKeyUrl1 : Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
- * publicKeyUrl2 : Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
+ * publicKeyPath1 : Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header in each POST request to webhook
+ * publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook
  * @param {*} recipientClientId - target recipient client id
  * @param {*} signedPayload - I/O Events proper signed payload
  * @returns {boolean} true if either signatures are valid or false
  */
 async function verifyDigitalSignature (signatureOptions, recipientClientId, signedPayload) {
   const signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
-  const keys = await fetchPemEncodedPublicKeys(signatureOptions.publicKeyUrl1, signatureOptions.publicKeyUrl2)
-  return await verifySignature(signatures, signedPayload, keys, recipientClientId)
+  // complete public key url is the concatenation of the fixed adobe ioevents domain and the relative path of key
+  // example url format - https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+  const pubKeyUrl1 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath1
+  const pubKeyUrl2 = ADOBE_IOEVENTS_SECURITY_DOMAIN + signatureOptions.publicKeyPath2
+  /* istanbul ignore else */
+  if (validUrl.isHttpsUri(pubKeyUrl1) && validUrl.isHttpsUri(pubKeyUrl2)) {
+    const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
+    return await verifySignature(signatures, signedPayload, keys, recipientClientId)
+  } else {
+    logger.error('either or both public key urls %s and %s are not valid', pubKeyUrl1, pubKeyUrl2)
+    return false
+  }
 }
 
 /**
  * Feteched the pem encoded public keys either from the state lib cache or directly via cloud front url
  *
- * @param {*} pubKeyUrl1 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
- * @param {*} pubKeyUrl2 cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl1 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl2 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @returns {Array} of two public keys
  */
 async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
@@ -59,7 +71,7 @@ async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
  * Wrapper to fetch the key from aio-lib-state, if not present fetch using
  * the cloud front url and set in aio-lib-state
  *
- * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @param {*} state aio-lib-state client
  * @returns {string} pem encoded public key as string
  */
@@ -71,13 +83,13 @@ async function fetchPubKeyFromCacheOrApi (pubKeyUrl, state) {
     return await fetchKeyFromApiAndPutInCache(pubKeyUrl, state, publicKeyFileName)
   }
   /* istanbul ignore next */
-  return publicKey
+  return publicKey.toString()
 }
 
 /**
  * Fetch using the cloud front url and set in aio-lib-state
  *
- * @param {*} pubKeyUrl cloud front url of format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * @param {*} pubKeyUrl cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @param {*} state aio-lib-state client
  * @param {*} publicKeyFileName key file name in format pub-key-<random-uuid>.pem
  * @returns {string} pem encoded public key as string
@@ -86,6 +98,13 @@ async function fetchKeyFromApiAndPutInCache (pubKeyUrl, state, publicKeyFileName
   logger.info('public key %s not present in aio state lib cache, fetching directly from the url..', publicKeyFileName)
   // fetch from api and set in cache default expiry 24h
   const publicKey = await fetchPublicKeyFromCloudFront(pubKeyUrl)
+  /**
+   * key json obj stored in cache in below format
+   * {
+   *     "value":"pem public key",
+   *     "expiration":"24h timestamp"
+   * }
+   */
   await state.put(publicKeyFileName, publicKey)
   return publicKey
 }
@@ -99,7 +118,15 @@ async function fetchKeyFromApiAndPutInCache (pubKeyUrl, state, publicKeyFileName
  */
 async function getKeyFromCache (state, publicKeyFileNameAsKey) {
   try {
-    return await state.get(publicKeyFileNameAsKey)
+    const keyObj = await state.get(publicKeyFileNameAsKey)
+    /**
+     * key json obj fetched from cache in below format
+     * {
+     *     "value":"pem public key",
+     *     "expiration":"24h timestamp"
+     * }
+     */
+    return keyObj.value
   } catch (error) {
     logger.error('aio lib state get error due to => %s', error.message)
   }
@@ -113,7 +140,7 @@ async function getKeyFromCache (state, publicKeyFileNameAsKey) {
  * @returns {string} pub key url as string
  */
 async function getPubKeyFileName (pubKeyUrl) {
-  // public key url is the cloud front url in this format https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+  // public key url is the cloud front url in this format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
   return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
 
@@ -121,7 +148,7 @@ async function getPubKeyFileName (pubKeyUrl) {
  * Fetches public key using the cloud front public key url
  *
  * @param {*} publicKeyUrl - cloud front public key url of format
- * https://d2wbnl47xxxxx.cloudfront.net/pub-key-<random-uuid>.pem
+ * https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @returns {string} public key
  */
 async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
