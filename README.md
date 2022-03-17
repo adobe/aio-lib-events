@@ -510,6 +510,8 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | --- | --- | --- |
 | [timeout] | <code>number</code> | Http request timeout in ms (optional) |
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
+| [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
+| [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
 
 <a name="EventsJournalOptions"></a>
 

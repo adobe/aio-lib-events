@@ -34,6 +34,8 @@ const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
+const EVENTS_BASE_URL = 'fakebaseurl'
+const EVENTS_INGRESS_URL = 'fakeingressurl'
 
 // /////////////////////////////////////////////
 
@@ -51,6 +53,18 @@ beforeEach(() => {
 
 describe('SDK init test', () => {
   it('sdk init test', async () => {
+    const options = {
+      eventsBaseURL: EVENTS_BASE_URL,
+      eventsIngressURL: EVENTS_INGRESS_URL
+    }
+    const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, options)
+    expect(sdkClient.organizationId).toBe(gOrganizationId)
+    expect(sdkClient.apiKey).toBe(gApiKey)
+    expect(sdkClient.accessToken).toBe(gAccessToken)
+    expect(sdkClient.httpOptions.eventsBaseURL).toBe(EVENTS_BASE_URL)
+    expect(sdkClient.httpOptions.eventsIngressURL).toBe(EVENTS_INGRESS_URL)
+  })
+  it('sdk init test with URL options', async () => {
     const sdkClient = await createSdkClient()
     expect(sdkClient.organizationId).toBe(gOrganizationId)
     expect(sdkClient.apiKey).toBe(gApiKey)
