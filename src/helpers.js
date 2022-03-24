@@ -96,6 +96,9 @@ function getProperPayload (event) {
   let decodedJsonPayload
   try {
     if (isBase64Encoded(event)) {
+      // using JSONbig.parse to handle payloads which may contain big integers.
+      // cf https://www.irt.org/script/1031.htm
+      // using JSON.parse, there will be data loss as these big numbers outside the range gets transformed to nearest Javascript number
       decodedJsonPayload = JSONbig.parse(Buffer.from(event, 'base64').toString('utf-8'))
     } else {
       // parsing for non-encoded json payloads (e.g. custom events)
