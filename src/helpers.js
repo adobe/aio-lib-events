@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 const querystring = require('querystring')
 const httplinkheader = require('http-link-header')
 const url = require('url')
+const JSONbig = require('json-bigint')
 const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
@@ -95,10 +96,10 @@ function getProperPayload (event) {
   let decodedJsonPayload
   try {
     if (isBase64Encoded(event)) {
-      decodedJsonPayload = JSON.parse(Buffer.from(event, 'base64').toString('utf-8'))
+      decodedJsonPayload = JSONbig.parse(Buffer.from(event, 'base64').toString('utf-8'))
     } else {
       // parsing for non-encoded json payloads (e.g. custom events)
-      decodedJsonPayload = JSON.parse(event)
+      decodedJsonPayload = JSONbig.parse(event)
     }
   } catch (error) {
     logger.error('error occured while checking payload' + error.message)
