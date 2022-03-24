@@ -25,7 +25,6 @@ const { codes } = require('./SDKErrors')
 const fetchRetryClient = require('@adobe/aio-lib-core-networking')
 const hmacSHA256 = require('crypto-js/hmac-sha256')
 const Base64 = require('crypto-js/enc-base64')
-const JSONbig = require('json-bigint')
 
 const EventsConsumerFromJournal = require('./journalling')
 
@@ -519,11 +518,12 @@ class EventsCoreAPI {
    */
   async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
     // check event payload and get proper payload used in I/O Events signing
-    const decodedJsonPayload = helpers.getProperPayload(event)
+    const properJsonPayload = helpers.getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
-    if (signatureUtils.isTargetRecipient(decodedJsonPayload, recipientClientId)) {
-      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, JSONbig.stringify(decodedJsonPayload))
+    const parsedJsonPayoad = JSON.parse(properJsonPayload)
+    if (signatureUtils.isTargetRecipient(parsedJsonPayoad, recipientClientId)) {
+      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, properJsonPayload)
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
       return helpers.genErrorResponse(401, message)
