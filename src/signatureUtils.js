@@ -28,10 +28,10 @@ const ADOBE_IOEVENTS_SECURITY_DOMAIN = 'https://static.adobeioevents.com'
  * publicKeyPath1 : Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header in each POST request to webhook
  * publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook
  * @param {*} recipientClientId - target recipient client id
- * @param {*} properPayload - I/O Events proper signed payload
+ * @param {*} rawSignedPayload - I/O Events proper signed raw payload
  * @returns {boolean} true if either signatures are valid or false
  */
-async function verifyDigitalSignature (signatureOptions, recipientClientId, properPayload) {
+async function verifyDigitalSignature (signatureOptions, recipientClientId, rawSignedPayload) {
   const signatures = [signatureOptions.digiSignature1, signatureOptions.digiSignature2]
   // complete public key url is the concatenation of the fixed adobe ioevents domain and the relative path of key
   // example url format - https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
@@ -40,7 +40,7 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, prop
   /* istanbul ignore else */
   if (validUrl.isHttpsUri(pubKeyUrl1) && validUrl.isHttpsUri(pubKeyUrl2)) {
     const keys = await fetchPemEncodedPublicKeys(pubKeyUrl1, pubKeyUrl2)
-    return await verifySignature(signatures, properPayload, keys, recipientClientId)
+    return await verifySignature(signatures, rawSignedPayload, keys, recipientClientId)
   } else {
     logger.error('either or both public key urls %s and %s are not valid', pubKeyUrl1, pubKeyUrl2)
     return false
@@ -170,17 +170,17 @@ async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
  * Digital Signature Verification Helper
  *
  * @param {*} digitalSignatures - Array of both I/O Events generated digital signatures
- * @param {*} properPayload - I/O Events proper signed payload
+ * @param {*} rawSignedPayload - I/O Events proper signed payload
  * @param {*} publicKeys - Array of both I/O Events PEM encoded public keys
  * @param {*} recipientClientId - target recipient client id
  * @returns {boolean} true if either signatures are valid or false
  */
-async function verifySignature (digitalSignatures, properPayload, publicKeys, recipientClientId) {
+async function verifySignature (digitalSignatures, rawSignedPayload, publicKeys, recipientClientId) {
   let result, publicKey
   try {
     for (let i = 0; i < digitalSignatures.length; i++) {
       publicKey = await createCryptoPublicKey(publicKeys[i])
-      result = await cryptoVerify(digitalSignatures[i], publicKey, properPayload)
+      result = await cryptoVerify(digitalSignatures[i], publicKey, rawSignedPayload)
       /* istanbul ignore else */
       if (result) {
         return result
@@ -197,12 +197,12 @@ async function verifySignature (digitalSignatures, properPayload, publicKeys, re
  *
  * @param {*} signature I/O Events digital signature
  * @param {*} pubKey I/O Events public key
- * @param {*} properPayload I/O Events signed payload
+ * @param {*} rawSignedPayload I/O Events signed payload
  * @returns {boolean} true or false
  */
-async function cryptoVerify (signature, pubKey, properPayload) {
+async function cryptoVerify (signature, pubKey, rawSignedPayload) {
   try {
-    return crypto.verify('rsa-sha256', Buffer.from(properPayload), pubKey, Buffer.from(signature, 'base64'))
+    return crypto.verify('rsa-sha256', Buffer.from(rawSignedPayload), pubKey, Buffer.from(signature, 'base64'))
   } catch (error) {
     logger.error('error during crypto verification of digital signature due to => ' + error.message)
     return false

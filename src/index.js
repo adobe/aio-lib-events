@@ -518,12 +518,12 @@ class EventsCoreAPI {
    */
   async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
     // check event payload and get proper payload used in I/O Events signing
-    const properJsonPayload = helpers.getProperPayload(event)
+    const rawSignedPayload = helpers.getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
-    const parsedJsonPayoad = JSON.parse(properJsonPayload)
+    const parsedJsonPayoad = JSON.parse(rawSignedPayload)
     if (signatureUtils.isTargetRecipient(parsedJsonPayoad, recipientClientId)) {
-      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, properJsonPayload)
+      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, rawSignedPayload)
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
       return helpers.genErrorResponse(401, message)

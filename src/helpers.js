@@ -83,10 +83,10 @@ function parseRetryAfterHeader (header) {
 
 /**
  * Wrapper to check the event received by webhook
- * and return decoded (if encoded) and properly parsed payload
+ * and return decoded (if encoded) payload
  *
  * @param {*} event event payload received by webhook
- * @returns {object} decoded and properly parsed payload json object
+ * @returns {object} decoded/same raw event payload
  */
 function getProperPayload (event) {
   if (isBase64Encoded(event)) {
