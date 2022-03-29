@@ -170,7 +170,7 @@ async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
  * Digital Signature Verification Helper
  *
  * @param {*} digitalSignatures - Array of both I/O Events generated digital signatures
- * @param {*} rawSignedPayload - I/O Events proper signed payload
+ * @param {*} rawSignedPayload - I/O Events proper signed raw payload
  * @param {*} publicKeys - Array of both I/O Events PEM encoded public keys
  * @param {*} recipientClientId - target recipient client id
  * @returns {boolean} true if either signatures are valid or false
@@ -197,7 +197,7 @@ async function verifySignature (digitalSignatures, rawSignedPayload, publicKeys,
  *
  * @param {*} signature I/O Events digital signature
  * @param {*} pubKey I/O Events public key
- * @param {*} rawSignedPayload I/O Events signed payload
+ * @param {*} rawSignedPayload I/O Events signed raw payload
  * @returns {boolean} true or false
  */
 async function cryptoVerify (signature, pubKey, rawSignedPayload) {
