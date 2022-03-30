@@ -11,9 +11,6 @@ governing permissions and limitations under the License.
 const querystring = require('querystring')
 const httplinkheader = require('http-link-header')
 const url = require('url')
-const loggerNamespace = '@adobe/aio-lib-events'
-const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
-  { level: process.env.LOG_LEVEL })
 
 /**
  * Reduce an Error to a string
@@ -86,25 +83,17 @@ function parseRetryAfterHeader (header) {
 
 /**
  * Wrapper to check the event received by webhook
- * and return decoded (if encoded) and properly parsed payload
+ * and return decoded (if encoded) payload
  *
  * @param {*} event event payload received by webhook
- * @returns {object} decoded and properly parsed payload json object
+ * @returns {object} decoded/same raw event payload
  */
 function getProperPayload (event) {
-  let decodedJsonPayload
-  try {
-    if (isBase64Encoded(event)) {
-      decodedJsonPayload = JSON.parse(Buffer.from(event, 'base64').toString('utf-8'))
-    } else {
-      // parsing for non-encoded json payloads (e.g. custom events)
-      decodedJsonPayload = JSON.parse(event)
-    }
-  } catch (error) {
-    logger.error('error occured while checking payload' + error.message)
-    return genErrorResponse(400, 'Failed to understand the payload')
+  if (isBase64Encoded(event)) {
+    return Buffer.from(event, 'base64').toString('utf-8')
   }
-  return decodedJsonPayload
+  // returning the non-encoded json payloads (e.g. custom events) as is
+  return event
 }
 
 /**
