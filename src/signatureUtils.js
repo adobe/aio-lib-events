@@ -227,7 +227,7 @@ async function createCryptoPublicKey (publicKey) {
 /**
  * Checks if the recipient client id is the valid target recipient of the event payload
  *
- * @param {*} parsedJsonPayload a valid deserialized json event payload object used in I/O Events signing
+ * @param {*} parsedJsonPayload deserialized json event payload
  * @param {*} recipientClientId target recipient client id
  * @returns {boolean} true if valid target recipient or false
  */
