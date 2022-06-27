@@ -571,24 +571,6 @@ describe('Get events observable from journal', () => {
   })
 })
 
-describe('Authenticate event with deprecated hmac signature', () => {
-  it('Verify event signature successfully', async () => {
-    const sdkClient = await createSdkClient()
-    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F1eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
-    expect(verified).toBe(true)
-  })
-  it('Verify event signature with error', async () => {
-    const sdkClient = await createSdkClient()
-    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, 'client-secret', 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
-    expect(verified).toBe(false)
-  })
-  it('Verify invalid client secret', async () => {
-    const sdkClient = await createSdkClient()
-    const verified = await sdkClient.verifySignatureForEvent({ hello: 'world' }, undefined, 'hXC8F11eTt8Xmz7ec/9MkHqfzubDCSfGsgb8dWD0F+hQ=')
-    expect(verified).toBe(false)
-  })
-})
-
 describe('Authenticate event with digital signatures', () => {
   const event = mock.data.testEvent.event
   const signatureOptions = mock.data.signatureOptions.params

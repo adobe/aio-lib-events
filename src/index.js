@@ -23,8 +23,6 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
 const { codes } = require('./SDKErrors')
 const fetchRetryClient = require('@adobe/aio-lib-core-networking')
-const hmacSHA256 = require('crypto-js/hmac-sha256')
-const Base64 = require('crypto-js/enc-base64')
 
 const EventsConsumerFromJournal = require('./journalling')
 
@@ -483,25 +481,6 @@ class EventsCoreAPI {
    */
   getEventsObservableFromJournal (journalUrl, eventsJournalOptions, eventsJournalPollingOptions) {
     return (new EventsConsumerFromJournal(this, journalUrl, eventsJournalOptions, eventsJournalPollingOptions)).asObservable()
-  }
-
-  /**
-   * Authenticating events by verifying hmac signature
-   *
-   * @param {object} event JSON payload delivered to the registered webhook URL
-   * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
-   * @param {string} deprecatedSignature Value of x-adobe-signature header in each POST request to the registered webhook URL
-   * @returns {boolean} If signature matches return true else return false
-   * @deprecated
-   */
-  verifySignatureForEvent (event, clientSecret, deprecatedSignature) {
-    if (clientSecret !== null && typeof (clientSecret) !== 'undefined') {
-      const hmacDigest = Base64.stringify(hmacSHA256(JSON.stringify(event), clientSecret))
-      return hmacDigest === deprecatedSignature
-    } else {
-      logger.error('invalid or missing client secret')
-      return false
-    }
   }
 
   /**
