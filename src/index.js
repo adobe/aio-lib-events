@@ -28,12 +28,12 @@ const Base64 = require('crypto-js/enc-base64')
 
 const EventsConsumerFromJournal = require('./journalling')
 
-const EVENTS_BASE_URL = process.env.EVENTS_BASE_URL || 'https://api.adobe.io'
-const EVENTS_INGRESS_URL = process.env.EVENTS_INGRESS_URL || 'https://eventsingress.adobe.io'
 /**
  * @typedef {object} EventsCoreAPIOptions
  * @property {number} [timeout] Http request timeout in ms (optional)
  * @property {number} [retries] Number of retries in case of 5xx errors. Default 0 (optional)
+ * @property {string} [eventsBaseURL] Base URL for Events Default https://api.adobe.io (optional)
+ * @property {string} [eventsIngressURL] Ingress URL for Events. Default https://eventsingress.adobe.io (optional)
  */
 /**
  * Returns a Promise that resolves with a new EventsCoreAPI object.
@@ -100,6 +100,9 @@ class EventsCoreAPI {
     this.apiKey = apiKey
     /** The JWT Token for the integration with IO Management API scope */
     this.accessToken = accessToken
+    /** Initialise base and Ingress URLs */
+    this.__initLibURLs()
+
     return this
   }
 
@@ -389,7 +392,7 @@ class EventsCoreAPI {
     headers['Content-Type'] = 'application/cloudevents+json'
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(cloudEvent))
     const retries = (this.httpOptions && this.httpOptions.retries) || 0
-    const url = EVENTS_INGRESS_URL
+    const url = this.httpOptions.eventsIngressURL
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return new Promise((resolve, reject) => {
       fetchRetryClient.exponentialBackoff(url, requestOptions, { maxRetries: retries, initialDelayInMillis: 1000 }, this.__getRetryOn(retries))
@@ -515,11 +518,12 @@ class EventsCoreAPI {
    */
   async verifyDigitalSignatureForEvent (event, recipientClientId, signatureOptions) {
     // check event payload and get proper payload used in I/O Events signing
-    const decodedJsonPayload = helpers.getProperPayload(event)
+    const rawSignedPayload = helpers.getProperPayload(event)
 
     // check if the target recipient is present in event and is a valid one, then verify the signature else return error
-    if (signatureUtils.isTargetRecipient(decodedJsonPayload, recipientClientId)) {
-      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, JSON.stringify(decodedJsonPayload))
+    const parsedJsonPayoad = JSON.parse(rawSignedPayload)
+    if (signatureUtils.isTargetRecipient(parsedJsonPayoad, recipientClientId)) {
+      return await signatureUtils.verifyDigitalSignature(signatureOptions, recipientClientId, rawSignedPayload)
     } else {
       const message = 'Unable to authenticate, not a valid target recipient'
       return helpers.genErrorResponse(401, message)
@@ -634,7 +638,13 @@ class EventsCoreAPI {
   }
 
   __getUrl (path) {
-    return EVENTS_BASE_URL + path
+    return this.httpOptions.eventsBaseURL + path
+  }
+
+  __initLibURLs () {
+    this.httpOptions = this.httpOptions || {}
+    this.httpOptions.eventsBaseURL = this.httpOptions.eventsBaseURL || 'https://api.adobe.io'
+    this.httpOptions.eventsIngressURL = this.httpOptions.eventsIngressURL || 'https://eventsingress.adobe.io'
   }
 }
 

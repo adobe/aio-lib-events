@@ -510,6 +510,8 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | --- | --- | --- |
 | [timeout] | <code>number</code> | Http request timeout in ms (optional) |
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
+| [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
+| [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
 
 <a name="EventsJournalOptions"></a>
 
@@ -543,8 +545,8 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | --- | --- | --- |
 | [digiSignature1] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature1 header |
 | [digiSignature2] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature2 header |
-| [publicKeyUrl1] | <code>string</code> | Value of public key url retrieved from the x-adobe-public-key1-url header |
-| [publicKeyUrl2] | <code>string</code> | Value of public key url retrieved from the x-adobe-public-key2-url header |
+| [publicKeyPath1] | <code>string</code> | Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header |
+| [publicKeyPath2] | <code>string</code> | Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header |
 
 ### Debug Logs
 
