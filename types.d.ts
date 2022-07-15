@@ -214,16 +214,6 @@ declare class EventsCoreAPI {
      * @returns {Observable<object>} observable to which the user can subscribe to in order to listen to events
      */
     getEventsObservableFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions, eventsJournalPollingOptions?: EventsJournalPollingOptions): Observable<object>;
-    /**
-     * Authenticating events by verifying signature
-     *
-     * @param {object} event JSON payload delivered to the registered webhook URL
-     * @param {string} clientSecret Client secret can be retrieved from the Adobe I/O Console integration
-     * @param {string} signatureHeaderValue Value of x-adobe-signature header in each POST request to the registered webhook URL
-     * @returns {boolean} If signature matches return true else return false
-     * @deprecated
-     */
-    verifySignatureForEvent(event: any, clientSecret: string, signatureHeaderValue: string): boolean;
 
     /**
      * Authenticating events by verifying digital signature
