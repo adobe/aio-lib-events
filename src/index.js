@@ -22,7 +22,8 @@ const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
 const { codes } = require('./SDKErrors')
-const fetchRetryClient = require('@adobe/aio-lib-core-networking')
+const { HttpExponentialBackoff } = require('@adobe/aio-lib-core-networking')
+const fetchRetryClient = new HttpExponentialBackoff()
 
 const EventsConsumerFromJournal = require('./journalling')
 

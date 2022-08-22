@@ -20,12 +20,22 @@ jest.mock('@adobe/aio-lib-state', () => ({
   init: jest.fn().mockResolvedValue(mockStateInstance)
 }))
 
+const mockExponentialBackoff = jest.fn()
+const mockHttpExponentialBackoff = jest.fn(() => ({
+  exponentialBackoff: mockExponentialBackoff
+}))
+
+jest.mock('@adobe/aio-lib-core-networking', () => ({
+  HttpExponentialBackoff: mockHttpExponentialBackoff
+}))
+
 const sdk = require('../src')
 const mock = require('./mock')
 const errorSDK = require('../src/SDKErrors')
 const fetch = require('node-fetch')
 const { Response } = jest.requireActual('node-fetch')
-const fetchRetry = require('@adobe/aio-lib-core-networking')
+const { HttpExponentialBackoff } = require('@adobe/aio-lib-core-networking')
+const fetchRetry = new HttpExponentialBackoff()
 const Rx = require('rxjs')
 
 // /////////////////////////////////////////////
@@ -112,7 +122,7 @@ describe('Set headers', () => {
 describe('test get all providers', () => {
   it('Success on get all providers', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getAllProviders('consumerOrgId')
     expect(res._embedded.providers.length).toBe(2)
     expect(res._embedded.providers[0].id).toBe('test-id-1')
@@ -120,7 +130,7 @@ describe('test get all providers', () => {
   })
   it('Not found error on get all providers ', async () => {
     const api = 'getAllProviders'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerOrgId1'])
   })
 })
@@ -128,14 +138,14 @@ describe('test get all providers', () => {
 describe('test get provider', () => {
   it('Success on get provider by id', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.providerResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.providerResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getProvider('test-id')
     expect(res.id).toBe('test-id')
     expect(res.source).toBe('urn:uuid:test-id')
   })
   it('Not found error on get provider by id ', async () => {
     const api = 'getProvider'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_PROVIDER(), ['test-id-1'])
   })
 })
@@ -143,7 +153,7 @@ describe('test get provider', () => {
 describe('test get provider with eventmetadata', () => {
   it('Success on get provider by id', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.providerWithEventMetadataResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.providerWithEventMetadataResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getProvider('test-id', true)
     expect(res.id).toBe('test-id')
     expect(res.source).toBe('urn:uuid:test-id')
@@ -151,7 +161,7 @@ describe('test get provider with eventmetadata', () => {
   })
   it('Not found error on get provider by id ', async () => {
     const api = 'getProvider'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_PROVIDER(), ['test-id-1', true])
   })
 })
@@ -159,7 +169,7 @@ describe('test get provider with eventmetadata', () => {
 describe('test create new provider', () => {
   it('Success on creating new provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.providerResponse,
+    exponentialBackoffMockReturnValue(mock.data.providerResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.createProvider('consumerOrgId', 'projectId',
       'workspaceId', mock.data.createProvider)
@@ -167,7 +177,7 @@ describe('test create new provider', () => {
   })
   it('Bad request error on creating new provider', async () => {
     const api = 'createProvider'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_PROVIDER(),
       ['consumerOrgId', 'projectId', 'workspaceId', mock.data.createProviderBadRequest])
   })
@@ -176,7 +186,7 @@ describe('test create new provider', () => {
 describe('test update provider', () => {
   it('Success on update provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.updateProviderResponse,
+    exponentialBackoffMockReturnValue(mock.data.updateProviderResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.updateProvider('consumerOrgId', 'projectId',
       'workspaceId', 'test-id', mock.data.updateProvider)
@@ -185,7 +195,7 @@ describe('test update provider', () => {
   })
   it('Bad request error on update provider', async () => {
     const api = 'updateProvider'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_UPDATE_PROVIDER(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id',
         mock.data.updateProviderBadRequest])
@@ -195,14 +205,14 @@ describe('test update provider', () => {
 describe('test delete provider', () => {
   it('Success on delete provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, { status: 204, statusText: 'No Content' })
+    exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
     const res = await sdkClient.deleteProvider('consumerOrgId', 'projectId',
       'workspaceId', 'test-id')
     expect(res).toBe(undefined)
   })
   it('Not found error on delete provider', () => {
     const api = 'deleteProvider'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_DELETE_PROVIDER(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id1'])
   })
@@ -213,7 +223,7 @@ describe('test delete provider', () => {
 describe('Get all event metadata for provider', () => {
   it('Success on get all event metadata for provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.getAllEventMetadataResponse,
+    exponentialBackoffMockReturnValue(mock.data.getAllEventMetadataResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.getAllEventMetadataForProvider('test-id')
     expect(res._embedded.eventmetadata[0].event_code).toBe('com.adobe.event_code_1')
@@ -221,7 +231,7 @@ describe('Get all event metadata for provider', () => {
   })
   it('Bad Request error on get all event metadata for provider', async () => {
     const api = 'getAllEventMetadataForProvider'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_GET_ALL_EVENTMETADATA(),
       ['test-id-1'])
@@ -231,7 +241,7 @@ describe('Get all event metadata for provider', () => {
 describe('Get event metadata for provider', () => {
   it('Success on get event metadata for provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.getEventMetadataResponse,
+    exponentialBackoffMockReturnValue(mock.data.getEventMetadataResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.getEventMetadataForProvider(
       'test-id', 'event_code_1')
@@ -239,7 +249,7 @@ describe('Get event metadata for provider', () => {
   })
   it('Not found error on get event metadata for provider', async () => {
     const api = 'getEventMetadataForProvider'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_GET_EVENTMETADATA(),
       ['test-id', 'event_code_3'])
@@ -249,7 +259,7 @@ describe('Get event metadata for provider', () => {
 describe('Create event metadata for provider', () => {
   it('Success on create event metadata for provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.createEventMetadataForProviderResponse,
+    exponentialBackoffMockReturnValue(mock.data.createEventMetadataForProviderResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.createEventMetadataForProvider('consumerOrgId',
       'projectId', 'workspaceId', 'test-id',
@@ -260,7 +270,7 @@ describe('Create event metadata for provider', () => {
   })
   it('Bad request error on create event metadata for provider', async () => {
     const api = 'createEventMetadataForProvider'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_CREATE_EVENTMETADATA(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id',
@@ -271,7 +281,7 @@ describe('Create event metadata for provider', () => {
 describe('Update event metadata for provider', () => {
   it('Success on update event metadata for provider', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.createEventMetadataForProviderResponse,
+    exponentialBackoffMockReturnValue(mock.data.createEventMetadataForProviderResponse,
       { status: 200, statusText: 'OK' })
     const res = await sdkClient.updateEventMetadataForProvider('consumerOrgId',
       'projectId', 'workspaceId', 'test-id', 'event_code_1',
@@ -282,7 +292,7 @@ describe('Update event metadata for provider', () => {
   })
   it('Bad request error on update event metadata for provider', async () => {
     const api = 'updateEventMetadataForProvider'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_UPDATE_EVENTMETADATA(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id', 'event_code_1',
@@ -293,14 +303,14 @@ describe('Update event metadata for provider', () => {
 describe('Delete eventmetadata', () => {
   it('Success on delete eventmetadata', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, { status: 204, statusText: 'No Content' })
+    exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
     const res = await sdkClient.deleteEventMetadata('consumerOrgId', 'projectId',
       'workspaceId', 'test-id', 'event_code_1')
     expect(res).toBe(undefined)
   })
   it('Not found error on delete eventmetadata', async () => {
     const api = 'deleteEventMetadata'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_DELETE_EVENTMETADATA(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id', 'event_code_2'])
@@ -310,14 +320,14 @@ describe('Delete eventmetadata', () => {
 describe('Delete all eventmetadata', () => {
   it('Success on delete all eventmetadata', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, { status: 204, statusText: 'No Content' })
+    exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
     const res = await sdkClient.deleteAllEventMetadata('consumerOrgId', 'projectId',
       'workspaceId', 'test-id')
     expect(res).toBe(undefined)
   })
   it('Not found error on delete all eventmetadata', async () => {
     const api = 'deleteAllEventMetadata'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_DELETE_ALL_EVENTMETADATA(),
       ['consumerOrgId', 'projectId', 'workspaceId', 'test-id'])
@@ -327,14 +337,14 @@ describe('Delete all eventmetadata', () => {
 describe('Create webhook registration', () => {
   it('Success on create webhook registration', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.createWebhookRegistration('consumerOrgId', 'integrationId', mock.data.createWebhookRegistration)
     expect(res.id).toBe(248723)
     expect(res.status).toBe('VERIFIED')
   })
   it('Bad request error on create webhook registration', async () => {
     const api = 'createWebhookRegistration'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerOrgId', 'integrationId', mock.data.createWebhookRegistrationBadRequest])
   })
 })
@@ -342,7 +352,7 @@ describe('Create webhook registration', () => {
 describe('Get all webhook registration', () => {
   it('Success on get all webhook registration', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.getAllWebhookRegistrationsResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.getAllWebhookRegistrationsResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getAllWebhookRegistrations('consumerOrgId', 'integrationId')
     expect(res.length).toBe(2)
     expect(res[0].id).toBe(1)
@@ -350,7 +360,7 @@ describe('Get all webhook registration', () => {
   })
   it('Not found error on get all webhook registration', async () => {
     const api = 'getAllWebhookRegistrations'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATION(), ['consumerOrgId', 'integrationId-1'])
   })
 })
@@ -358,14 +368,14 @@ describe('Get all webhook registration', () => {
 describe('Get a webhook registration', () => {
   it('Success on get a webhook registration', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getWebhookRegistration('consumerOrgId', 'integrationId', 'registration-id')
     expect(res.id).toBe(248723)
     expect(res.status).toBe('VERIFIED')
   })
   it('Not found error on get a webhook registration', async () => {
     const api = 'getWebhookRegistration'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_REGISTRATION(), ['consumerOrgId', 'integrationId', 'registration-id-1'])
   })
 })
@@ -374,7 +384,7 @@ describe('Get webhook registration with retries', () => {
   it('Test for retries on 5xx response', async () => {
     const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, { retries: 3 })
     const error = new errorSDK.codes.ERROR_GET_REGISTRATION()
-    mockExponentialBackoff({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
+    exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
     await sdkClient.getWebhookRegistration('consumerOrgId', 'integrationId', 'registration-id')
       .then(res => {
         throw new Error(' No error response')
@@ -402,14 +412,14 @@ describe('Get webhook registration with retries', () => {
 describe('test delete webhook registration', () => {
   it('Success on delete registration', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, { status: 204, statusText: 'No Content' })
+    exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
     const res = await sdkClient.deleteWebhookRegistration('consumerOrgId', 'integrationId',
       'registrationId')
     expect(res).toBe(undefined)
   })
   it('Not found error on delete registration', () => {
     const api = 'deleteWebhookRegistration'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_DELETE_REGISTRATION(),
       ['consumerOrgId', 'integrationId', 'registrationId1'])
   })
@@ -418,19 +428,19 @@ describe('test delete webhook registration', () => {
 describe('Publish event', () => {
   it('200 OK on publish event', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff('OK', { status: 200, statusText: 'OK' })
+    exponentialBackoffMockReturnValue('OK', { status: 200, statusText: 'OK' })
     const res1 = await sdkClient.publishEvent(mock.data.cloudEvent)
     expect(res1).toBe('"OK"')
   })
   it('204 No Content on publish event', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff('No Content', { status: 204, statusText: 'No Content' })
+    exponentialBackoffMockReturnValue('No Content', { status: 204, statusText: 'No Content' })
     const res2 = await sdkClient.publishEvent(mock.data.cloudEvent)
     expect(res2).toBe(undefined)
   })
   it('Bad request error on publish event', async () => {
     const api = 'publishEvent'
-    mockExponentialBackoff({}, { status: 400, statusText: 'Bad Request' })
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_PUBLISH_EVENT(), [mock.data.cloudEventEmptyPayload])
   })
 })
@@ -440,7 +450,7 @@ describe('Publish event with retries', () => {
     const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, { retries: 3 })
     const retryOnSpy = jest.spyOn(sdkClient, '__getRetryOn')
     const error = new errorSDK.codes.ERROR_PUBLISH_EVENT()
-    mockExponentialBackoff({}, { status: 500, statusText: 'Internal Server Error', url: 'https://eventsingress.adobe.io' })
+    exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: 'https://eventsingress.adobe.io' })
     await sdkClient.publishEvent(mock.data.cloudEventEmptyPayload)
       .then(res => {
         throw new Error(' No error response')
@@ -496,7 +506,7 @@ describe('Test retry on', () => {
 describe('Fetch from journalling', () => {
   it('200 response on fetch from journal', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
+    exponentialBackoffMockReturnValue(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
     const res1 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res1.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res1.events[0].position).toBe('position-2')
@@ -504,7 +514,7 @@ describe('Fetch from journalling', () => {
   })
   it('204 response on fetch from journal with retry after as number', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, mock.data.journalResponseHeader204)
+    exponentialBackoffMockReturnValue(undefined, mock.data.journalResponseHeader204)
     const res2 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res2.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res2.retryAfter).toBe(10000)
@@ -514,7 +524,7 @@ describe('Fetch from journalling', () => {
     const realDateNow = Date.now.bind(global.Date)
     const dateNowStub = jest.fn(() => 0)
     global.Date.now = dateNowStub
-    mockExponentialBackoff(undefined, mock.data.journalResponseHeader204DateTime)
+    exponentialBackoffMockReturnValue(undefined, mock.data.journalResponseHeader204DateTime)
     const res3 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res3.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res3.retryAfter).toBe(10000)
@@ -522,26 +532,26 @@ describe('Fetch from journalling', () => {
   })
   it('204 response on fetch from journal with missing links header', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(undefined, mock.data.journalResponseHeader204MissingLinks)
+    exponentialBackoffMockReturnValue(undefined, mock.data.journalResponseHeader204MissingLinks)
     const res4 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res4.link).toBe(undefined)
     expect(res4.retryAfter).toBe(10000)
   })
   it('429 response on fetch from journal', async () => {
     const api = 'getEventsFromJournal'
-    mockExponentialBackoff({}, { status: 429, statusText: 'Too Many Requests' })
+    exponentialBackoffMockReturnValue({}, { status: 429, statusText: 'Too Many Requests' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_JOURNAL_DATA(), [journalUrl])
   })
   it('Not found error on fetch from journal', async () => {
     const api = 'getEventsFromJournal'
-    mockExponentialBackoff({}, { status: 404, statusText: 'Not Found' })
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_JOURNAL_DATA(), [journalUrl])
   })
   it('Fetch from journal with retries', async () => {
     const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, { retries: 3 })
     const retryOnSpy = jest.spyOn(sdkClient, '__getRetryOn')
     const error = new errorSDK.codes.ERROR_GET_JOURNAL_DATA()
-    mockExponentialBackoff({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
+    exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
     await sdkClient.getEventsFromJournal(journalUrl)
       .then(res => {
         throw new Error(' No error response')
@@ -555,7 +565,7 @@ describe('Fetch from journalling', () => {
   })
   it('200 response on fetch from journal with response headers', async () => {
     const sdkClient = await createSdkClient()
-    mockExponentialBackoff(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
+    exponentialBackoffMockReturnValue(mock.data.journalResponseBody, mock.data.journalResponseHeader200)
     const res = await sdkClient.getEventsFromJournal(journalUrl, {}, true)
     expect(res.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res.events[0].position).toBe('position-2')
@@ -609,8 +619,8 @@ describe('Authenticate event with digital signatures', () => {
  * @param {object} mockHeader Mock headers expected
  * @private
  */
-function mockExponentialBackoff (mockResponse, mockHeader) {
-  fetchRetry.exponentialBackoff = jest.fn().mockReturnValue(
+function exponentialBackoffMockReturnValue (mockResponse, mockHeader) {
+  mockExponentialBackoff.mockReturnValue(
     new Promise((resolve) => {
       if (mockResponse !== undefined) { mockResponse = JSON.stringify(mockResponse) }
       const resp = new Response(mockResponse, mockHeader)
