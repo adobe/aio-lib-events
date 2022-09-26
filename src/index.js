@@ -316,7 +316,7 @@ class EventsCoreAPI {
    * @param {object} body Json data contains details of the registration
    * @returns {Promise<object>} Details of the webhook/journal registration created
    */
-  createWebhookRegistration (consumerOrgId, projectId, workspaceId, body) {
+  createRegistration (consumerOrgId, projectId, workspaceId, body) {
     const headers = {}
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
@@ -334,7 +334,7 @@ class EventsCoreAPI {
    * @param {object} body Json data contains details of the registration
    * @returns {Promise<object>} Details of the webhook/journal registration to be updated
    */
-  updateWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {
+  updateRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {
     const headers = {}
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
@@ -351,7 +351,7 @@ class EventsCoreAPI {
    * @param {string} registrationId Registration id whose details are to be fetched
    * @returns {Promise<object>} Details of the webhook/journal registration
    */
-  getWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
+  getRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
@@ -367,7 +367,7 @@ class EventsCoreAPI {
    * @param {string} workspaceId Workspace Id from the console
    * @returns {Promise<object>} List of all webhook/journal registrations
    */
-  getAllWebhookRegistrationsForWorkspace (consumerOrgId, projectId, workspaceId) {
+  getAllRegistrationsForWorkspace (consumerOrgId, projectId, workspaceId) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
@@ -387,7 +387,7 @@ class EventsCoreAPI {
    * @param {Page} [page] page size and page number
    * @returns {Promise<object>} Paginated response of all webhook/journal registrations for an org
    */
-  getAllWebhookRegistrationsForOrg (consumerOrgId, page) {
+  getAllRegistrationsForOrg (consumerOrgId, page) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
@@ -405,7 +405,7 @@ class EventsCoreAPI {
    * @param {string} registrationId Id of the registration to be deleted
    * @returns {Promise<object>} Empty object if deletion was successful
    */
-  deleteWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
+  deleteRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)

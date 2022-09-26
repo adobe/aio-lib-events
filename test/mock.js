@@ -244,7 +244,7 @@ const createEventMetadataBadRequest = {
   description: 'Test for SDK 1'
 }
 
-const createWebhookRegistration = {
+const createRegistration = {
   name: 'name',
   description: 'description',
   client_id: 'test-apikey',
@@ -258,7 +258,7 @@ const createWebhookRegistration = {
   ]
 }
 
-const updateWebhookRegistration = {
+const updateRegistration = {
   name: 'name',
   description: 'description',
   webhook_url: 'https://test-webhook',
@@ -271,7 +271,7 @@ const updateWebhookRegistration = {
   ]
 }
 
-const createWebhookRegistrationBadRequest = {
+const createRegistrationBadRequest = {
   name: 'name',
   description: 'description',
   client_id: 'test-apikey',
@@ -284,7 +284,7 @@ const createWebhookRegistrationBadRequest = {
   ]
 }
 
-const createWebhookRegistrationResponse = {
+const createRegistrationResponse = {
   _links: {
     'rel:events': {
       href: 'https://events-va6.adobe.io/events/organizations/consumerId/integrations/integrationId/registrationId'
@@ -323,7 +323,7 @@ const createWebhookRegistrationResponse = {
   enabled: true
 }
 
-const updateWebhookRegistrationResponse = {
+const updateRegistrationResponse = {
   _links: {
     'rel:events': {
       href: 'https://events-va6.adobe.io/events/organizations/consumerId/integrations/integrationId/registrationId'
@@ -362,10 +362,10 @@ const updateWebhookRegistrationResponse = {
   enabled: true
 }
 
-const getAllWebhookRegistrationsResponse = {
+const getAllRegistrationsResponse = {
   _links: {
     self: {
-      href: 'https://api.adobe.io/consumerId/projectId/workspaceId/registrations'
+      href: 'https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations'
     }
   },
   _embedded: {
@@ -379,7 +379,7 @@ const getAllWebhookRegistrationsResponse = {
             href: 'https://eventtraces-stage-va6.adobe.io/traces/consumerId/projectId/workspaceId/registration/registrationId1'
           },
           self: {
-            href: 'https://api.adobe.io/consumerId/projectId/workspaceId/registrations/registrationId1'
+            href: 'https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations/registrationId1'
           }
         },
         id: 30000,
@@ -481,6 +481,111 @@ const getAllWebhookRegistrationsResponse = {
         enabled: true
       }
     ]
+  }
+}
+
+const getAllRegistrationsForOrgResponse = {
+  _links: {
+    first: {
+      href: 'https://api.adobe.io/events/consumerId/registrations?page=0&size=2'
+    },
+    last: {
+      href: 'https://api.adobe.io/events/consumerId/registrations?page=19&size=2'
+    },
+    next: {
+      href: 'https://api.adobe.io/events/consumerId/registrations?page=2&size=2'
+    },
+    prev: {
+      href: 'https://api.adobe.io/events/consumerId/registrations?page=0&size=2'
+    },
+    self: {
+      href: 'https://api.adobe.io/events/consumerId/registrations?page=1&size=2'
+    }
+  },
+  _embedded: {
+    registrations: [
+      {
+        _links: {
+          'rel:events': {
+            href: 'https://events-stage-va6.adobe.io/events/organizations/consumerId/integrations/integrationId/registrationId1'
+          },
+          'rel:trace': {
+            href: 'https://eventtraces-stage-va6.adobe.io/traces/consumerId/projectId/workspaceId/registration/registrationId1'
+          },
+          self: {
+            href: 'https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations/registrationId1'
+          }
+        },
+        id: 30000,
+        name: 'test name 1',
+        description: 'test description 1',
+        client_id: 'test-apikey',
+        registration_id: 'registrationId1',
+        events_of_interest: [
+          {
+            event_code: 'event_code_1',
+            event_label: 'event_label',
+            event_description: 'event_description',
+            provider_id: 'provider_id',
+            provider_label: 'label',
+            event_delivery_format: 'adobe_io'
+          }
+        ],
+        webhook_status: 'verified',
+        created_date: '2022-06-13T16:31:57.000Z',
+        updated_date: '2022-09-19T05:46:36.000Z',
+        consumer_id: 'consumerId',
+        project_id: 'projectId',
+        workspace_id: 'workspaceId',
+        webhook_url: 'https://test-webhook-1',
+        delivery_type: 'webhook',
+        enabled: true
+      },
+      {
+        _links: {
+          'rel:events': {
+            href: 'https://events-stage-va6.adobe.io/events/organizations/consumerId/integrations/integrationId/registrationId2'
+          },
+          'rel:trace': {
+            href: 'https://eventtraces-stage-va6.adobe.io/traces/consumerId/projectId/workspaceId/registration/registrationId2'
+          },
+          self: {
+            href: 'https://csm-stage.adobe.io/consumerId/projectId/workspaceId/registrations/registrationId2'
+          }
+        },
+        id: 30001,
+        name: 'test name 2',
+        description: 'test description 2',
+        client_id: 'test-apikey',
+        registration_id: 'registrationId2',
+        events_of_interest: [
+          {
+            event_code: 'event_code_2',
+            event_label: 'event_label_2',
+            event_description: 'event_description_2',
+            provider_id: 'provider_id_2',
+            provider_label: 'label',
+            event_delivery_format: 'adobe_io'
+          }
+        ],
+        webhook_status: 'hook_unreachable',
+        created_date: '2022-06-13T16:31:57.000Z',
+        updated_date: '2022-09-19T05:46:36.000Z',
+        consumer_id: 'consumerId',
+        project_id: 'projectId',
+        workspace_id: 'workspaceId',
+        webhook_url: 'https://test-webhook-2',
+        delivery_type: 'webhook_batch',
+        enabled: false
+      }
+    ]
+  },
+  page: {
+    size: 2,
+    number: 1,
+    numberOfElements: 2,
+    totalElements: 19,
+    totalPages: 10
   }
 }
 
@@ -702,12 +807,13 @@ const data = {
   createEventMetadataForProvider: createEventMetadataForProvider,
   createEventMetadataForProviderResponse: createEventMetadataForProviderResponse,
   createEventMetadataBadRequest: createEventMetadataBadRequest,
-  createWebhookRegistration: createWebhookRegistration,
-  createWebhookRegistrationResponse: createWebhookRegistrationResponse,
-  createWebhookRegistrationBadRequest: createWebhookRegistrationBadRequest,
-  updateWebhookRegistrationResponse: updateWebhookRegistrationResponse,
-  updateWebhookRegistration: updateWebhookRegistration,
-  getAllWebhookRegistrationsResponse: getAllWebhookRegistrationsResponse,
+  createRegistration: createRegistration,
+  createRegistrationResponse: createRegistrationResponse,
+  createRegistrationBadRequest: createRegistrationBadRequest,
+  updateRegistrationResponse: updateRegistrationResponse,
+  updateRegistration: updateRegistration,
+  getAllRegistrationsForOrgResponse: getAllRegistrationsForOrgResponse,
+  getAllRegistrationsResponse: getAllRegistrationsResponse,
   cloudEvent: cloudEvent,
   cloudEventEmptyPayload: cloudEventEmptyPayload,
   journalResponseBody: journalResponseBody,

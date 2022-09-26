@@ -76,7 +76,7 @@ test('test create event metadata', async () => {
 
 test('test register journalling endpoint', async () => {
   // create journal registration
-  journalReg = await sdkClient.createWebhookRegistration(consumerOrgId, projectId, workspaceId, {
+  journalReg = await sdkClient.createRegistration(consumerOrgId, projectId, workspaceId, {
     name: 'Test Events SDK ' + randomNumber,
     description: 'Test Events SDK ' + randomNumber,
     client_id: apiKey,
@@ -139,7 +139,7 @@ test('test event received in journalling endpoint', async () => {
 })
 
 test('delete webhook registration', async () => {
-  await sdkClient.deleteWebhookRegistration(consumerOrgId, projectId, workspaceId, journalReg.registration_id)
+  await sdkClient.deleteRegistration(consumerOrgId, projectId, workspaceId, journalReg.registration_id)
   journalReg = undefined
 })
 
@@ -158,7 +158,7 @@ test('delete provider', async () => {
 afterAll(async () => {
   // delete webhook registration
   if (journalReg) {
-    await sdkClient.deleteWebhookRegistration(consumerOrgId, projectId, workspaceId,
+    await sdkClient.deleteRegistration(consumerOrgId, projectId, workspaceId,
       journalReg.registration_id)
   }
 
