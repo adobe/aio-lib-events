@@ -34,7 +34,6 @@ const accessToken = process.env.EVENTS_JWT_TOKEN
 const consumerOrgId = process.env.EVENTS_CONSUMER_ORG_ID
 const workspaceId = process.env.EVENTS_WORKSPACE_ID
 const projectId = process.env.EVENTS_PROJECT_ID
-const integrationId = process.env.EVENTS_INTEGRATION_ID
 const httpOptions = { retries: 3 }
 const randomNumber = Math.round(Math.random() * 100000)
 
@@ -77,26 +76,25 @@ test('test create event metadata', async () => {
 
 test('test register journalling endpoint', async () => {
   // create journal registration
-  journalReg = await sdkClient.createWebhookRegistration(consumerOrgId,
-    integrationId, {
-      name: 'Test Events SDK ' + randomNumber,
-      description: 'Test Events SDK ' + randomNumber,
-      client_id: apiKey,
-      delivery_type: 'JOURNAL',
-      events_of_interest: [
-        {
-          event_code: eventCode,
-          provider_id: providerId
-        }
-      ]
-    })
-  expect(journalReg.status).toBe('VERIFIED')
-  expect(journalReg.integration_status).toBe('ENABLED')
+  journalReg = await sdkClient.createWebhookRegistration(consumerOrgId, projectId, workspaceId, {
+    name: 'Test Events SDK ' + randomNumber,
+    description: 'Test Events SDK ' + randomNumber,
+    client_id: apiKey,
+    delivery_type: 'journal',
+    events_of_interest: [
+      {
+        event_code: eventCode,
+        provider_id: providerId
+      }
+    ]
+  })
+  expect(journalReg.webhook_status).toBe('verified')
+  expect(journalReg.enabled).toBe(true)
 })
 
 test('test fetch journalling position', async () => {
-  const journallingUrl = journalReg.events_url
-  logger.info('Journal endpoint has been registered')
+  const journallingUrl = journalReg._links['rel:events'].href
+  logger.info('Journal endpoint ' + journallingUrl + ' has been registered')
 
   // sleep for one min
   await sleep(60000)
@@ -124,7 +122,7 @@ test('test publish event', async () => {
 })
 
 test('test event received in journalling endpoint', async () => {
-  var count = 0
+  let count = 0
   let nextLink = journalling.link.next
   // retry to fetch from journalling 3 times ( 30 seconds )
   while (count < 3 && journalling.retryAfter && journalling.events === undefined) {
@@ -141,8 +139,7 @@ test('test event received in journalling endpoint', async () => {
 })
 
 test('delete webhook registration', async () => {
-  await sdkClient.deleteWebhookRegistration(consumerOrgId,
-    integrationId, journalReg.registration_id)
+  await sdkClient.deleteWebhookRegistration(consumerOrgId, projectId, workspaceId, journalReg.registration_id)
   journalReg = undefined
 })
 
@@ -161,7 +158,7 @@ test('delete provider', async () => {
 afterAll(async () => {
   // delete webhook registration
   if (journalReg) {
-    await sdkClient.deleteWebhookRegistration(consumerOrgId, integrationId,
+    await sdkClient.deleteWebhookRegistration(consumerOrgId, projectId, workspaceId,
       journalReg.registration_id)
   }
 

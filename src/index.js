@@ -311,61 +311,104 @@ class EventsCoreAPI {
    * Create a webhook or journal registration
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
-   * @param {string} integrationId integration Id from the console
+   * @param {string} projectId Project Id from the console
+   * @param {string} workspaceId Workspace Id from the console
    * @param {object} body Json data contains details of the registration
    * @returns {Promise<object>} Details of the webhook/journal registration created
    */
-  createWebhookRegistration (consumerOrgId, integrationId, body) {
+  createWebhookRegistration (consumerOrgId, projectId, workspaceId, body) {
     const headers = {}
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
-    const url = this.__getUrl(`/events/organizations/${consumerOrgId}/integrations/${integrationId}/registrations`)
+    const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_CREATE_REGISTRATION)
+  }
+
+  /**
+   * Update a webhook or journal registration
+   *
+   * @param {string} consumerOrgId Consumer Org Id from the console
+   * @param {string} projectId Project Id from the console
+   * @param {string} workspaceId Workspace Id from the console
+   * @param {string} registrationId Registration id whose details are to be fetched
+   * @param {object} body Json data contains details of the registration
+   * @returns {Promise<object>} Details of the webhook/journal registration to be updated
+   */
+  updateWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {
+    const headers = {}
+    const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
+    const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
+    const sdkDetails = { requestOptions: requestOptions, url: url }
+    return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_UPDATE_REGISTRATION)
   }
 
   /**
    * Get registration details for a given registration
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
-   * @param {string} integrationId Integration Id from the console
+   * @param {string} projectId Project Id from the console
+   * @param {string} workspaceId Workspace Id from the console
    * @param {string} registrationId Registration id whose details are to be fetched
    * @returns {Promise<object>} Details of the webhook/journal registration
    */
-  getWebhookRegistration (consumerOrgId, integrationId, registrationId) {
+  getWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
-    const url = this.__getUrl(`/events/organizations/${consumerOrgId}/integrations/${integrationId}/registrations/${registrationId}`)
+    const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_GET_REGISTRATION)
   }
 
   /**
-   * Get all registration details for a given integration
+   * Get all registration details for a workspace
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
-   * @param {string} integrationId Integration Id from the console
+   * @param {string} projectId Project Id from the console
+   * @param {string} workspaceId Workspace Id from the console
    * @returns {Promise<object>} List of all webhook/journal registrations
    */
-  getAllWebhookRegistrations (consumerOrgId, integrationId) {
+  getAllWebhookRegistrationsForWorkspace (consumerOrgId, projectId, workspaceId) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
-    const url = this.__getUrl(`/events/organizations/${consumerOrgId}/integrations/${integrationId}/registrations`)
+    const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_GET_ALL_REGISTRATION)
+  }
+
+  /**
+   * @typedef {object} Page
+   * @property {number} [page] page number to be fetched. Default 0 (optional)
+   * @property {number} [size] size of each page. Default 10 (optional)
+   */
+  /**
+   * Get all registration details for an org
+   *
+   * @param {string} consumerOrgId Consumer Org Id from the console
+   * @param {Page} [page] page size and page number
+   * @returns {Promise<object>} Paginated response of all webhook/journal registrations for an org
+   */
+  getAllWebhookRegistrationsForOrg (consumerOrgId, page) {
+    const headers = {}
+    const requestOptions = this.__createRequest('GET', headers)
+    const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
+    const urlWithQueryParams = helpers.appendQueryParams(url, page)
+    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
+    return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_GET_ALL_REGISTRATION_FOR_ORG)
   }
 
   /**
    * Delete webhook registration
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
-   * @param {string} integrationId Integration Id from the console
+   * @param {string} projectId Project Id from the console
+   * @param {string} workspaceId Workspace Id from the console
    * @param {string} registrationId Id of the registration to be deleted
    * @returns {Promise<object>} Empty object if deletion was successful
    */
-  deleteWebhookRegistration (consumerOrgId, integrationId, registrationId) {
+  deleteWebhookRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
-    const url = this.__getUrl(`/events/organizations/${consumerOrgId}/integrations/${integrationId}/registrations/${registrationId}`)
+    const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(url, requestOptions, sdkDetails, codes.ERROR_DELETE_REGISTRATION)
   }
