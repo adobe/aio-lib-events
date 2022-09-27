@@ -419,7 +419,7 @@ describe('Get all registrations for org', () => {
   it('Not found error on get a registration', async () => {
     const api = 'getAllRegistrationsForOrg'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATION_FOR_ORG(), ['consumerId-2'])
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATIONS_FOR_ORG(), ['consumerId-2'])
   })
 })
 
