@@ -12,224 +12,248 @@ declare type EventsCoreAPIOptions = {
 
 /**
  * Returns a Promise that resolves with a new EventsCoreAPI object.
- *
- * @param {string} organizationId The organization id from your integration
- * @param {string} apiKey The api key from your integration
- * @param {string} accessToken JWT Token for the integration with IO Management API scope
- * @param {EventsCoreAPIOptions} [httpOptions] Options to configure API calls
- * @returns {Promise<EventsCoreAPI>} returns object of the class EventsCoreAPI
+ * @param organizationId - The organization id from your integration
+ * @param apiKey - The api key from your integration
+ * @param accessToken - JWT Token for the integration with IO Management API scope
+ * @param [httpOptions] - Options to configure API calls
+ * @returns returns object of the class EventsCoreAPI
  */
 declare function init(organizationId: string, apiKey: string, accessToken: string, httpOptions?: EventsCoreAPIOptions): Promise<EventsCoreAPI>;
 
 /**
  * This class provides methods to call your Adobe I/O Events APIs.
  * Before calling any method initialize the instance by calling the `init` method on it
- * with valid values for organizationId, apiKey and accessToken
+ * with valid values for organizationId, apiKey, accessToken and optional http options such as timeout
+ * and max number of retries
  */
 declare class EventsCoreAPI {
     /**
      * Initialize SDK.
-     *
-     * @param {string} organizationId The organization id from your integration
-     * @param {string} apiKey The api key from your integration
-     * @param {string} accessToken JWT Token for the integration with IO Management API scope
-     * @param {EventsCoreAPIOptions} [httpOptions] Options to configure API calls
-     * @returns {Promise<EventsCoreAPI>} returns object of the class EventsCoreAPI
+     * @param organizationId - The organization id from your integration
+     * @param apiKey - The api key from your integration
+     * @param accessToken - JWT Token for the integration with IO Management API scope
+     * @param [httpOptions] - Options to configure API calls
+     * @returns returns object of the class EventsCoreAPI
      */
     init(organizationId: string, apiKey: string, accessToken: string, httpOptions?: EventsCoreAPIOptions): Promise<EventsCoreAPI>;
-    /** Http options {retries, timeout}
+    /**
+     * Http options {retries, timeout}
      */
     httpOptions: EventsCoreAPIOptions;
-    /** The organization id from your integration
+    /**
+     * The organization id from your integration
      */
     organizationId: string;
-    /** The api key from your integration
+    /**
+     * The api key from your integration
      */
     apiKey: string;
-    /** The JWT Token for the integration with IO Management API scope
+    /**
+     * The JWT Token for the integration with IO Management API scope
      */
     accessToken: string;
     /**
      * Fetch all the providers
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @returns {Promise<object>} Returns list of providers for the org
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @returns Returns list of providers for the org
      */
     getAllProviders(consumerOrgId: string): Promise<object>;
     /**
      * Fetch a provider
-     *
-     * @param {string} providerId The id that uniquely identifies the provider to be fetched
-     * @param {boolean} [fetchEventMetadata] Set this to true if you want to fetch the associated eventmetadata of the provider
-     * @returns {Promise<object>} Returns the provider specified by the provider id
+     * @param providerId - The id that uniquely identifies the provider to be fetched
+     * @param [fetchEventMetadata = false] - Set this to true if you want to fetch the associated eventmetadata of the provider
+     * @returns Returns the provider specified by the provider id
      */
     getProvider(providerId: string, fetchEventMetadata?: boolean): Promise<object>;
     /**
      * Create a new provider given the provider details
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {object} body Json data that describes the provider
-     * @returns {Promise<object>} Returns the details of the provider created
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param body - Json data that describes the provider
+     * @returns Returns the details of the provider created
      */
     createProvider(consumerOrgId: string, projectId: string, workspaceId: string, body: any): Promise<object>;
     /**
      * Update a provider given the id and provider details
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId The id that uniquely identifies the provider to be updated
-     * @param {object} body Json data that describes the provider
-     * @returns {Promise<object>} Returns the details of the provider updated
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - The id that uniquely identifies the provider to be updated
+     * @param body - Json data that describes the provider
+     * @returns Returns the details of the provider updated
      */
     updateProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: any): Promise<object>;
     /**
      * Delete a provider given the id
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId The id that uniquely identifies the provider to be deleted
-     * @returns {Promise<object>} Returns an empty object if the deletion was successful
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - The id that uniquely identifies the provider to be deleted
+     * @returns Returns an empty object if the deletion was successful
      */
     deleteProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string): Promise<object>;
     /**
      * Get all event metadata for a provider
-     *
-     * @param {string} providerId The id that uniquely identifies the provider whose event metadata is to be fetched
-     * @returns {Promise<object>} List of all event metadata of the provider
+     * @param providerId - The id that uniquely identifies the provider whose event metadata is to be fetched
+     * @returns List of all event metadata of the provider
      */
     getAllEventMetadataForProvider(providerId: string): Promise<object>;
     /**
      * Get an event metadata for given provider and event code
-     *
-     * @param {string} providerId The id that uniquely identifies the provider whose event metadata is to be fetched
-     * @param {string} eventCode The specific event code for which the details of the event metadata is to be fetched
-     * @returns {Promise<object>} Event metadata that corresponds to the specified event code
+     * @param providerId - The id that uniquely identifies the provider whose event metadata is to be fetched
+     * @param eventCode - The specific event code for which the details of the event metadata is to be fetched
+     * @returns Event metadata that corresponds to the specified event code
      */
     getEventMetadataForProvider(providerId: string, eventCode: string): Promise<object>;
     /**
      * Create an event metadata for a provider
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId provider for which the event metadata is to be added
-     * @param {object} body Json data that describes the event metadata
-     * @returns {Promise<object>} Details of the event metadata created
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - provider for which the event metadata is to be added
+     * @param body - Json data that describes the event metadata
+     * @returns Details of the event metadata created
      */
     createEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: any): Promise<object>;
     /**
      * Update the event metadata for a provider
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId provider for which the event metadata is to be updated
-     * @param {string} eventCode eventCode of the event metadata to be updated
-     * @param {object} body Json data that describes the event metadata
-     * @returns {Promise<object>} Details of the event metadata updated
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - provider for which the event metadata is to be updated
+     * @param eventCode - eventCode of the event metadata to be updated
+     * @param body - Json data that describes the event metadata
+     * @returns Details of the event metadata updated
      */
     updateEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, eventCode: string, body: any): Promise<object>;
     /**
      * Delete an event metadata of a provider
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId provider for which the event metadata is to be updated
-     * @param {string} eventCode eventCode of the event metadata to be updated
-     * @returns {Promise<object>} Empty object if deletion was successful
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - provider for which the event metadata is to be updated
+     * @param eventCode - eventCode of the event metadata to be updated
+     * @returns Empty object if deletion was successful
      */
     deleteEventMetadata(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, eventCode: string): Promise<object>;
     /**
      * Delete all event metadata of a provider
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} projectId Project Id from the console
-     * @param {string} workspaceId Workspace Id from the console
-     * @param {string} providerId provider for which the event metadata is to be updated
-     * @returns {Promise<object>} Empty object if deletion was successful
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param providerId - provider for which the event metadata is to be updated
+     * @returns Empty object if deletion was successful
      */
     deleteAllEventMetadata(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string): Promise<object>;
     /**
      * Create a webhook or journal registration
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} integrationId integration Id from the console
-     * @param {object} body Json data contains details of the registration
-     * @returns {Promise<object>} Details of the webhook/journal registration created
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param body - Json data contains details of the registration
+     * @returns Details of the webhook/journal registration created
      */
-    createWebhookRegistration(consumerOrgId: string, integrationId: string, body: any): Promise<object>;
+    createRegistration(consumerOrgId: string, projectId: string, workspaceId: string, body: any): Promise<object>;
+    /**
+     * Update a webhook or journal registration
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param registrationId - Registration id whose details are to be fetched
+     * @param body - Json data contains details of the registration
+     * @returns Details of the webhook/journal registration to be updated
+     */
+    updateRegistration(consumerOrgId: string, projectId: string, workspaceId: string, registrationId: string, body: any): Promise<object>;
     /**
      * Get registration details for a given registration
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} integrationId Integration Id from the console
-     * @param {string} registrationId Registration id whose details are to be fetched
-     * @returns {Promise<object>} Details of the webhook/journal registration
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param registrationId - Registration id whose details are to be fetched
+     * @returns Details of the webhook/journal registration
      */
-    getWebhookRegistration(consumerOrgId: string, integrationId: string, registrationId: string): Promise<object>;
+    getRegistration(consumerOrgId: string, projectId: string, workspaceId: string, registrationId: string): Promise<object>;
     /**
-     * Get all registration details for a given integration
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} integrationId Integration Id from the console
-     * @returns {Promise<object>} List of all webhook/journal registrations
+     * Get all registration details for a workspace
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @returns List of all webhook/journal registrations
      */
-    getAllWebhookRegistrations(consumerOrgId: string, integrationId: string): Promise<object>;
+    getAllRegistrationsForWorkspace(consumerOrgId: string, projectId: string, workspaceId: string): Promise<object>;
+    /**
+     * Get all registration details for an org
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param [page] - page size and page number
+     * @returns Paginated response of all webhook/journal registrations for an org
+     */
+    getAllRegistrationsForOrg(consumerOrgId: string, page?: Page): Promise<object>;
     /**
      * Delete webhook registration
-     *
-     * @param {string} consumerOrgId Consumer Org Id from the console
-     * @param {string} integrationId Integration Id from the console
-     * @param {string} registrationId Id of the registration to be deleted
-     * @returns {Promise<object>} Empty object if deletion was successful
+     * @param consumerOrgId - Consumer Org Id from the console
+     * @param projectId - Project Id from the console
+     * @param workspaceId - Workspace Id from the console
+     * @param registrationId - Id of the registration to be deleted
+     * @returns Empty object if deletion was successful
      */
-    deleteWebhookRegistration(consumerOrgId: string, integrationId: string, registrationId: string): Promise<object>;
+    deleteRegistration(consumerOrgId: string, projectId: string, workspaceId: string, registrationId: string): Promise<object>;
     /**
-     * Publish cloud events to Adobe I/O Events
+     * Publish Cloud Events
      *
-     * @param {object} cloudEvent Object to be published to event receiver in cloud event format
-     * @returns {Promise<string>} Returns OK/ undefined in case of success and error in case of failure
+     * Event publishers can publish events to the Adobe I/O Events using this SDK. The events should follow Cloud Events 1.0 specification: https://github.com/cloudevents/spec/blob/v1.0/spec.md.
+     * As of now, only application/json is accepted as the content-type for the "data" field of the cloud event.
+     * If retries are set, publish events are retried on network issues, 5xx and 429 error response codes.
+     * @param cloudEvent - Object to be published to event receiver in cloud event format
+     * @returns Returns OK/ undefined in case of success and error in case of failure
      */
     publishEvent(cloudEvent: any): Promise<string>;
     /**
      * Get events from a journal.
-     *
-     * @param {string} journalUrl URL of the journal or 'next' link to read from (required)
-     * @param {EventsJournalOptions} [eventsJournalOptions] Query options to send with the URL
-     * @returns {Promise<object>} with the response json includes events and links (if available)
+     * @param journalUrl - URL of the journal or 'next' link to read from (required)
+     * @param [eventsJournalOptions] - Query options to send with the URL
+     * @param [fetchResponseHeaders] - Set this to true if you want to fetch the complete response headers
+     * @returns with the response json includes events and links (if available)
      */
-    getEventsFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions): Promise<object>;
-
+    getEventsFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions, fetchResponseHeaders?: boolean): Promise<object>;
     /**
-     * Get observable to start listening to journal events.
+     * getEventsObservableFromJournal returns an RxJS <a href="https://rxjs-dev.firebaseapp.com/guide/observable">Observable</a>
      *
-     * @param {string} journalUrl URL of the journal or 'next' link to read from (required)
-     * @param {EventsJournalOptions} [eventsJournalOptions] Query options to send with the Journal URL
-     * @param {EventsJournalPollingOptions} [eventsJournalPollingOptions] Journal polling options
-     * @returns {Observable<object>} observable to which the user can subscribe to in order to listen to events
+     * One can go through the extensive documentation on <a href="https://rxjs-dev.firebaseapp.com/guide/overview">RxJS</a> in order to learn more
+     * and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operators">RxJS Operators</a> to act on emitted events.
+     * @param journalUrl - URL of the journal or 'next' link to read from (required)
+     * @param [eventsJournalOptions] - Query options to send with the Journal URL
+     * @param [eventsJournalPollingOptions] - Journal polling options
+     * @returns observable to which the user can subscribe to in order to listen to events
      */
     getEventsObservableFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions, eventsJournalPollingOptions?: EventsJournalPollingOptions): Observable<object>;
-
     /**
      * Authenticating events by verifying digital signature
-     * @param {object} event JSON payload delivered to the registered webhook URL
-     * @param {string} recipientClientId Target recipient client id retrieved from the Adobe I/O Console integration
-     * @param {SignatureOptions} signatureOptions Map of all digital signature header values consisting fields defined in SignatureOptions
-     * @returns {boolean} If signature matches return true else return false
+     * @param event - JSON payload delivered to the registered webhook URL
+     * @param recipientClientId - Target recipient client id retrieved from the Adobe I/O Console integration
+     * @param signatureOptions - map of all digital signature header values consisting fields as below
+     * digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+     * digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+     * publicKeyPath1 : Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header in each POST request to webhook
+     * publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook
+     * @returns If signature matches return true else return false
      */
     verifyDigitalSignatureForEvent(event: any, recipientClientId: string, signatureOptions?: SignatureOptions): boolean;
 }
 
 /**
- * @typedef {object} EventsJournalOptions
- * @property {boolean} [latest] Retrieve latest events (optional)
- * @property {string} [since] Position at which to start fetching the events from (optional)
- * @property {number} [limit] Maximum number of events to retrieve (optional)
+ * @property [page] - page number to be fetched. Default 0 (optional)
+ * @property [size] - size of each page. Default 10 (optional)
+ */
+declare type Page = {
+    page?: number;
+    size?: number;
+};
+
+/**
+ * @property [latest] - Retrieve latest events (optional)
+ * @property [since] - Position at which to start fetching the events from (optional)
+ * @property [limit] - Maximum number of events to retrieve (optional)
  */
 declare type EventsJournalOptions = {
     latest?: boolean;
@@ -238,8 +262,7 @@ declare type EventsJournalOptions = {
 };
 
 /**
- * @typedef {object} EventsJournalPollingOptions
- * @property {number} [interval] Interval at which to poll the journal; If not provided, a default value will be used (optional)
+ * @property [interval] - Interval at which to poll the journal; If not provided, a default value will be used (optional)
  */
 declare type EventsJournalPollingOptions = {
     interval?: number;
@@ -247,10 +270,10 @@ declare type EventsJournalPollingOptions = {
 
 /**
  * @typedef {object} SignatureOptions
- * @property {string} [digiSignature1] Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
- * @property {string} [digiSignature2] Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
- * @property {string} [publicKeyUrl1] Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
- * @property {string} [publicKeyUrl2] Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
+ * @property [digiSignature1] - Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
+ * @property [digiSignature2] - Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
+ * @property [publicKeyUrl1] - Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
+ * @property [publicKeyUrl2] - Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
  */
 declare type SignatureOptions = {
     digiSignature1: string;
@@ -258,4 +281,3 @@ declare type SignatureOptions = {
     publicKeyUrl1: string;
     publicKeyUrl2: string;
 };
-
