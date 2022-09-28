@@ -44,8 +44,8 @@ const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
-const EVENTS_BASE_URL = 'fakebaseurl'
-const EVENTS_INGRESS_URL = 'fakeingressurl'
+const EVENTS_BASE_URL = 'https://api.adobe.io/events'
+const EVENTS_INGRESS_URL = 'https://eventsingress.adobe.io'
 
 // /////////////////////////////////////////////
 
@@ -374,7 +374,7 @@ describe('Get all registration', () => {
     const res = await sdkClient.getAllRegistrationsForWorkspace('consumerId', 'projectId', 'workspaceId')
     expect(res._embedded.registrations.length).toBe(3)
     const regs = res._embedded.registrations
-    expect(res._links.self.href).toBe('https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations')
     expect(regs[0].id).toBe(30000)
     expect(regs[1].webhook_status).toBe('hook_unreachable')
     expect(regs[2].delivery_type).toBe('journal')
@@ -391,7 +391,7 @@ describe('Get a registration', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.createRegistrationResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId')
-    expect(res._links.self.href).toBe('https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations/registrationId')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId')
     expect(res.id).toBe(248723)
     expect(res.webhook_status).toBe('verified')
     expect(res.enabled).toBe(true)
@@ -408,10 +408,10 @@ describe('Get all registrations for org', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.getAllRegistrationsForOrgResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getAllRegistrationsForOrg('consumerId', { page: 1, size: 2 })
-    expect(res._links.self.href).toBe('https://api.adobe.io/events/consumerId/registrations?page=1&size=2')
-    expect(res._links.first.href).toBe('https://api.adobe.io/events/consumerId/registrations?page=0&size=2')
-    expect(res._links.last.href).toBe('https://api.adobe.io/events/consumerId/registrations?page=19&size=2')
-    expect(res._links.prev.href).toBe('https://api.adobe.io/events/consumerId/registrations?page=0&size=2')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=1&size=2')
+    expect(res._links.first.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
+    expect(res._links.last.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=19&size=2')
+    expect(res._links.prev.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
     expect(res._embedded.registrations.length).toBe(2)
     expect(res.page.numberOfElements).toBe(2)
     expect(res.page.totalElements).toBe(19)
@@ -437,7 +437,7 @@ describe('Get registration with retries', () => {
         expect(e.code).toEqual(error.code)
       })
     expect(fetchRetry.exponentialBackoff).toHaveBeenCalledWith(
-      'https://api.adobe.io/events/consumerId/projectId/workspaceId/registrations/registrationId',
+      EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId',
       {
         body: undefined,
         headers: {
