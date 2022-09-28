@@ -336,7 +336,7 @@ class EventsCoreAPI {
    */
   updateRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {
     const headers = {}
-    const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
+    const requestOptions = this.__createRequest('PUT', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(sdkDetails, codes.ERROR_UPDATE_REGISTRATION)
