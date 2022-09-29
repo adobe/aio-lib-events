@@ -109,6 +109,10 @@ and max number of retries</p>
 <dl>
 <dt><a href="#EventsCoreAPIOptions">EventsCoreAPIOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#ProviderInputModel">ProviderInputModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#EventMetadataInputModel">EventMetadataInputModel</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#EventsOfInterest">EventsOfInterest</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#RegistrationCreateModel">RegistrationCreateModel</a> : <code>object</code></dt>
@@ -240,7 +244,7 @@ Create a new provider given the provider details
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
-| body | <code>object</code> | Json data that describes the provider |
+| body | [<code>ProviderInputModel</code>](#ProviderInputModel) | Json data that describes the provider |
 
 <a name="EventsCoreAPI+updateProvider"></a>
 
@@ -256,7 +260,7 @@ Update a provider given the id and provider details
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | The id that uniquely identifies the provider to be updated |
-| body | <code>object</code> | Json data that describes the provider |
+| body | [<code>ProviderInputModel</code>](#ProviderInputModel) | Json data that describes the provider |
 
 <a name="EventsCoreAPI+deleteProvider"></a>
 
@@ -312,7 +316,7 @@ Create an event metadata for a provider
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | provider for which the event metadata is to be added |
-| body | <code>object</code> | Json data that describes the event metadata |
+| body | [<code>EventMetadataInputModel</code>](#EventMetadataInputModel) | Json data that describes the event metadata |
 
 <a name="EventsCoreAPI+updateEventMetadataForProvider"></a>
 
@@ -329,7 +333,7 @@ Update the event metadata for a provider
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | provider for which the event metadata is to be updated |
 | eventCode | <code>string</code> | eventCode of the event metadata to be updated |
-| body | <code>object</code> | Json data that describes the event metadata |
+| body | [<code>EventMetadataInputModel</code>](#EventMetadataInputModel) | Json data that describes the event metadata |
 
 <a name="EventsCoreAPI+deleteEventMetadata"></a>
 
@@ -539,6 +543,31 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
 | [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
 | [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
+
+<a name="ProviderInputModel"></a>
+
+## ProviderInputModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| label | <code>string</code> | The label of this Events Provider |
+| [description] | <code>string</code> | The description of this Events Provider |
+| [docs_url] | <code>string</code> | The documentation url of this Events Provider |
+
+<a name="EventMetadataInputModel"></a>
+
+## EventMetadataInputModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| label | <code>string</code> | The description of this Event Metadata |
+| description | <code>string</code> | The label of this Event Metadata |
+| event_code | <code>string</code> | The event_code of this Event Metadata. This event_code describes the type of event. Ideally it should be prefixed with a reverse-DNS name (dictating the organization which defines the semantics of this event type) It is equivalent to the CloudEvents' type. See https://github.com/cloudevents/spec/blob/master/spec.md#type |
+| [sample_event_template] | <code>string</code> | An optional base64 encoded sample event template |
 
 <a name="EventsOfInterest"></a>
 

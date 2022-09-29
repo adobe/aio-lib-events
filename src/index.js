@@ -141,12 +141,18 @@ class EventsCoreAPI {
   }
 
   /**
+   * @typedef {object} ProviderInputModel
+   * @property {string} label The label of this Events Provider
+   * @property {string} [description] The description of this Events Provider
+   * @property {string} [docs_url] The documentation url of this Events Provider
+   */
+  /**
    * Create a new provider given the provider details
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
    * @param {string} projectId Project Id from the console
    * @param {string} workspaceId Workspace Id from the console
-   * @param {object} body Json data that describes the provider
+   * @param {ProviderInputModel} body Json data that describes the provider
    * @returns {Promise<object>} Returns the details of the provider created
    */
   createProvider (consumerOrgId, projectId, workspaceId, body) {
@@ -165,7 +171,7 @@ class EventsCoreAPI {
    * @param {string} projectId Project Id from the console
    * @param {string} workspaceId Workspace Id from the console
    * @param {string} providerId The id that uniquely identifies the provider to be updated
-   * @param {object} body Json data that describes the provider
+   * @param {ProviderInputModel} body Json data that describes the provider
    * @returns {Promise<object>} Returns the details of the provider updated
    */
   updateProvider (consumerOrgId, projectId, workspaceId, providerId, body) {
@@ -230,13 +236,20 @@ class EventsCoreAPI {
   }
 
   /**
+   * @typedef {object} EventMetadataInputModel
+   * @property {string} label The description of this Event Metadata
+   * @property {string} description The label of this Event Metadata
+   * @property {string} event_code The event_code of this Event Metadata. This event_code describes the type of event. Ideally it should be prefixed with a reverse-DNS name (dictating the organization which defines the semantics of this event type) It is equivalent to the CloudEvents' type. See https://github.com/cloudevents/spec/blob/master/spec.md#type
+   * @property {string} [sample_event_template] An optional base64 encoded sample event template
+   */
+  /**
    * Create an event metadata for a provider
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
    * @param {string} projectId Project Id from the console
    * @param {string} workspaceId Workspace Id from the console
    * @param {string} providerId provider for which the event metadata is to be added
-   * @param {object} body Json data that describes the event metadata
+   * @param {EventMetadataInputModel} body Json data that describes the event metadata
    * @returns {Promise<object>} Details of the event metadata created
    */
   createEventMetadataForProvider (consumerOrgId, projectId, workspaceId, providerId, body) {
@@ -255,7 +268,7 @@ class EventsCoreAPI {
    * @param {string} workspaceId Workspace Id from the console
    * @param {string} providerId provider for which the event metadata is to be updated
    * @param {string} eventCode eventCode of the event metadata to be updated
-   * @param {object} body Json data that describes the event metadata
+   * @param {EventMetadataInputModel} body Json data that describes the event metadata
    * @returns {Promise<object>} Details of the event metadata updated
    */
   updateEventMetadataForProvider (consumerOrgId, projectId, workspaceId, providerId, eventCode, body) {

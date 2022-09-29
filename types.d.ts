@@ -73,7 +73,7 @@ declare class EventsCoreAPI {
      * @param body - Json data that describes the provider
      * @returns Returns the details of the provider created
      */
-    createProvider(consumerOrgId: string, projectId: string, workspaceId: string, body: any): Promise<object>;
+    createProvider(consumerOrgId: string, projectId: string, workspaceId: string, body: ProviderInputModel): Promise<object>;
     /**
      * Update a provider given the id and provider details
      * @param consumerOrgId - Consumer Org Id from the console
@@ -83,7 +83,7 @@ declare class EventsCoreAPI {
      * @param body - Json data that describes the provider
      * @returns Returns the details of the provider updated
      */
-    updateProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: any): Promise<object>;
+    updateProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: ProviderInputModel): Promise<object>;
     /**
      * Delete a provider given the id
      * @param consumerOrgId - Consumer Org Id from the console
@@ -115,7 +115,7 @@ declare class EventsCoreAPI {
      * @param body - Json data that describes the event metadata
      * @returns Details of the event metadata created
      */
-    createEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: any): Promise<object>;
+    createEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, body: EventMetadataInputModel): Promise<object>;
     /**
      * Update the event metadata for a provider
      * @param consumerOrgId - Consumer Org Id from the console
@@ -126,7 +126,7 @@ declare class EventsCoreAPI {
      * @param body - Json data that describes the event metadata
      * @returns Details of the event metadata updated
      */
-    updateEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, eventCode: string, body: any): Promise<object>;
+    updateEventMetadataForProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string, eventCode: string, body: EventMetadataInputModel): Promise<object>;
     /**
      * Delete an event metadata of a provider
      * @param consumerOrgId - Consumer Org Id from the console
@@ -240,6 +240,30 @@ declare class EventsCoreAPI {
      */
     verifyDigitalSignatureForEvent(event: any, recipientClientId: string, signatureOptions?: SignatureOptions): boolean;
 }
+
+/**
+ * @property label - The label of this Events Provider
+ * @property [description] - The description of this Events Provider
+ * @property [docs_url] - The documentation url of this Events Provider
+ */
+declare type ProviderInputModel = {
+    label: string;
+    description?: string;
+    docs_url?: string;
+};
+
+/**
+ * @property label - The description of this Event Metadata
+ * @property description - The label of this Event Metadata
+ * @property event_code - The event_code of this Event Metadata. This event_code describes the type of event. Ideally it should be prefixed with a reverse-DNS name (dictating the organization which defines the semantics of this event type) It is equivalent to the CloudEvents' type. See https://github.com/cloudevents/spec/blob/master/spec.md#type
+ * @property [sample_event_template] - An optional base64 encoded sample event template
+ */
+declare type EventMetadataInputModel = {
+    label: string;
+    description: string;
+    event_code: string;
+    sample_event_template?: string;
+};
 
 /**
  * @property provider_id - The id of the provider of the events to be subscribed
