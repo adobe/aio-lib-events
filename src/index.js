@@ -308,12 +308,27 @@ class EventsCoreAPI {
    */
 
   /**
+   * @typedef {object} EventsOfInterest
+   * @property {string} provider_id The id of the provider of the events to be subscribed
+   * @property {string} event_code The requested valid event code belonging to the provider
+   */
+  /**
+   * @typedef {object} RegistrationCreateModel
+   * @property {string} client_id Client id for which the registration is created
+   * @property {string} name The name of the registration
+   * @property {string} description The description of the registration
+   * @property {string} [webhook_url] A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type
+   * @property {Array.<EventsOfInterest>} events_of_interest The events for which the registration is to be subscribed to
+   * @property {string} delivery_type Delivery type can either be webhook|webhook_batch|journal.
+   * @property {string} [enabled] Enable or disable the registration. Default true.
+   */
+  /**
    * Create a webhook or journal registration
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
    * @param {string} projectId Project Id from the console
    * @param {string} workspaceId Workspace Id from the console
-   * @param {object} body Json data contains details of the registration
+   * @param {RegistrationCreateModel} body Json data contains details of the registration
    * @returns {Promise<object>} Details of the webhook/journal registration created
    */
   createRegistration (consumerOrgId, projectId, workspaceId, body) {
@@ -325,13 +340,22 @@ class EventsCoreAPI {
   }
 
   /**
+   * @typedef {object} RegistrationUpdateModel
+   * @property {string} name The name of the registration
+   * @property {string} description The description of the registration
+   * @property {string} [webhook_url] A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type
+   * @property {Array.<EventsOfInterest>} events_of_interest The events for which the registration is to be subscribed to
+   * @property {string} delivery_type Delivery type can either be webhook|webhook_batch|journal.
+   * @property {string} [enabled] Enable or disable the registration. Default true.
+   */
+  /**
    * Update a webhook or journal registration
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
    * @param {string} projectId Project Id from the console
    * @param {string} workspaceId Workspace Id from the console
    * @param {string} registrationId Registration id whose details are to be fetched
-   * @param {object} body Json data contains details of the registration
+   * @param {RegistrationUpdateModel} body Json data contains details of the registration
    * @returns {Promise<object>} Details of the webhook/journal registration to be updated
    */
   updateRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {

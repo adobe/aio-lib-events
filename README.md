@@ -109,6 +109,12 @@ and max number of retries</p>
 <dl>
 <dt><a href="#EventsCoreAPIOptions">EventsCoreAPIOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#EventsOfInterest">EventsOfInterest</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#RegistrationCreateModel">RegistrationCreateModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#RegistrationUpdateModel">RegistrationUpdateModel</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#Page">Page</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#EventsJournalOptions">EventsJournalOptions</a> : <code>object</code></dt>
@@ -369,7 +375,7 @@ Create a webhook or journal registration
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
-| body | <code>object</code> | Json data contains details of the registration |
+| body | [<code>RegistrationCreateModel</code>](#RegistrationCreateModel) | Json data contains details of the registration |
 
 <a name="EventsCoreAPI+updateRegistration"></a>
 
@@ -385,7 +391,7 @@ Update a webhook or journal registration
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | registrationId | <code>string</code> | Registration id whose details are to be fetched |
-| body | <code>object</code> | Json data contains details of the registration |
+| body | [<code>RegistrationUpdateModel</code>](#RegistrationUpdateModel) | Json data contains details of the registration |
 
 <a name="EventsCoreAPI+getRegistration"></a>
 
@@ -533,6 +539,48 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
 | [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
 | [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
+
+<a name="EventsOfInterest"></a>
+
+## EventsOfInterest : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| provider_id | <code>string</code> | The id of the provider of the events to be subscribed |
+| event_code | <code>string</code> | The requested valid event code belonging to the provider |
+
+<a name="RegistrationCreateModel"></a>
+
+## RegistrationCreateModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| client_id | <code>string</code> | Client id for which the registration is created |
+| name | <code>string</code> | The name of the registration |
+| description | <code>string</code> | The description of the registration |
+| [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
+| events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
+| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
+| [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
+
+<a name="RegistrationUpdateModel"></a>
+
+## RegistrationUpdateModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | The name of the registration |
+| description | <code>string</code> | The description of the registration |
+| [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
+| events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
+| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
+| [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
 
 <a name="Page"></a>
 

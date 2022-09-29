@@ -154,7 +154,7 @@ declare class EventsCoreAPI {
      * @param body - Json data contains details of the registration
      * @returns Details of the webhook/journal registration created
      */
-    createRegistration(consumerOrgId: string, projectId: string, workspaceId: string, body: any): Promise<object>;
+    createRegistration(consumerOrgId: string, projectId: string, workspaceId: string, body: RegistrationCreateModel): Promise<object>;
     /**
      * Update a webhook or journal registration
      * @param consumerOrgId - Consumer Org Id from the console
@@ -164,7 +164,7 @@ declare class EventsCoreAPI {
      * @param body - Json data contains details of the registration
      * @returns Details of the webhook/journal registration to be updated
      */
-    updateRegistration(consumerOrgId: string, projectId: string, workspaceId: string, registrationId: string, body: any): Promise<object>;
+    updateRegistration(consumerOrgId: string, projectId: string, workspaceId: string, registrationId: string, body: RegistrationUpdateModel): Promise<object>;
     /**
      * Get registration details for a given registration
      * @param consumerOrgId - Consumer Org Id from the console
@@ -240,6 +240,51 @@ declare class EventsCoreAPI {
      */
     verifyDigitalSignatureForEvent(event: any, recipientClientId: string, signatureOptions?: SignatureOptions): boolean;
 }
+
+/**
+ * @property provider_id - The id of the provider of the events to be subscribed
+ * @property event_code - The requested valid event code belonging to the provider
+ */
+declare type EventsOfInterest = {
+    provider_id: string;
+    event_code: string;
+};
+
+/**
+ * @property client_id - Client id for which the registration is created
+ * @property name - The name of the registration
+ * @property description - The description of the registration
+ * @property [webhook_url] - A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type
+ * @property events_of_interest - The events for which the registration is to be subscribed to
+ * @property delivery_type - Delivery type can either be webhook|webhook_batch|journal.
+ * @property [enabled] - Enable or disable the registration. Default true.
+ */
+declare type RegistrationCreateModel = {
+    client_id: string;
+    name: string;
+    description: string;
+    webhook_url?: string;
+    events_of_interest: EventsOfInterest[];
+    delivery_type: string;
+    enabled?: string;
+};
+
+/**
+ * @property name - The name of the registration
+ * @property description - The description of the registration
+ * @property [webhook_url] - A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type
+ * @property events_of_interest - The events for which the registration is to be subscribed to
+ * @property delivery_type - Delivery type can either be webhook|webhook_batch|journal.
+ * @property [enabled] - Enable or disable the registration. Default true.
+ */
+declare type RegistrationUpdateModel = {
+    name: string;
+    description: string;
+    webhook_url?: string;
+    events_of_interest: EventsOfInterest[];
+    delivery_type: string;
+    enabled?: string;
+};
 
 /**
  * @property [page] - page number to be fetched. Default 0 (optional)
