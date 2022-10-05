@@ -593,7 +593,7 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | description | <code>string</code> | The description of the registration |
 | [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
 | events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
-| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
+| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
 | [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
 
 <a name="RegistrationUpdateModel"></a>
@@ -608,7 +608,7 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | description | <code>string</code> | The description of the registration |
 | [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
 | events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
-| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
+| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
 | [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
 
 <a name="Page"></a>
