@@ -14,7 +14,8 @@
     "unit-tests": "jest --config test/jest.config.js --maxWorkers=2",
     "e2e": "jest --config e2e/jest.config.js",
     "typings": "jsdoc -t node_modules/tsd-jsdoc/dist -r src/index.js -d .",
-    "generate-docs": "jsdoc2md -t ./docs/readme_template.md ./src/index.js > README.md"
+    "generate-docs": "npm run typings && npm run jsdoc",
+    "jsdoc": "jsdoc2md -t ./docs/readme_template.md ./src/index.js > README.md"
   },
   "dependencies": {
     "@adobe/aio-lib-core-errors": "^3.1.1",
@@ -48,7 +49,7 @@
     "jest-junit": "^10.0.0",
     "jest-plugin-fs": "^2.9.0",
     "jsdoc": "^3.6.7",
-    "jsdoc-to-markdown": "^5.0.3",
+    "jsdoc-to-markdown": "^7.1.1",
     "openapi-schema-validator": "^3.0.3",
     "querystring": "^0.2.0",
     "stdout-stderr": "^0.1.13",

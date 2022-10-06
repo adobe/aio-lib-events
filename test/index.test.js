@@ -44,8 +44,8 @@ const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
-const EVENTS_BASE_URL = 'fakebaseurl'
-const EVENTS_INGRESS_URL = 'fakeingressurl'
+const EVENTS_BASE_URL = 'https://api.adobe.io/events'
+const EVENTS_INGRESS_URL = 'https://eventsingress.adobe.io'
 
 // /////////////////////////////////////////////
 
@@ -123,7 +123,7 @@ describe('test get all providers', () => {
   it('Success on get all providers', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getAllProviders('consumerOrgId')
+    const res = await sdkClient.getAllProviders('consumerId')
     expect(res._embedded.providers.length).toBe(2)
     expect(res._embedded.providers[0].id).toBe('test-id-1')
     expect(res._embedded.providers[1].id).toBe('test-id-2')
@@ -131,7 +131,7 @@ describe('test get all providers', () => {
   it('Not found error on get all providers ', async () => {
     const api = 'getAllProviders'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerOrgId1'])
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId1'])
   })
 })
 
@@ -171,7 +171,7 @@ describe('test create new provider', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.providerResponse,
       { status: 200, statusText: 'OK' })
-    const res = await sdkClient.createProvider('consumerOrgId', 'projectId',
+    const res = await sdkClient.createProvider('consumerId', 'projectId',
       'workspaceId', mock.data.createProvider)
     expect(res.id).toBe('test-id')
   })
@@ -179,7 +179,7 @@ describe('test create new provider', () => {
     const api = 'createProvider'
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_PROVIDER(),
-      ['consumerOrgId', 'projectId', 'workspaceId', mock.data.createProviderBadRequest])
+      ['consumerId', 'projectId', 'workspaceId', mock.data.createProviderBadRequest])
   })
 })
 
@@ -188,7 +188,7 @@ describe('test update provider', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.updateProviderResponse,
       { status: 200, statusText: 'OK' })
-    const res = await sdkClient.updateProvider('consumerOrgId', 'projectId',
+    const res = await sdkClient.updateProvider('consumerId', 'projectId',
       'workspaceId', 'test-id', mock.data.updateProvider)
     expect(res.id).toBe('test-id')
     expect(res.label).toBe('Test provider 2')
@@ -197,7 +197,7 @@ describe('test update provider', () => {
     const api = 'updateProvider'
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_UPDATE_PROVIDER(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id',
+      ['consumerId', 'projectId', 'workspaceId', 'test-id',
         mock.data.updateProviderBadRequest])
   })
 })
@@ -206,7 +206,7 @@ describe('test delete provider', () => {
   it('Success on delete provider', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
-    const res = await sdkClient.deleteProvider('consumerOrgId', 'projectId',
+    const res = await sdkClient.deleteProvider('consumerId', 'projectId',
       'workspaceId', 'test-id')
     expect(res).toBe(undefined)
   })
@@ -214,7 +214,7 @@ describe('test delete provider', () => {
     const api = 'deleteProvider'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_DELETE_PROVIDER(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id1'])
+      ['consumerId', 'projectId', 'workspaceId', 'test-id1'])
   })
 })
 
@@ -261,7 +261,7 @@ describe('Create event metadata for provider', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.createEventMetadataForProviderResponse,
       { status: 200, statusText: 'OK' })
-    const res = await sdkClient.createEventMetadataForProvider('consumerOrgId',
+    const res = await sdkClient.createEventMetadataForProvider('consumerId',
       'projectId', 'workspaceId', 'test-id',
       mock.data.createEventMetadataForProvider)
     expect(res.event_code).toBe('com.adobe.event_code_1')
@@ -273,7 +273,7 @@ describe('Create event metadata for provider', () => {
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_CREATE_EVENTMETADATA(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id',
+      ['consumerId', 'projectId', 'workspaceId', 'test-id',
         mock.data.createEventMetadataBadRequest])
   })
 })
@@ -283,7 +283,7 @@ describe('Update event metadata for provider', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.createEventMetadataForProviderResponse,
       { status: 200, statusText: 'OK' })
-    const res = await sdkClient.updateEventMetadataForProvider('consumerOrgId',
+    const res = await sdkClient.updateEventMetadataForProvider('consumerId',
       'projectId', 'workspaceId', 'test-id', 'event_code_1',
       mock.data.createEventMetadataForProvider)
     expect(res.event_code).toBe('com.adobe.event_code_1')
@@ -295,7 +295,7 @@ describe('Update event metadata for provider', () => {
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_UPDATE_EVENTMETADATA(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id', 'event_code_1',
+      ['consumerId', 'projectId', 'workspaceId', 'test-id', 'event_code_1',
         mock.data.createEventMetadataBadRequest])
   })
 })
@@ -304,7 +304,7 @@ describe('Delete eventmetadata', () => {
   it('Success on delete eventmetadata', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
-    const res = await sdkClient.deleteEventMetadata('consumerOrgId', 'projectId',
+    const res = await sdkClient.deleteEventMetadata('consumerId', 'projectId',
       'workspaceId', 'test-id', 'event_code_1')
     expect(res).toBe(undefined)
   })
@@ -313,7 +313,7 @@ describe('Delete eventmetadata', () => {
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_DELETE_EVENTMETADATA(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id', 'event_code_2'])
+      ['consumerId', 'projectId', 'workspaceId', 'test-id', 'event_code_2'])
   })
 })
 
@@ -321,7 +321,7 @@ describe('Delete all eventmetadata', () => {
   it('Success on delete all eventmetadata', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
-    const res = await sdkClient.deleteAllEventMetadata('consumerOrgId', 'projectId',
+    const res = await sdkClient.deleteAllEventMetadata('consumerId', 'projectId',
       'workspaceId', 'test-id')
     expect(res).toBe(undefined)
   })
@@ -330,62 +330,105 @@ describe('Delete all eventmetadata', () => {
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api,
       new errorSDK.codes.ERROR_DELETE_ALL_EVENTMETADATA(),
-      ['consumerOrgId', 'projectId', 'workspaceId', 'test-id'])
+      ['consumerId', 'projectId', 'workspaceId', 'test-id'])
   })
 })
 
-describe('Create webhook registration', () => {
-  it('Success on create webhook registration', async () => {
+describe('Create registration', () => {
+  it('Success on create registration', async () => {
     const sdkClient = await createSdkClient()
-    exponentialBackoffMockReturnValue(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.createWebhookRegistration('consumerOrgId', 'integrationId', mock.data.createWebhookRegistration)
+    exponentialBackoffMockReturnValue(mock.data.createRegistrationResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.createRegistration('consumerId', 'projectId', 'workspaceId', mock.data.createRegistration)
     expect(res.id).toBe(248723)
-    expect(res.status).toBe('VERIFIED')
+    expect(res.webhook_status).toBe('verified')
+    expect(res.enabled).toBe(true)
   })
-  it('Bad request error on create webhook registration', async () => {
-    const api = 'createWebhookRegistration'
+  it('Bad request error on create registration', async () => {
+    const api = 'createRegistration'
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerOrgId', 'integrationId', mock.data.createWebhookRegistrationBadRequest])
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', mock.data.createRegistrationBadRequest])
   })
 })
 
-describe('Get all webhook registration', () => {
-  it('Success on get all webhook registration', async () => {
+describe('Update registration', () => {
+  it('Success on update registration', async () => {
     const sdkClient = await createSdkClient()
-    exponentialBackoffMockReturnValue(mock.data.getAllWebhookRegistrationsResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getAllWebhookRegistrations('consumerOrgId', 'integrationId')
-    expect(res.length).toBe(2)
-    expect(res[0].id).toBe(1)
-    expect(res[1].status).toBe('VERIFIED')
-  })
-  it('Not found error on get all webhook registration', async () => {
-    const api = 'getAllWebhookRegistrations'
-    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATION(), ['consumerOrgId', 'integrationId-1'])
-  })
-})
-
-describe('Get a webhook registration', () => {
-  it('Success on get a webhook registration', async () => {
-    const sdkClient = await createSdkClient()
-    exponentialBackoffMockReturnValue(mock.data.createWebhookRegistrationResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getWebhookRegistration('consumerOrgId', 'integrationId', 'registration-id')
+    exponentialBackoffMockReturnValue(mock.data.updateRegistrationResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.updateRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId', mock.data.updateRegistration)
     expect(res.id).toBe(248723)
-    expect(res.status).toBe('VERIFIED')
+    expect(res.webhook_status).toBe('verified')
+    expect(res.delivery_type).toBe('webhook_batch')
+    expect(res.enabled).toBe(true)
   })
-  it('Not found error on get a webhook registration', async () => {
-    const api = 'getWebhookRegistration'
-    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_REGISTRATION(), ['consumerOrgId', 'integrationId', 'registration-id-1'])
+  it('Bad request error on update registration', async () => {
+    const api = 'updateRegistration'
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_UPDATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', 'registrationId', mock.data.createRegistrationBadRequest])
   })
 })
 
-describe('Get webhook registration with retries', () => {
+describe('Get all registration', () => {
+  it('Success on get all registration', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllRegistrationsResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllRegistrationsForWorkspace('consumerId', 'projectId', 'workspaceId')
+    expect(res._embedded.registrations.length).toBe(3)
+    const regs = res._embedded.registrations
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations')
+    expect(regs[0].id).toBe(30000)
+    expect(regs[1].webhook_status).toBe('hook_unreachable')
+    expect(regs[2].delivery_type).toBe('journal')
+  })
+  it('Not found error on get all registration', async () => {
+    const api = 'getAllRegistrationsForWorkspace'
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATION(), ['consumerId', 'project-1', 'workspace-1'])
+  })
+})
+
+describe('Get a registration', () => {
+  it('Success on get a  registration', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.createRegistrationResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId')
+    expect(res.id).toBe(248723)
+    expect(res.webhook_status).toBe('verified')
+    expect(res.enabled).toBe(true)
+  })
+  it('Not found error on get a registration', async () => {
+    const api = 'getRegistration'
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', 'registrationId-1'])
+  })
+})
+
+describe('Get all registrations for org', () => {
+  it('Success on get all registrations for org', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllRegistrationsForOrgResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllRegistrationsForOrg('consumerId', { page: 1, size: 2 })
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=1&size=2')
+    expect(res._links.first.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
+    expect(res._links.last.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=19&size=2')
+    expect(res._links.prev.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
+    expect(res._embedded.registrations.length).toBe(2)
+    expect(res.page.numberOfElements).toBe(2)
+    expect(res.page.totalElements).toBe(19)
+  })
+  it('Not found error on get a registration', async () => {
+    const api = 'getAllRegistrationsForOrg'
+    exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_REGISTRATIONS_FOR_ORG(), ['consumerId-2'])
+  })
+})
+
+describe('Get registration with retries', () => {
   it('Test for retries on 5xx response', async () => {
     const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, { retries: 3 })
     const error = new errorSDK.codes.ERROR_GET_REGISTRATION()
     exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
-    await sdkClient.getWebhookRegistration('consumerOrgId', 'integrationId', 'registration-id')
+    await sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId')
       .then(res => {
         throw new Error(' No error response')
       })
@@ -394,7 +437,7 @@ describe('Get webhook registration with retries', () => {
         expect(e.code).toEqual(error.code)
       })
     expect(fetchRetry.exponentialBackoff).toHaveBeenCalledWith(
-      'https://api.adobe.io/events/organizations/consumerOrgId/integrations/integrationId/registrations/registration-id',
+      EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId',
       {
         body: undefined,
         headers: {
@@ -409,19 +452,19 @@ describe('Get webhook registration with retries', () => {
   })
 })
 
-describe('test delete webhook registration', () => {
+describe('test delete registration', () => {
   it('Success on delete registration', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(undefined, { status: 204, statusText: 'No Content' })
-    const res = await sdkClient.deleteWebhookRegistration('consumerOrgId', 'integrationId',
+    const res = await sdkClient.deleteRegistration('consumerId', 'projectId', 'workspaceId',
       'registrationId')
     expect(res).toBe(undefined)
   })
   it('Not found error on delete registration', () => {
-    const api = 'deleteWebhookRegistration'
+    const api = 'deleteRegistration'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_DELETE_REGISTRATION(),
-      ['consumerOrgId', 'integrationId', 'registrationId1'])
+      ['consumerId', 'integrationId', 'registrationId1'])
   })
 })
 

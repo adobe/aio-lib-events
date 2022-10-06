@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 [![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
 [![Build Status](https://travis-ci.com/adobe/aio-lib-events.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-events)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
+[![Greenkeeper badge](https://badges.greenkeeper.io/adobe/aio-lib-events.svg)](https://greenkeeper.io/)
 [![Codecov Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-events/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-events/)
 
 # Adobe I/O Events Lib
@@ -108,6 +109,18 @@ and max number of retries</p>
 <dl>
 <dt><a href="#EventsCoreAPIOptions">EventsCoreAPIOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#ProviderInputModel">ProviderInputModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#EventMetadataInputModel">EventMetadataInputModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#EventsOfInterest">EventsOfInterest</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#RegistrationCreateModel">RegistrationCreateModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#RegistrationUpdateModel">RegistrationUpdateModel</a> : <code>object</code></dt>
+<dd></dd>
+<dt><a href="#Page">Page</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#EventsJournalOptions">EventsJournalOptions</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#EventsJournalPollingOptions">EventsJournalPollingOptions</a> : <code>object</code></dt>
@@ -143,10 +156,12 @@ and max number of retries
     * [.updateEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, eventCode, body)](#EventsCoreAPI+updateEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.deleteEventMetadata(consumerOrgId, projectId, workspaceId, providerId, eventCode)](#EventsCoreAPI+deleteEventMetadata) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.deleteAllEventMetadata(consumerOrgId, projectId, workspaceId, providerId)](#EventsCoreAPI+deleteAllEventMetadata) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.createWebhookRegistration(consumerOrgId, integrationId, body)](#EventsCoreAPI+createWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.getWebhookRegistration(consumerOrgId, integrationId, registrationId)](#EventsCoreAPI+getWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.getAllWebhookRegistrations(consumerOrgId, integrationId)](#EventsCoreAPI+getAllWebhookRegistrations) ⇒ <code>Promise.&lt;object&gt;</code>
-    * [.deleteWebhookRegistration(consumerOrgId, integrationId, registrationId)](#EventsCoreAPI+deleteWebhookRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.createRegistration(consumerOrgId, projectId, workspaceId, body)](#EventsCoreAPI+createRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.updateRegistration(consumerOrgId, projectId, workspaceId, registrationId, body)](#EventsCoreAPI+updateRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getRegistration(consumerOrgId, projectId, workspaceId, registrationId)](#EventsCoreAPI+getRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getAllRegistrationsForWorkspace(consumerOrgId, projectId, workspaceId)](#EventsCoreAPI+getAllRegistrationsForWorkspace) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getAllRegistrationsForOrg(consumerOrgId, [page])](#EventsCoreAPI+getAllRegistrationsForOrg) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.deleteRegistration(consumerOrgId, projectId, workspaceId, registrationId)](#EventsCoreAPI+deleteRegistration) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
     * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
@@ -229,7 +244,7 @@ Create a new provider given the provider details
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
-| body | <code>object</code> | Json data that describes the provider |
+| body | [<code>ProviderInputModel</code>](#ProviderInputModel) | Json data that describes the provider |
 
 <a name="EventsCoreAPI+updateProvider"></a>
 
@@ -245,7 +260,7 @@ Update a provider given the id and provider details
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | The id that uniquely identifies the provider to be updated |
-| body | <code>object</code> | Json data that describes the provider |
+| body | [<code>ProviderInputModel</code>](#ProviderInputModel) | Json data that describes the provider |
 
 <a name="EventsCoreAPI+deleteProvider"></a>
 
@@ -301,7 +316,7 @@ Create an event metadata for a provider
 | projectId | <code>string</code> | Project Id from the console |
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | provider for which the event metadata is to be added |
-| body | <code>object</code> | Json data that describes the event metadata |
+| body | [<code>EventMetadataInputModel</code>](#EventMetadataInputModel) | Json data that describes the event metadata |
 
 <a name="EventsCoreAPI+updateEventMetadataForProvider"></a>
 
@@ -318,7 +333,7 @@ Update the event metadata for a provider
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | provider for which the event metadata is to be updated |
 | eventCode | <code>string</code> | eventCode of the event metadata to be updated |
-| body | <code>object</code> | Json data that describes the event metadata |
+| body | [<code>EventMetadataInputModel</code>](#EventMetadataInputModel) | Json data that describes the event metadata |
 
 <a name="EventsCoreAPI+deleteEventMetadata"></a>
 
@@ -351,9 +366,9 @@ Delete all event metadata of a provider
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | provider for which the event metadata is to be updated |
 
-<a name="EventsCoreAPI+createWebhookRegistration"></a>
+<a name="EventsCoreAPI+createRegistration"></a>
 
-### eventsCoreAPI.createWebhookRegistration(consumerOrgId, integrationId, body) ⇒ <code>Promise.&lt;object&gt;</code>
+### eventsCoreAPI.createRegistration(consumerOrgId, projectId, workspaceId, body) ⇒ <code>Promise.&lt;object&gt;</code>
 Create a webhook or journal registration
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -362,12 +377,29 @@ Create a webhook or journal registration
 | Param | Type | Description |
 | --- | --- | --- |
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
-| integrationId | <code>string</code> | integration Id from the console |
-| body | <code>object</code> | Json data contains details of the registration |
+| projectId | <code>string</code> | Project Id from the console |
+| workspaceId | <code>string</code> | Workspace Id from the console |
+| body | [<code>RegistrationCreateModel</code>](#RegistrationCreateModel) | Json data contains details of the registration |
 
-<a name="EventsCoreAPI+getWebhookRegistration"></a>
+<a name="EventsCoreAPI+updateRegistration"></a>
 
-### eventsCoreAPI.getWebhookRegistration(consumerOrgId, integrationId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>
+### eventsCoreAPI.updateRegistration(consumerOrgId, projectId, workspaceId, registrationId, body) ⇒ <code>Promise.&lt;object&gt;</code>
+Update a webhook or journal registration
+
+**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Details of the webhook/journal registration to be updated  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| consumerOrgId | <code>string</code> | Consumer Org Id from the console |
+| projectId | <code>string</code> | Project Id from the console |
+| workspaceId | <code>string</code> | Workspace Id from the console |
+| registrationId | <code>string</code> | Registration id whose details are to be fetched |
+| body | [<code>RegistrationUpdateModel</code>](#RegistrationUpdateModel) | Json data contains details of the registration |
+
+<a name="EventsCoreAPI+getRegistration"></a>
+
+### eventsCoreAPI.getRegistration(consumerOrgId, projectId, workspaceId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>
 Get registration details for a given registration
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -376,13 +408,14 @@ Get registration details for a given registration
 | Param | Type | Description |
 | --- | --- | --- |
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
-| integrationId | <code>string</code> | Integration Id from the console |
+| projectId | <code>string</code> | Project Id from the console |
+| workspaceId | <code>string</code> | Workspace Id from the console |
 | registrationId | <code>string</code> | Registration id whose details are to be fetched |
 
-<a name="EventsCoreAPI+getAllWebhookRegistrations"></a>
+<a name="EventsCoreAPI+getAllRegistrationsForWorkspace"></a>
 
-### eventsCoreAPI.getAllWebhookRegistrations(consumerOrgId, integrationId) ⇒ <code>Promise.&lt;object&gt;</code>
-Get all registration details for a given integration
+### eventsCoreAPI.getAllRegistrationsForWorkspace(consumerOrgId, projectId, workspaceId) ⇒ <code>Promise.&lt;object&gt;</code>
+Get all registration details for a workspace
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
 **Returns**: <code>Promise.&lt;object&gt;</code> - List of all webhook/journal registrations  
@@ -390,11 +423,25 @@ Get all registration details for a given integration
 | Param | Type | Description |
 | --- | --- | --- |
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
-| integrationId | <code>string</code> | Integration Id from the console |
+| projectId | <code>string</code> | Project Id from the console |
+| workspaceId | <code>string</code> | Workspace Id from the console |
 
-<a name="EventsCoreAPI+deleteWebhookRegistration"></a>
+<a name="EventsCoreAPI+getAllRegistrationsForOrg"></a>
 
-### eventsCoreAPI.deleteWebhookRegistration(consumerOrgId, integrationId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>
+### eventsCoreAPI.getAllRegistrationsForOrg(consumerOrgId, [page]) ⇒ <code>Promise.&lt;object&gt;</code>
+Get all registration details for an org
+
+**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Paginated response of all webhook/journal registrations for an org  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| consumerOrgId | <code>string</code> | Consumer Org Id from the console |
+| [page] | [<code>Page</code>](#Page) | page size and page number |
+
+<a name="EventsCoreAPI+deleteRegistration"></a>
+
+### eventsCoreAPI.deleteRegistration(consumerOrgId, projectId, workspaceId, registrationId) ⇒ <code>Promise.&lt;object&gt;</code>
 Delete webhook registration
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -403,7 +450,8 @@ Delete webhook registration
 | Param | Type | Description |
 | --- | --- | --- |
 | consumerOrgId | <code>string</code> | Consumer Org Id from the console |
-| integrationId | <code>string</code> | Integration Id from the console |
+| projectId | <code>string</code> | Project Id from the console |
+| workspaceId | <code>string</code> | Workspace Id from the console |
 | registrationId | <code>string</code> | Id of the registration to be deleted |
 
 <a name="EventsCoreAPI+publishEvent"></a>
@@ -411,7 +459,7 @@ Delete webhook registration
 ### eventsCoreAPI.publishEvent(cloudEvent) ⇒ <code>Promise.&lt;string&gt;</code>
 Publish Cloud Events
 
-Event publishers can publish events to the Adobe I/O Events using this SDK. The events should follow Cloud Events 1.0 specification: https://github.com/cloudevents/spec/blob/v1.0/spec.md. 
+Event publishers can publish events to the Adobe I/O Events using this SDK. The events should follow Cloud Events 1.0 specification: https://github.com/cloudevents/spec/blob/v1.0/spec.md.
 As of now, only application/json is accepted as the content-type for the "data" field of the cloud event.
 If retries are set, publish events are retried on network issues, 5xx and 429 error response codes.
 
@@ -495,6 +543,84 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
 | [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
 | [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
+
+<a name="ProviderInputModel"></a>
+
+## ProviderInputModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| label | <code>string</code> | The label of this Events Provider |
+| [description] | <code>string</code> | The description of this Events Provider |
+| [docs_url] | <code>string</code> | The documentation url of this Events Provider |
+
+<a name="EventMetadataInputModel"></a>
+
+## EventMetadataInputModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| label | <code>string</code> | The description of this Event Metadata |
+| description | <code>string</code> | The label of this Event Metadata |
+| event_code | <code>string</code> | The event_code of this Event Metadata. This event_code describes the type of event. Ideally it should be prefixed with a reverse-DNS name (dictating the organization which defines the semantics of this event type) It is equivalent to the CloudEvents' type. See https://github.com/cloudevents/spec/blob/master/spec.md#type |
+| [sample_event_template] | <code>string</code> | An optional base64 encoded sample event template |
+
+<a name="EventsOfInterest"></a>
+
+## EventsOfInterest : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| provider_id | <code>string</code> | The id of the provider of the events to be subscribed |
+| event_code | <code>string</code> | The requested valid event code belonging to the provider |
+
+<a name="RegistrationCreateModel"></a>
+
+## RegistrationCreateModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| client_id | <code>string</code> | Client id for which the registration is created |
+| name | <code>string</code> | The name of the registration |
+| description | <code>string</code> | The description of the registration |
+| [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
+| events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
+| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
+| [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
+
+<a name="RegistrationUpdateModel"></a>
+
+## RegistrationUpdateModel : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | The name of the registration |
+| description | <code>string</code> | The description of the registration |
+| [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
+| events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
+| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
+| [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
+
+<a name="Page"></a>
+
+## Page : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [page] | <code>number</code> | page number to be fetched. Default 0 (optional) |
+| [size] | <code>number</code> | size of each page. Default 10 (optional) |
 
 <a name="EventsJournalOptions"></a>
 
