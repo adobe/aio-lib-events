@@ -1,13 +1,14 @@
-import {Observable} from "rxjs";
-
 /**
- * @typedef {object} EventsCoreAPIOptions
- * @property {number} [timeout] Http request timeout in ms (optional)
- * @property {number} [retries] Number of retries in case of 5xx errors. Default 0 (optional)
+ * @property [timeout] - Http request timeout in ms (optional)
+ * @property [retries] - Number of retries in case of 5xx errors. Default 0 (optional)
+ * @property [eventsBaseURL] - Base URL for Events Default https://api.adobe.io (optional)
+ * @property [eventsIngressURL] - Ingress URL for Events. Default https://eventsingress.adobe.io (optional)
  */
 declare type EventsCoreAPIOptions = {
     timeout?: number;
     retries?: number;
+    eventsBaseURL?: string;
+    eventsIngressURL?: string;
 };
 
 /**
@@ -39,19 +40,19 @@ declare class EventsCoreAPI {
     /**
      * Http options {retries, timeout}
      */
-    httpOptions: EventsCoreAPIOptions;
+    httpOptions: any;
     /**
      * The organization id from your integration
      */
-    organizationId: string;
+    organizationId: any;
     /**
      * The api key from your integration
      */
-    apiKey: string;
+    apiKey: any;
     /**
      * The JWT Token for the integration with IO Management API scope
      */
-    accessToken: string;
+    accessToken: any;
     /**
      * Fetch all the providers
      * @param consumerOrgId - Consumer Org Id from the console
@@ -226,7 +227,7 @@ declare class EventsCoreAPI {
      * @param [eventsJournalPollingOptions] - Journal polling options
      * @returns observable to which the user can subscribe to in order to listen to events
      */
-    getEventsObservableFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions, eventsJournalPollingOptions?: EventsJournalPollingOptions): Observable<object>;
+    getEventsObservableFromJournal(journalUrl: string, eventsJournalOptions?: EventsJournalOptions, eventsJournalPollingOptions?: EventsJournalPollingOptions): Observable;
     /**
      * Authenticating events by verifying digital signature
      * @param event - JSON payload delivered to the registered webhook URL
@@ -238,7 +239,7 @@ declare class EventsCoreAPI {
      * publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook
      * @returns If signature matches return true else return false
      */
-    verifyDigitalSignatureForEvent(event: any, recipientClientId: string, signatureOptions?: SignatureOptions): boolean;
+    verifyDigitalSignatureForEvent(event: any, recipientClientId: any, signatureOptions: any): boolean;
 }
 
 /**
@@ -337,16 +338,3 @@ declare type EventsJournalPollingOptions = {
     interval?: number;
 };
 
-/**
- * @typedef {object} SignatureOptions
- * @property [digiSignature1] - Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook
- * @property [digiSignature2] - Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook
- * @property [publicKeyUrl1] - Value of public key url retrieved from the x-adobe-public-key1-url header in each POST request to webhook
- * @property [publicKeyUrl2] - Value of public key url retrieved from the x-adobe-public-key2-url header in each POST request to webhook
- */
-declare type SignatureOptions = {
-    digiSignature1: string;
-    digiSignature2: string;
-    publicKeyUrl1: string;
-    publicKeyUrl2: string;
-};
