@@ -22,7 +22,7 @@ const loggerNamespace = '@adobe/aio-lib-events'
 const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
   { level: process.env.LOG_LEVEL })
 const { codes } = require('./SDKErrors')
-const { HttpExponentialBackoff } = require('@adobe/aio-lib-core-networking')
+const { HttpExponentialBackoff, parseRetryAfterHeader } = require('@adobe/aio-lib-core-networking')
 const fetchRetryClient = new HttpExponentialBackoff()
 
 const EventsConsumerFromJournal = require('./journalling')
@@ -525,7 +525,7 @@ class EventsCoreAPI {
         result.link = helpers.parseLinkHeader(journalUrl, linkHeader)
       }
       if (retryAfterHeader) {
-        result.retryAfter = helpers.parseRetryAfterHeader(retryAfterHeader)
+        result.retryAfter = parseRetryAfterHeader(retryAfterHeader) || undefined
       }
       if (fetchResponseHeaders) {
         result.responseHeaders = response.headers.raw()

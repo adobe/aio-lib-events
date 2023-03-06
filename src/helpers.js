@@ -67,21 +67,6 @@ function parseLinkHeader (base, header) {
 }
 
 /**
- * Parse the Retry-After header
- * Spec: {@link https://tools.ietf.org/html/rfc7231#section-7.1.3}
- *
- * @param {string} header Retry-After header value
- * @returns {number} Number of milliseconds to sleep until the next call to getEventsFromJournal
- */
-function parseRetryAfterHeader (header) {
-  if (header.match(/^[0-9]+$/)) {
-    return parseInt(header, 10) * 1000
-  } else {
-    return Date.parse(header) - Date.now()
-  }
-}
-
-/**
  * Wrapper to check the event received by webhook
  * and return decoded (if encoded) payload
  *
@@ -130,7 +115,6 @@ const exportFunctions = {
   reduceError,
   appendQueryParams,
   parseLinkHeader,
-  parseRetryAfterHeader,
   getProperPayload,
   genErrorResponse
 }
