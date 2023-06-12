@@ -129,9 +129,6 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
-    if (providerOptions.providerMetadataId && providerOptions.providerMetadataIds) {
-
-    }
     let urlWithQueryParams = helpers.appendQueryParams(url, providerOptions)
     urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: fetchEventMetadata })
     const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
