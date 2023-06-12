@@ -145,8 +145,9 @@ class EventsCoreAPI {
   getProvider (providerId, fetchEventMetadata = false) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
-    const url = this.__getUrl(`/events/providers/${providerId}?eventmetadata=${fetchEventMetadata}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const url = this.__getUrl(`/events/providers/${providerId}`)
+    const urlWithQueryParams = helpers.appendQueryParams(url, { eventmetadata: fetchEventMetadata })
+    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_PROVIDER)
   }
 
@@ -434,7 +435,7 @@ class EventsCoreAPI {
    * @param {Page} [page] page size and page number
    * @returns {Promise<object>} Paginated response of all webhook/journal registrations for an org
    */
-  getAllRegistrationsForOrg (consumerOrgId, page) {
+  getAllRegistrationsForOrg (consumerOrgId, page = {}) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
