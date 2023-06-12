@@ -112,16 +112,29 @@ class EventsCoreAPI {
    */
 
   /**
+   * @typedef {object} ProviderOptions
+   * @property {string} [providerMetadataId] Fetch by providerMetadataId for the consumer org
+   * @property {string} [instanceId] For Self registered providers, instanceId is a must while fetching by providerMetadataId
+   * @property {Array} [providerMetadataIds] Fetch all providers ( and all instances ) for the list of provider metadata ids
+   */
+  /**
    * Fetch all the providers
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
+   * @param {boolean} fetchEventMetadata Option to fetch event metadata for each of the the providers in the list
+   * @param {ProviderOptions} providerOptions Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
    * @returns {Promise<object>} Returns list of providers for the org
    */
-  getAllProviders (consumerOrgId) {
+  getAllProviders (consumerOrgId, fetchEventMetadata = false, providerOptions = {}) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    if (providerOptions.providerMetadataId && providerOptions.providerMetadataIds) {
+
+    }
+    let urlWithQueryParams = helpers.appendQueryParams(url, providerOptions)
+    urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: fetchEventMetadata })
+    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDERS)
   }
 

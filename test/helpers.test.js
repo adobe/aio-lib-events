@@ -54,6 +54,11 @@ describe('Append query params test', () => {
     const url = helpers.appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
     expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true&interval=10')
   })
+  it('Append query params to url with array query params', () => {
+    const queryParams3 = { values: ['value1', 'value 2', 'value3'] }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?values=value1&values=value%202&values=value3')
+  })
 })
 
 describe('Proper Payload Test', () => {
