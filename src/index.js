@@ -127,6 +127,9 @@ class EventsCoreAPI {
    */
   getAllProviders (consumerOrgId, fetchEventMetadata = false, providerOptions = {}) {
     const headers = {}
+    if (providerOptions && providerOptions.providerMetadataIds && providerOptions.providerMetadataId) {
+      throw new codes.ERROR_GET_ALL_PROVIDERS({ messageValues: 'Only one of providerMetadataIds or providerMetadataId can be set' })
+    }
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
     let urlWithQueryParams = helpers.appendQueryParams(url, providerOptions)
