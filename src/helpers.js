@@ -35,9 +35,13 @@ function reduceError (error = {}) {
  */
 function appendQueryParams (url, qs) {
   let result = url
-  if (qs) {
+  if (qs && !(Object.keys(qs).length === 0)) {
+    const filteredQs = Object.entries(qs).filter(([k, v]) => v)
+    if (Object.keys(filteredQs).length === 0) {
+      return result
+    }
     const separator = (url.indexOf('?') >= 0) ? '&' : '?'
-    const queryParams = querystring.stringify(qs)
+    const queryParams = querystring.stringify(Object.fromEntries(filteredQs))
     result += `${separator}${queryParams}`
   }
   return result
