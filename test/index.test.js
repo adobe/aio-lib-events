@@ -128,6 +128,37 @@ describe('test get all providers', () => {
     expect(res._embedded.providers[0].id).toBe('test-id-1')
     expect(res._embedded.providers[1].id).toBe('test-id-2')
   })
+  it('Success on get all providers for provider metadata ids list', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId', false, { providerMetadataIds: ['pm-1', 'pm-2'] })
+    expect(res._embedded.providers.length).toBe(2)
+    expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
+    expect(res._embedded.providers[1].provider_metadata).toBe('pm-2')
+  })
+  it('Success on get all providers for a provider metadata id and instance id', async () => {
+    const sdkClient = await createSdkClient()
+    const returnedValue = mock.data.getAllProvidersResponse
+    returnedValue._embedded.providers.pop()
+    exponentialBackoffMockReturnValue(returnedValue, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId', false, { providerMetadataId: 'pm-1', instanceId: 'instance-1' })
+    expect(res._embedded.providers.length).toBe(1)
+    expect(res._embedded.providers[0].id).toBe('test-id-1')
+    expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
+    expect(res._embedded.providers[0].instance_id).toBe('instance-1')
+  })
+  it('Success on get all providers with eventmetadata', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllProvidersWithEventMetadataResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId', true)
+    expect(res._embedded.providers.length).toBe(1)
+    expect(res._embedded.providers[0].id).toBe('test-id-1')
+    expect(res._embedded.providers[0]._embedded.eventmetadata[0].event_code).toBe('com.adobe.events.sdk.event.test')
+  })
+  it('Error on get all providers with providerMetadataIds list and providerMetadatataId query params', async () => {
+    const api = 'getAllProviders'
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId', false, { providerMetadataIds: ['pm1', 'pm2'], providerMetadataId: 'pm1' }])
+  })
   it('Not found error on get all providers ', async () => {
     const api = 'getAllProviders'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })

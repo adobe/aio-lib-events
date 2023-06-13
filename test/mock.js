@@ -90,7 +90,9 @@ const getAllProvidersResponse = {
         id: 'test-id-1',
         label: 'label 1',
         source: 'urn:uuid:source1',
-        publisher: 'Adobe'
+        publisher: 'Adobe',
+        provider_metadata: 'pm-1',
+        instance_id: 'instance-1'
       },
       {
         _links: {
@@ -107,7 +109,59 @@ const getAllProvidersResponse = {
         id: 'test-id-2',
         label: 'label 2',
         source: 'urn:uuid:source2',
-        publisher: 'adobeOrg2@AdobeOrg'
+        publisher: 'adobeOrg2@AdobeOrg',
+        provider_metadata: 'pm-2'
+      }
+    ]
+  }
+}
+
+const getAllProvidersWithEventMetadataResponse = {
+  _links: {
+    self: {
+      href: 'https://api.adobe.io/events/consumerOrgId/providers'
+    }
+  },
+  _embedded: {
+    providers: [
+      {
+        _links: {
+          'rel:eventmetadata': {
+            href: 'https://api.adobe.io/events/providers/test-id-1/eventmetadata'
+          },
+          'rel:update': {
+            href: 'https://api.adobe.io/events/consumerId/projectId/workspaceId/providers/test-id-1'
+          },
+          self: {
+            href: 'https://api.adobe.io/events/providers/test-id-1'
+          }
+        },
+        id: 'test-id-1',
+        label: 'label 1',
+        source: 'urn:uuid:source1',
+        publisher: 'Adobe',
+        provider_metadata: 'pm-1',
+        instance_id: 'instance-1',
+        _embedded: {
+          eventmetadata: [
+            {
+              _links: {
+                'rel:sample_event': {
+                  href: 'https://api.adobe.io/events/providers/test-id/eventmetadata/com.adobe.events.sdk.event.test/sample_event'
+                },
+                'rel:update': {
+                  href: 'https://api.adobe.io/events/consumerId/projectId/workspaceId/providers/test-id/eventmetadata/com.adobe.events.sdk.event.test'
+                },
+                self: {
+                  href: 'https://api.adobe.io/events/providers/test-id/eventmetadata/com.adobe.events.sdk.event.test'
+                }
+              },
+              description: 'Test for Events SDK',
+              label: 'EventsSDK test',
+              event_code: 'com.adobe.events.sdk.event.test'
+            }
+          ]
+        }
       }
     ]
   }
@@ -797,6 +851,7 @@ const data = {
   providerResponse: providerResponse,
   providerWithEventMetadataResponse: providerWithEventMetadataResponse,
   getAllProvidersResponse: getAllProvidersResponse,
+  getAllProvidersWithEventMetadataResponse: getAllProvidersWithEventMetadataResponse,
   createProvider: createProvider,
   createProviderBadRequest: createProviderBadRequest,
   updateProvider: updateProvider,
