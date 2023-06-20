@@ -232,6 +232,32 @@ const createEventMetadataForProviderResponse = {
   event_code: 'com.adobe.event_code_1'
 }
 
+const getProviderMetadataForOrg = {
+  _links: {
+    self: {
+      href: 'https://api.adobe.io/events/providermetadata'
+    }
+  },
+  _embedded: {
+    providermetadata: [
+      {
+        id: 'id-1',
+        group: 'Experience Platform',
+        label: 'Id 1',
+        description: 'A Id 1 provider, registered by your organization.',
+        has_multiple_providers: true
+      },
+      {
+        id: 'id-2',
+        group: 'Experience Cloud',
+        label: 'Id 2',
+        description: 'An Id 2 instance registered as an Adobe I/O events provider',
+        has_multiple_providers: false
+      }
+    ]
+  }
+}
+
 const getAllEventMetadataResponse = {
   _links: {
     self: {
@@ -857,6 +883,7 @@ const data = {
   updateProvider: updateProvider,
   updateProviderBadRequest: updateProviderBadRequest,
   updateProviderResponse: updateProviderResponse,
+  getProviderMetadataForOrg: getProviderMetadataForOrg,
   getAllEventMetadataResponse: getAllEventMetadataResponse,
   getEventMetadataResponse: getEventMetadataResponse,
   createEventMetadataForProvider: createEventMetadataForProvider,

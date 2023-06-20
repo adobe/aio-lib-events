@@ -249,6 +249,22 @@ describe('test delete provider', () => {
   })
 })
 
+// ////////////////////////////////////////////
+
+describe('test get provider metadata', () => {
+  it('Success on get provider metadata for org', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getProviderMetadataForOrg, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getProviderMetadata()
+    expect(res._embedded.providermetadata.length).toBe(2)
+  })
+  it('Not found error on get provider metadata', async () => {
+    const api = 'getProviderMetadata'
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDER_METADATA())
+  })
+})
+
 // /////////////////////////////////////////////
 
 describe('Get all event metadata for provider', () => {

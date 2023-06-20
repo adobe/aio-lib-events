@@ -216,6 +216,23 @@ class EventsCoreAPI {
 
   /**
    * =========================================================================
+   * GET Entitled Provider Metadata
+   * =========================================================================
+   */
+
+  /**
+   * @returns {Promise<object>} Returns the list of all entitled provider metadata for the org
+   */
+  getProviderMetadata () {
+    const headers = {}
+    const requestOptions = this.__createRequest('GET', headers)
+    const url = this.__getUrl('/events/providermetadata')
+    const sdkDetails = { requestOptions: requestOptions, url: url }
+    return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDER_METADATA)
+  }
+
+  /**
+   * =========================================================================
    * GET/POST/PUT/DELETE Event Metadata
    * =========================================================================
    */

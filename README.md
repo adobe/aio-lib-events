@@ -109,6 +109,8 @@ and max number of retries</p>
 <dl>
 <dt><a href="#EventsCoreAPIOptions">EventsCoreAPIOptions</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#ProviderOptions">ProviderOptions</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#ProviderInputModel">ProviderInputModel</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#EventMetadataInputModel">EventMetadataInputModel</a> : <code>object</code></dt>
@@ -145,11 +147,12 @@ and max number of retries
     * [.apiKey](#EventsCoreAPI+apiKey)
     * [.accessToken](#EventsCoreAPI+accessToken)
     * [.init(organizationId, apiKey, accessToken, [httpOptions])](#EventsCoreAPI+init) ⇒ [<code>Promise.&lt;EventsCoreAPI&gt;</code>](#EventsCoreAPI)
-    * [.getAllProviders(consumerOrgId)](#EventsCoreAPI+getAllProviders) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getAllProviders(consumerOrgId, fetchEventMetadata, providerOptions)](#EventsCoreAPI+getAllProviders) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getProvider(providerId, [fetchEventMetadata])](#EventsCoreAPI+getProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.createProvider(consumerOrgId, projectId, workspaceId, body)](#EventsCoreAPI+createProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.updateProvider(consumerOrgId, projectId, workspaceId, providerId, body)](#EventsCoreAPI+updateProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.deleteProvider(consumerOrgId, projectId, workspaceId, providerId)](#EventsCoreAPI+deleteProvider) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.getProviderMetadata()](#EventsCoreAPI+getProviderMetadata) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getAllEventMetadataForProvider(providerId)](#EventsCoreAPI+getAllEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventMetadataForProvider(providerId, eventCode)](#EventsCoreAPI+getEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.createEventMetadataForProvider(consumerOrgId, projectId, workspaceId, providerId, body)](#EventsCoreAPI+createEventMetadataForProvider) ⇒ <code>Promise.&lt;object&gt;</code>
@@ -208,15 +211,17 @@ Initialize SDK.
 
 <a name="EventsCoreAPI+getAllProviders"></a>
 
-### eventsCoreAPI.getAllProviders(consumerOrgId) ⇒ <code>Promise.&lt;object&gt;</code>
+### eventsCoreAPI.getAllProviders(consumerOrgId, fetchEventMetadata, providerOptions) ⇒ <code>Promise.&lt;object&gt;</code>
 Fetch all the providers
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
 **Returns**: <code>Promise.&lt;object&gt;</code> - Returns list of providers for the org  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| consumerOrgId | <code>string</code> | Consumer Org Id from the console |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| consumerOrgId | <code>string</code> |  | Consumer Org Id from the console |
+| fetchEventMetadata | <code>boolean</code> | <code>false</code> | Option to fetch event metadata for each of the the providers in the list |
+| providerOptions | [<code>ProviderOptions</code>](#ProviderOptions) |  | Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds |
 
 <a name="EventsCoreAPI+getProvider"></a>
 
@@ -277,6 +282,11 @@ Delete a provider given the id
 | workspaceId | <code>string</code> | Workspace Id from the console |
 | providerId | <code>string</code> | The id that uniquely identifies the provider to be deleted |
 
+<a name="EventsCoreAPI+getProviderMetadata"></a>
+
+### eventsCoreAPI.getProviderMetadata() ⇒ <code>Promise.&lt;object&gt;</code>
+**Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Returns the list of all entitled provider metadata for the org  
 <a name="EventsCoreAPI+getAllEventMetadataForProvider"></a>
 
 ### eventsCoreAPI.getAllEventMetadataForProvider(providerId) ⇒ <code>Promise.&lt;object&gt;</code>
@@ -543,6 +553,18 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | [retries] | <code>number</code> | Number of retries in case of 5xx errors. Default 0 (optional) |
 | [eventsBaseURL] | <code>string</code> | Base URL for Events Default https://api.adobe.io (optional) |
 | [eventsIngressURL] | <code>string</code> | Ingress URL for Events. Default https://eventsingress.adobe.io (optional) |
+
+<a name="ProviderOptions"></a>
+
+## ProviderOptions : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [providerMetadataId] | <code>string</code> | Fetch by providerMetadataId for the consumer org |
+| [instanceId] | <code>string</code> | For Self registered providers, instanceId is a must while fetching by providerMetadataId |
+| [providerMetadataIds] | <code>Array</code> | Fetch all providers ( and all instances ) for the list of provider metadata ids |
 
 <a name="ProviderInputModel"></a>
 
