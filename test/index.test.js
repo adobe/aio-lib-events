@@ -131,7 +131,11 @@ describe('test get all providers', () => {
   it('Success on get all providers for provider metadata ids list', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getAllProviders('consumerId', false, { providerMetadataIds: ['pm-1', 'pm-2'] })
+    const res = await sdkClient.getAllProviders('consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: { providerMetadataIds: ['pm-1', 'pm-2'] }
+      })
     expect(res._embedded.providers.length).toBe(2)
     expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
     expect(res._embedded.providers[1].provider_metadata).toBe('pm-2')
@@ -141,7 +145,11 @@ describe('test get all providers', () => {
     const returnedValue = mock.data.getAllProvidersResponse
     returnedValue._embedded.providers.pop()
     exponentialBackoffMockReturnValue(returnedValue, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getAllProviders('consumerId', false, { providerMetadataId: 'pm-1', instanceId: 'instance-1' })
+    const res = await sdkClient.getAllProviders('consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: { providerMetadataId: 'pm-1', instanceId: 'instance-1' }
+      })
     expect(res._embedded.providers.length).toBe(1)
     expect(res._embedded.providers[0].id).toBe('test-id-1')
     expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
@@ -150,14 +158,22 @@ describe('test get all providers', () => {
   it('Success on get all providers with eventmetadata', async () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.getAllProvidersWithEventMetadataResponse, { status: 200, statusText: 'OK' })
-    const res = await sdkClient.getAllProviders('consumerId', true)
+    const res = await sdkClient.getAllProviders('consumerId', { fetchEventMetadata: true })
     expect(res._embedded.providers.length).toBe(1)
     expect(res._embedded.providers[0].id).toBe('test-id-1')
     expect(res._embedded.providers[0]._embedded.eventmetadata[0].event_code).toBe('com.adobe.events.sdk.event.test')
   })
   it('Error on get all providers with providerMetadataIds list and providerMetadatataId query params', async () => {
     const api = 'getAllProviders'
-    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId', false, { providerMetadataIds: ['pm1', 'pm2'], providerMetadataId: 'pm1' }])
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: {
+          providerMetadataIds: ['pm1', 'pm2'],
+          providerMetadataId: 'pm1'
+        }
+      }
+    ])
   })
   it('Not found error on get all providers ', async () => {
     const api = 'getAllProviders'

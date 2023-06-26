@@ -36,7 +36,7 @@ function reduceError (error = {}) {
 function appendQueryParams (url, qs) {
   let result = url
   if (qs && !(Object.keys(qs).length === 0)) {
-    const filteredQs = Object.entries(qs).filter(([k, v]) => v)
+    const filteredQs = Object.entries(qs).filter(([k, v]) => !(v === null || v === undefined))
     if (Object.keys(filteredQs).length === 0) {
       return result
     }

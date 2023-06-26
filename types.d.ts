@@ -58,11 +58,10 @@ declare class EventsCoreAPI {
     /**
      * Fetch all the providers
      * @param consumerOrgId - Consumer Org Id from the console
-     * @param fetchEventMetadata - Option to fetch event metadata for each of the the providers in the list
-     * @param providerOptions - Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
+     * @param providerOptions - Provider options
      * @returns Returns list of providers for the org
      */
-    getAllProviders(consumerOrgId: string, fetchEventMetadata: boolean, providerOptions: ProviderOptions): Promise<object>;
+    getAllProviders(consumerOrgId: string, providerOptions: ProviderOptions): Promise<object>;
     /**
      * Fetch a provider
      * @param providerId - The id that uniquely identifies the provider to be fetched
@@ -255,10 +254,19 @@ declare class EventsCoreAPI {
  * @property [instanceId] - For Self registered providers, instanceId is a must while fetching by providerMetadataId
  * @property [providerMetadataIds] - Fetch all providers ( and all instances ) for the list of provider metadata ids
  */
-declare type ProviderOptions = {
+declare type ProviderFilterOptions = {
     providerMetadataId?: string;
     instanceId?: string;
-    providerMetadataIds?: any[];
+    providerMetadataIds?: string[];
+};
+
+/**
+ * @property fetchEventMetadata - Option to fetch event metadata for each of the the providers in the list
+ * @property filterBy - Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
+ */
+declare type ProviderOptions = {
+    fetchEventMetadata: boolean;
+    filterBy: ProviderFilterOptions;
 };
 
 /**

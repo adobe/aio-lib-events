@@ -112,28 +112,33 @@ class EventsCoreAPI {
    */
 
   /**
-   * @typedef {object} ProviderOptions
+   * @typedef {object} ProviderFilterOptions
    * @property {string} [providerMetadataId] Fetch by providerMetadataId for the consumer org
    * @property {string} [instanceId] For Self registered providers, instanceId is a must while fetching by providerMetadataId
-   * @property {Array} [providerMetadataIds] Fetch all providers ( and all instances ) for the list of provider metadata ids
+   * @property {Array.<string>} [providerMetadataIds] Fetch all providers ( and all instances ) for the list of provider metadata ids
+   */
+  /**
+   * @typedef {object} ProviderOptions
+   * @property {boolean} fetchEventMetadata Option to fetch event metadata for each of the the providers in the list
+   * @property {ProviderFilterOptions} filterBy Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
    */
   /**
    * Fetch all the providers
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
-   * @param {boolean} fetchEventMetadata Option to fetch event metadata for each of the the providers in the list
-   * @param {ProviderOptions} providerOptions Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
+   * @param {ProviderOptions} providerOptions Provider options
    * @returns {Promise<object>} Returns list of providers for the org
    */
-  getAllProviders (consumerOrgId, fetchEventMetadata = false, providerOptions = {}) {
+  getAllProviders (consumerOrgId, providerOptions = {}) {
     const headers = {}
-    if (providerOptions && providerOptions.providerMetadataIds && providerOptions.providerMetadataId) {
+    const filterOptions = providerOptions.filterBy
+    if (filterOptions && filterOptions.providerMetadataIds && filterOptions.providerMetadataId) {
       return Promise.reject(new codes.ERROR_GET_ALL_PROVIDERS({ messageValues: 'Only one of providerMetadataIds or providerMetadataId can be set' }))
     }
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
-    let urlWithQueryParams = helpers.appendQueryParams(url, providerOptions)
-    urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: fetchEventMetadata })
+    let urlWithQueryParams = helpers.appendQueryParams(url, filterOptions)
+    urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: providerOptions.fetchEventMetadata })
     const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDERS)
   }
