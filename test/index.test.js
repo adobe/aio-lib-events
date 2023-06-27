@@ -46,6 +46,7 @@ const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
 const EVENTS_BASE_URL = 'https://api.adobe.io/events'
 const EVENTS_INGRESS_URL = 'https://eventsingress.adobe.io'
+const CONFLICTING_ID = 'conflictingId'
 
 // /////////////////////////////////////////////
 
@@ -411,6 +412,13 @@ describe('Create registration', () => {
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', mock.data.createRegistrationBadRequest])
   })
+  it('Conflcit in name on create registration', async () => {
+    const api = 'createRegistration'
+    const mockHeaders = {}
+    mockHeaders['x-conflicting-id'] = CONFLICTING_ID
+    exponentialBackoffMockReturnValue({}, { status: 409, statusText: 'Conflict', headers: mockHeaders })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', mock.data.createRegistrationBadRequest])
+  })
 })
 
 describe('Update registration', () => {
@@ -752,6 +760,9 @@ async function checkErrorResponse (fn, error, args = []) {
       .catch(e => {
         expect(e.name).toEqual(error.name)
         expect(e.code).toEqual(error.code)
+        if (e.code === 409) {
+          expect(e.conflictingId).toEqual(CONFLICTING_ID)
+        }
         resolve()
       })
   })

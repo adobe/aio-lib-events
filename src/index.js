@@ -669,6 +669,9 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
+            if (response.status === 409) {
+              sdkDetails.conflictingId = response.headers.get('x-conflicting-id')
+            }
             throw Error(helpers.reduceError(response))
           }
           if (response.status === 204) { resolve() } else { resolve(response.json()) }
