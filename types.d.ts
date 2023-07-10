@@ -56,9 +56,10 @@ declare class EventsCoreAPI {
     /**
      * Fetch all the providers
      * @param consumerOrgId - Consumer Org Id from the console
+     * @param providerOptions - Provider options
      * @returns Returns list of providers for the org
      */
-    getAllProviders(consumerOrgId: string): Promise<object>;
+    getAllProviders(consumerOrgId: string, providerOptions: ProviderOptions): Promise<object>;
     /**
      * Fetch a provider
      * @param providerId - The id that uniquely identifies the provider to be fetched
@@ -94,6 +95,10 @@ declare class EventsCoreAPI {
      * @returns Returns an empty object if the deletion was successful
      */
     deleteProvider(consumerOrgId: string, projectId: string, workspaceId: string, providerId: string): Promise<object>;
+    /**
+     * @returns Returns the list of all entitled provider metadata for the org
+     */
+    getProviderMetadata(): Promise<object>;
     /**
      * Get all event metadata for a provider
      * @param providerId - The id that uniquely identifies the provider whose event metadata is to be fetched
@@ -241,6 +246,26 @@ declare class EventsCoreAPI {
      */
     verifyDigitalSignatureForEvent(event: any, recipientClientId: any, signatureOptions: any): boolean;
 }
+
+/**
+ * @property [providerMetadataId] - Fetch by providerMetadataId for the consumer org
+ * @property [instanceId] - For Self registered providers, instanceId is a must while fetching by providerMetadataId
+ * @property [providerMetadataIds] - Fetch all providers ( and all instances ) for the list of provider metadata ids
+ */
+declare type ProviderFilterOptions = {
+    providerMetadataId?: string;
+    instanceId?: string;
+    providerMetadataIds?: string[];
+};
+
+/**
+ * @property fetchEventMetadata - Option to fetch event metadata for each of the the providers in the list
+ * @property filterBy - Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
+ */
+declare type ProviderOptions = {
+    fetchEventMetadata: boolean;
+    filterBy: ProviderFilterOptions;
+};
 
 /**
  * @property label - The label of this Events Provider

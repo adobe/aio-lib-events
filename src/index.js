@@ -112,16 +112,34 @@ class EventsCoreAPI {
    */
 
   /**
+   * @typedef {object} ProviderFilterOptions
+   * @property {string} [providerMetadataId] Fetch by providerMetadataId for the consumer org
+   * @property {string} [instanceId] For Self registered providers, instanceId is a must while fetching by providerMetadataId
+   * @property {Array.<string>} [providerMetadataIds] Fetch all providers ( and all instances ) for the list of provider metadata ids
+   */
+  /**
+   * @typedef {object} ProviderOptions
+   * @property {boolean} fetchEventMetadata Option to fetch event metadata for each of the the providers in the list
+   * @property {ProviderFilterOptions} filterBy Provider filtering options based on either (providerMetadataId and instanceId) or list of providerMetadataIds
+   */
+  /**
    * Fetch all the providers
    *
    * @param {string} consumerOrgId Consumer Org Id from the console
+   * @param {ProviderOptions} providerOptions Provider options
    * @returns {Promise<object>} Returns list of providers for the org
    */
-  getAllProviders (consumerOrgId) {
+  getAllProviders (consumerOrgId, providerOptions = {}) {
     const headers = {}
+    const filterOptions = providerOptions.filterBy
+    if (filterOptions && filterOptions.providerMetadataIds && filterOptions.providerMetadataId) {
+      return Promise.reject(new codes.ERROR_GET_ALL_PROVIDERS({ messageValues: 'Only one of providerMetadataIds or providerMetadataId can be set' }))
+    }
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    let urlWithQueryParams = helpers.appendQueryParams(url, filterOptions)
+    urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: providerOptions.fetchEventMetadata })
+    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDERS)
   }
 
@@ -135,8 +153,9 @@ class EventsCoreAPI {
   getProvider (providerId, fetchEventMetadata = false) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
-    const url = this.__getUrl(`/events/providers/${providerId}?eventmetadata=${fetchEventMetadata}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const url = this.__getUrl(`/events/providers/${providerId}`)
+    const urlWithQueryParams = helpers.appendQueryParams(url, { eventmetadata: fetchEventMetadata })
+    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_PROVIDER)
   }
 
@@ -198,6 +217,23 @@ class EventsCoreAPI {
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}`)
     const sdkDetails = { requestOptions: requestOptions, url: url }
     return this.__handleRequest(sdkDetails, codes.ERROR_DELETE_PROVIDER)
+  }
+
+  /**
+   * =========================================================================
+   * GET Entitled Provider Metadata
+   * =========================================================================
+   */
+
+  /**
+   * @returns {Promise<object>} Returns the list of all entitled provider metadata for the org
+   */
+  getProviderMetadata () {
+    const headers = {}
+    const requestOptions = this.__createRequest('GET', headers)
+    const url = this.__getUrl('/events/providermetadata')
+    const sdkDetails = { requestOptions: requestOptions, url: url }
+    return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDER_METADATA)
   }
 
   /**
@@ -424,7 +460,7 @@ class EventsCoreAPI {
    * @param {Page} [page] page size and page number
    * @returns {Promise<object>} Paginated response of all webhook/journal registrations for an org
    */
-  getAllRegistrationsForOrg (consumerOrgId, page) {
+  getAllRegistrationsForOrg (consumerOrgId, page = {}) {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
@@ -633,6 +669,9 @@ class EventsCoreAPI {
         .then((response) => {
           if (!response.ok) {
             sdkDetails.requestId = response.headers.get('x-request-id')
+            if (response.status === 409) {
+              sdkDetails.conflictingId = response.headers.get('x-conflicting-id')
+            }
             throw Error(helpers.reduceError(response))
           }
           if (response.status === 204) { resolve() } else { resolve(response.json()) }

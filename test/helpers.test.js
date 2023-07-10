@@ -54,6 +54,31 @@ describe('Append query params test', () => {
     const url = helpers.appendQueryParams('https://base-url.adobe.io?limit=2&latest=true', queryParams3)
     expect(url).toBe('https://base-url.adobe.io?limit=2&latest=true&interval=10')
   })
+  it('Append query params to url with array query params', () => {
+    const queryParams3 = { values: ['value1', 'value 2', 'value3'] }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?values=value1&values=value%202&values=value3')
+  })
+  it('Do not append undefined query params to url with query params', () => {
+    const queryParams3 = { values: undefined, interval: 10 }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?interval=10')
+  })
+  it('Append false value query params to url with query params', () => {
+    const queryParams3 = { value1: false, value2: false, value3: null, interval: 10 }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?value1=false&value2=false&interval=10')
+  })
+  it('Do not append undefined query params to url with array query params', () => {
+    const queryParams3 = { values: undefined, interval: [10, 20, 30] }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io?interval=10&interval=20&interval=30')
+  })
+  it('Do not append undefined query params to url ', () => {
+    const queryParams3 = { values: undefined }
+    const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
+    expect(url).toBe('https://base-url.adobe.io')
+  })
 })
 
 describe('Proper Payload Test', () => {

@@ -50,6 +50,7 @@ const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
 const EVENTS_BASE_URL = 'https://api.adobe.io/events'
 const EVENTS_INGRESS_URL = 'https://eventsingress.adobe.io'
+const CONFLICTING_ID = 'conflictingId'
 
 // /////////////////////////////////////////////
 
@@ -131,6 +132,53 @@ describe('test get all providers', () => {
     expect(res._embedded.providers.length).toBe(2)
     expect(res._embedded.providers[0].id).toBe('test-id-1')
     expect(res._embedded.providers[1].id).toBe('test-id-2')
+  })
+  it('Success on get all providers for provider metadata ids list', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllProvidersResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: { providerMetadataIds: ['pm-1', 'pm-2'] }
+      })
+    expect(res._embedded.providers.length).toBe(2)
+    expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
+    expect(res._embedded.providers[1].provider_metadata).toBe('pm-2')
+  })
+  it('Success on get all providers for a provider metadata id and instance id', async () => {
+    const sdkClient = await createSdkClient()
+    const returnedValue = mock.data.getAllProvidersResponse
+    returnedValue._embedded.providers.pop()
+    exponentialBackoffMockReturnValue(returnedValue, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: { providerMetadataId: 'pm-1', instanceId: 'instance-1' }
+      })
+    expect(res._embedded.providers.length).toBe(1)
+    expect(res._embedded.providers[0].id).toBe('test-id-1')
+    expect(res._embedded.providers[0].provider_metadata).toBe('pm-1')
+    expect(res._embedded.providers[0].instance_id).toBe('instance-1')
+  })
+  it('Success on get all providers with eventmetadata', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getAllProvidersWithEventMetadataResponse, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getAllProviders('consumerId', { fetchEventMetadata: true })
+    expect(res._embedded.providers.length).toBe(1)
+    expect(res._embedded.providers[0].id).toBe('test-id-1')
+    expect(res._embedded.providers[0]._embedded.eventmetadata[0].event_code).toBe('com.adobe.events.sdk.event.test')
+  })
+  it('Error on get all providers with providerMetadataIds list and providerMetadatataId query params', async () => {
+    const api = 'getAllProviders'
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId',
+      {
+        fetchEventMetadata: false,
+        filterBy: {
+          providerMetadataIds: ['pm1', 'pm2'],
+          providerMetadataId: 'pm1'
+        }
+      }
+    ])
   })
   it('Not found error on get all providers ', async () => {
     const api = 'getAllProviders'
@@ -219,6 +267,22 @@ describe('test delete provider', () => {
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     checkErrorResponse(api, new errorSDK.codes.ERROR_DELETE_PROVIDER(),
       ['consumerId', 'projectId', 'workspaceId', 'test-id1'])
+  })
+})
+
+// ////////////////////////////////////////////
+
+describe('test get provider metadata', () => {
+  it('Success on get provider metadata for org', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(mock.data.getProviderMetadataForOrg, { status: 200, statusText: 'OK' })
+    const res = await sdkClient.getProviderMetadata()
+    expect(res._embedded.providermetadata.length).toBe(2)
+  })
+  it('Not found error on get provider metadata', async () => {
+    const api = 'getProviderMetadata'
+    exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDER_METADATA())
   })
 })
 
@@ -350,6 +414,13 @@ describe('Create registration', () => {
   it('Bad request error on create registration', async () => {
     const api = 'createRegistration'
     exponentialBackoffMockReturnValue({}, { status: 400, statusText: 'Bad Request' })
+    await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', mock.data.createRegistrationBadRequest])
+  })
+  it('Conflcit in name on create registration', async () => {
+    const api = 'createRegistration'
+    const mockHeaders = {}
+    mockHeaders['x-conflicting-id'] = CONFLICTING_ID
+    exponentialBackoffMockReturnValue({}, { status: 409, statusText: 'Conflict', headers: mockHeaders })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_CREATE_REGISTRATION(), ['consumerId', 'projectId', 'workspaceId', mock.data.createRegistrationBadRequest])
   })
 })
@@ -700,6 +771,9 @@ async function checkErrorResponse (fn, error, args = []) {
       .catch(e => {
         expect(e.name).toEqual(error.name)
         expect(e.code).toEqual(error.code)
+        if (e.code === 409) {
+          expect(e.conflictingId).toEqual(CONFLICTING_ID)
+        }
         resolve()
       })
   })

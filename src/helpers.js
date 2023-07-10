@@ -30,21 +30,19 @@ function reduceError (error = {}) {
  * Appends querystring key/value pairs to a url
  *
  * @param {string} url URL
- * @param {object} qs Object/map with all the query paratemers as key value pairs
+ * @param {object} qs Object/map with all the query parameters as key value pairs
  * @returns {string} URL with appended querystring key/value pairs
  */
 function appendQueryParams (url, qs) {
   let result = url
-  if (qs) {
-    let separator = (url.indexOf('?') >= 0) ? '&' : '?'
-    for (const key of Object.getOwnPropertyNames(qs)) {
-      if (qs[key]) {
-        const escKey = querystring.escape(key)
-        const escValue = querystring.escape(qs[key])
-        result += `${separator}${escKey}=${escValue}`
-        separator = '&'
-      }
+  if (qs && !(Object.keys(qs).length === 0)) {
+    const filteredQs = Object.entries(qs).filter(([k, v]) => !(v === null || v === undefined))
+    if (Object.keys(filteredQs).length === 0) {
+      return result
     }
+    const separator = (url.indexOf('?') >= 0) ? '&' : '?'
+    const queryParams = querystring.stringify(Object.fromEntries(filteredQs))
+    result += `${separator}${queryParams}`
   }
   return result
 }
