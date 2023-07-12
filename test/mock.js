@@ -919,6 +919,7 @@ const data = {
   journalResponseHeader204,
   journalResponseHeader204MissingLinks,
   journalResponseHeader204DateTime,
+  journalResponseHeader204InvalidTime,
   journalPollerResponse,
   journalPollerNoContentResponse,
   journalPollerNoContentMissingRetryAfter,
