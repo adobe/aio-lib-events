@@ -21,6 +21,8 @@ const ZoneOffset = require('@js-joda/core').ZoneOffset
 // load .env values in the e2e folder, if any
 require('dotenv').config({ path: path.join(__dirname, '.env') })
 
+jest.setTimeout(240000)
+
 let sdkClient = {}
 let providerId = {}
 let provider = {}
@@ -39,7 +41,6 @@ const randomNumber = Math.round(Math.random() * 100000)
 
 beforeAll(async () => {
   sdkClient = await sdk.init(orgId, apiKey, accessToken, httpOptions)
-  jest.setTimeout(240000)
   jest.useRealTimers()
 })
 
