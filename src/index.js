@@ -139,7 +139,7 @@ class EventsCoreAPI {
     const url = this.__getUrl(`/events/${consumerOrgId}/providers`)
     let urlWithQueryParams = helpers.appendQueryParams(url, filterOptions)
     urlWithQueryParams = helpers.appendQueryParams(urlWithQueryParams, { eventmetadata: providerOptions.fetchEventMetadata })
-    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
+    const sdkDetails = { requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDERS)
   }
 
@@ -155,7 +155,7 @@ class EventsCoreAPI {
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}`)
     const urlWithQueryParams = helpers.appendQueryParams(url, { eventmetadata: fetchEventMetadata })
-    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
+    const sdkDetails = { requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_PROVIDER)
   }
 
@@ -179,7 +179,7 @@ class EventsCoreAPI {
     const requestOptions = this.__createRequest('POST', headers,
       JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_CREATE_PROVIDER)
   }
 
@@ -198,7 +198,7 @@ class EventsCoreAPI {
     const requestOptions = this.__createRequest('PUT', headers,
       JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_UPDATE_PROVIDER)
   }
 
@@ -215,7 +215,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_DELETE_PROVIDER)
   }
 
@@ -232,7 +232,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl('/events/providermetadata')
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_PROVIDER_METADATA)
   }
 
@@ -252,7 +252,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}/eventmetadata`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_EVENTMETADATA)
   }
 
@@ -267,7 +267,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}/eventmetadata/${eventCode}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_EVENTMETADATA)
   }
 
@@ -292,7 +292,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_CREATE_EVENTMETADATA)
   }
 
@@ -311,7 +311,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('PUT', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata/${eventCode}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_UPDATE_EVENTMETADATA)
   }
 
@@ -329,7 +329,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata/${eventCode}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_DELETE_EVENTMETADATA)
   }
 
@@ -346,7 +346,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_DELETE_ALL_EVENTMETADATA)
   }
 
@@ -384,7 +384,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_CREATE_REGISTRATION)
   }
 
@@ -411,7 +411,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('PUT', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_UPDATE_REGISTRATION)
   }
 
@@ -428,7 +428,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_REGISTRATION)
   }
 
@@ -444,7 +444,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_REGISTRATION)
   }
 
@@ -465,7 +465,7 @@ class EventsCoreAPI {
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
     const urlWithQueryParams = helpers.appendQueryParams(url, page)
-    const sdkDetails = { requestOptions: requestOptions, url: urlWithQueryParams }
+    const sdkDetails = { requestOptions, url: urlWithQueryParams }
     return this.__handleRequest(sdkDetails, codes.ERROR_GET_ALL_REGISTRATIONS_FOR_ORG)
   }
 
@@ -482,7 +482,7 @@ class EventsCoreAPI {
     const headers = {}
     const requestOptions = this.__createRequest('DELETE', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return this.__handleRequest(sdkDetails, codes.ERROR_DELETE_REGISTRATION)
   }
 
@@ -508,7 +508,7 @@ class EventsCoreAPI {
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(cloudEvent))
     const retries = (this.httpOptions && this.httpOptions.retries) || 0
     const url = this.httpOptions.eventsIngressURL
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     return new Promise((resolve, reject) => {
       fetchRetryClient.exponentialBackoff(url, requestOptions, { maxRetries: retries, initialDelayInMillis: 1000 }, this.__getRetryOn(retries))
         .then((response) => {
@@ -549,7 +549,7 @@ class EventsCoreAPI {
     const url = helpers.appendQueryParams(journalUrl, eventsJournalOptions)
     const headers = {}
     const requestOptions = this.__createRequest('GET', headers)
-    const sdkDetails = { requestOptions: requestOptions, url: url }
+    const sdkDetails = { requestOptions, url }
     const retries = (this.httpOptions && this.httpOptions.retries) || 0
     const response = await fetchRetryClient.exponentialBackoff(url, requestOptions, { maxRetries: retries, initialDelayInMillis: 1000 }, this.__getRetryOn(retries))
     if ((response.status === 200) || (response.status === 204)) {
@@ -694,9 +694,9 @@ class EventsCoreAPI {
    */
   __createRequest (method, headers, body) {
     return {
-      method: method,
+      method,
       headers: this.__setHeaders(headers),
-      body: body,
+      body,
       timeout: this.httpOptions && this.httpOptions.timeout
     }
   }
@@ -748,5 +748,5 @@ class EventsCoreAPI {
 }
 
 module.exports = {
-  init: init
+  init
 }

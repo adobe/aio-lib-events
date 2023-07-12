@@ -139,19 +139,22 @@ test('test event received in journalling endpoint', async () => {
 })
 
 test('delete webhook registration', async () => {
-  await sdkClient.deleteRegistration(consumerOrgId, projectId, workspaceId, journalReg.registration_id)
+  await expect(sdkClient.deleteRegistration(consumerOrgId, projectId, workspaceId, journalReg.registration_id))
+    .resolves.not.toThrow()
   journalReg = undefined
 })
 
 test('delete event metadata', async () => {
-  await sdkClient.deleteAllEventMetadata(consumerOrgId, projectId,
-    workspaceId, providerId)
+  await expect(sdkClient.deleteAllEventMetadata(consumerOrgId, projectId,
+    workspaceId, providerId))
+    .resolves.not.toThrow()
   eventMetadata = undefined
 })
 
 test('delete provider', async () => {
-  await sdkClient.deleteProvider(consumerOrgId, projectId, workspaceId,
-    providerId)
+  await expect(sdkClient.deleteProvider(consumerOrgId, projectId, workspaceId,
+    providerId))
+    .resolves.not.toThrow()
   provider = undefined
 })
 

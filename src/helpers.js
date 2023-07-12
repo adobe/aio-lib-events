@@ -98,7 +98,7 @@ function isBase64Encoded (eventPayload) {
  */
 function genErrorResponse (statusCode, message) {
   const response = {
-    statusCode: statusCode,
+    statusCode,
     body: message,
     headers: {
       'Content-Type': 'application/json'
