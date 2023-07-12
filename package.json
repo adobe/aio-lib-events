@@ -22,7 +22,7 @@
     "@adobe/aio-lib-core-logging": "^2.0.0",
     "@adobe/aio-lib-core-networking": "^3.0.0",
     "@adobe/aio-lib-state": "^2.0.1",
-    "cross-fetch": "^3.0.4",
+    "cross-fetch": "^4.0.0",
     "crypto-js": "^4.0.0",
     "http-link-header": "^1.0.2",
     "node-fetch": "^2.6.0",
