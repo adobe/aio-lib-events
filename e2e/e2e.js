@@ -18,6 +18,8 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
 const ZonedDateTime = require('@js-joda/core').ZonedDateTime
 const ZoneOffset = require('@js-joda/core').ZoneOffset
 
+jest.setTimeout(60000)
+
 // load .env values in the e2e folder, if any
 require('dotenv').config({ path: path.join(__dirname, '.env') })
 
