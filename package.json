@@ -50,7 +50,7 @@
     "jest-junit": "^10.0.0",
     "jest-plugin-fs": "^2.9.0",
     "jsdoc": "^3.6.7",
-    "jsdoc-to-markdown": "^7.1.1",
+    "jsdoc-to-markdown": "^8.0.0",
     "openapi-schema-validator": "^3.0.3",
     "querystring": "^0.2.0",
     "stdout-stderr": "^0.1.13",
