@@ -18,10 +18,10 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
 const ZonedDateTime = require('@js-joda/core').ZonedDateTime
 const ZoneOffset = require('@js-joda/core').ZoneOffset
 
-jest.setTimeout(60000)
-
 // load .env values in the e2e folder, if any
 require('dotenv').config({ path: path.join(__dirname, '.env') })
+
+jest.setTimeout(240000)
 
 let sdkClient = {}
 let providerId = {}
@@ -41,7 +41,6 @@ const randomNumber = Math.round(Math.random() * 100000)
 
 beforeAll(async () => {
   sdkClient = await sdk.init(orgId, apiKey, accessToken, httpOptions)
-  jest.setTimeout(240000)
   jest.useRealTimers()
 })
 
