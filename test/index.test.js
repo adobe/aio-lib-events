@@ -176,7 +176,7 @@ describe('test get all providers', () => {
       }
     ])
   })
-  it('Not found error on get all providers ', async () => {
+  it('Not found error on get all providers', async () => {
     const api = 'getAllProviders'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_ALL_PROVIDERS(), ['consumerId1'])
@@ -191,7 +191,7 @@ describe('test get provider', () => {
     expect(res.id).toBe('test-id')
     expect(res.source).toBe('urn:uuid:test-id')
   })
-  it('Not found error on get provider by id ', async () => {
+  it('Not found error on get provider by id', async () => {
     const api = 'getProvider'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_PROVIDER(), ['test-id-1'])
@@ -207,7 +207,7 @@ describe('test get provider with eventmetadata', () => {
     expect(res.source).toBe('urn:uuid:test-id')
     expect(res._embedded.eventmetadata[0].event_code).toBe('com.adobe.events.sdk.event.test')
   })
-  it('Not found error on get provider by id ', async () => {
+  it('Not found error on get provider by id', async () => {
     const api = 'getProvider'
     exponentialBackoffMockReturnValue({}, { status: 404, statusText: 'Not Found' })
     await checkErrorResponse(api, new errorSDK.codes.ERROR_GET_PROVIDER(), ['test-id-1', true])
@@ -504,7 +504,9 @@ describe('Get registration with retries', () => {
         throw new Error(' No error response')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.name).toEqual(error.name)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.code).toEqual(error.code)
       })
     expect(fetchRetry.exponentialBackoff).toHaveBeenCalledWith(
@@ -570,7 +572,9 @@ describe('Publish event with retries', () => {
         throw new Error(' No error response')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.name).toEqual(error.name)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.code).toEqual(error.code)
       })
     expect(retryOnSpy).toHaveBeenCalledWith(3)
@@ -671,7 +675,9 @@ describe('Fetch from journalling', () => {
         throw new Error(' No error response')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.name).toEqual(error.name)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.code).toEqual(error.code)
       })
     expect(retryOnSpy).toHaveBeenCalledWith(3)
@@ -751,19 +757,19 @@ function exponentialBackoffMockReturnValue (mockResponse, mockHeader) {
  * @private
  */
 async function checkErrorResponse (fn, error, args = []) {
-  const client = await createSdkClient()
-  return new Promise((resolve, reject) => {
-    (client[fn].apply(client, args))
-      .then(res => {
-        reject(new Error(' No error response'))
-      })
-      .catch(e => {
-        expect(e.name).toEqual(error.name)
-        expect(e.code).toEqual(error.code)
-        if (e.code === 409) {
-          expect(e.conflictingId).toEqual(CONFLICTING_ID)
-        }
-        resolve()
-      })
-  })
+  let e
+  try {
+    const client = await createSdkClient()
+    await client[fn](args[0], args[1])
+    // should never get here
+    e = new Error('No error response')
+  } catch (err) {
+    e = err
+  }
+
+  expect(e.name).toEqual(error.name)
+  expect(e.code).toEqual(error.code)
+  if (e.code === 409) {
+    expect(e.conflictingId).toEqual(CONFLICTING_ID)
+  }
 }
