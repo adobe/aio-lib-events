@@ -48,7 +48,7 @@ const sleep = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-test('test create provider', async () => {
+test('create provider', async () => {
   // create a provider
   provider = await sdkClient.createProvider(consumerOrgId, projectId,
     workspaceId,
@@ -61,7 +61,7 @@ test('test create provider', async () => {
   logger.info('Provider id: ' + providerId)
 })
 
-test('test create event metadata', async () => {
+test('create event metadata', async () => {
   // create event metadata
   eventCode = 'com.adobe.events.sdk.event.' + randomNumber
   eventMetadata = await sdkClient.createEventMetadataForProvider(consumerOrgId,
@@ -75,7 +75,7 @@ test('test create event metadata', async () => {
   logger.info('Event code: ' + eventCode)
 })
 
-test('test register journalling endpoint', async () => {
+test('register journalling endpoint', async () => {
   // create journal registration
   journalReg = await sdkClient.createRegistration(consumerOrgId, projectId, workspaceId, {
     name: 'Test Events SDK ' + randomNumber,
@@ -93,7 +93,7 @@ test('test register journalling endpoint', async () => {
   expect(journalReg.enabled).toBe(true)
 })
 
-test('test fetch journalling position', async () => {
+test('fetch journalling position', async () => {
   const journallingUrl = journalReg._links['rel:events'].href
   logger.info('Journal endpoint ' + journallingUrl + ' has been registered')
 
@@ -108,7 +108,7 @@ test('test fetch journalling position', async () => {
   expect(journalling.retryAfter).toBe(10000)
 })
 
-test('test publish event', async () => {
+test('publish event', async () => {
   // fire event
   const publish = await sdkClient.publishEvent({
     id: 'test-' + randomNumber,
@@ -122,7 +122,7 @@ test('test publish event', async () => {
   expect(publish).toBe('OK')
 })
 
-test('test event received in journalling endpoint', async () => {
+test('event received in journalling endpoint', async () => {
   let count = 0
   let nextLink = journalling.link.next
   // retry to fetch from journalling 3 times ( 30 seconds )

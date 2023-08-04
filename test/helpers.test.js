@@ -74,7 +74,7 @@ describe('Append query params test', () => {
     const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
     expect(url).toBe('https://base-url.adobe.io?interval=10&interval=20&interval=30')
   })
-  it('Do not append undefined query params to url ', () => {
+  it('Do not append undefined query params to url', () => {
     const queryParams3 = { values: undefined }
     const url = helpers.appendQueryParams('https://base-url.adobe.io', queryParams3)
     expect(url).toBe('https://base-url.adobe.io')
