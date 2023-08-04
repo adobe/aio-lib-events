@@ -81,7 +81,9 @@ describe('Test Fetch Key from CloudFront with Invalid Pub Key Url', () => {
         throw new Error('invalid url')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e instanceof Error).toBe(true)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.message).toEqual('invalid url')
       })
   })
@@ -97,7 +99,9 @@ describe('Test Fetch Pem Encoded Public Keys', () => {
         throw new Error('invalid url')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e instanceof Error).toBe(true)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.message).toEqual('invalid url')
       })
   })
@@ -109,7 +113,9 @@ describe('Test Get Key from Cache', () => {
         throw new Error('lib state get error')
       })
       .catch(e => {
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e instanceof Error).toBe(true)
+        // eslint-disable-next-line jest/no-conditional-expect
         expect(e.message).toEqual('lib state get error')
       })
   })

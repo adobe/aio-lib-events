@@ -50,7 +50,7 @@ describe('Create object of EventsConsumerFromJournal', () => {
 })
 
 describe('Subscribing and unsubscribing to journal', () => {
-  test('Test subscribing and unsubscribing to journal ', async () => {
+  test('subscribing and unsubscribing to journal', async () => {
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient,
       journallingUrl, options)
@@ -68,7 +68,7 @@ describe('Subscribing and unsubscribing to journal', () => {
 })
 
 describe('Polling for journal events', () => {
-  it('Test polling journal once with events ', async () => {
+  it('Test polling journal once with events', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient,
@@ -91,7 +91,7 @@ describe('Polling for journal events', () => {
     jest.clearAllTimers()
   })
 
-  it('Test polling journal once with error on poll ', async () => {
+  it('Test polling journal once with error on poll', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient, journallingUrl, options)
@@ -120,7 +120,7 @@ describe('Polling for journal events', () => {
     eventsClient.getEventsFromJournal.mockRestore()
   })
 
-  it(' Test polling journal twice no content ', async () => {
+  it('Test polling journal twice no content', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient, journallingUrl, options)
@@ -129,22 +129,22 @@ describe('Polling for journal events', () => {
     eventsClient.getEventsFromJournal = getMockImplementation(mock.data.journalPollerNoContentResponse)
     journallingObservable.subscribe()
     jest.advanceTimersByTime(1)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(1)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(1)
     await Promise.resolve()
     jest.advanceTimersByTime(10000)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(2)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(2)
     jest.clearAllTimers()
     eventsClient.getEventsFromJournal.mockRestore()
   })
-  it(' Test polling journal twice no content and default timeout ', async () => {
+  it('Test polling journal twice no content and default timeout', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient, journallingUrl)
@@ -154,23 +154,23 @@ describe('Polling for journal events', () => {
         getMockImplementation(mock.data.journalPollerNoContentMissingRetryAfter)
     journallingObservable.subscribe()
     jest.advanceTimersByTime(1)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(1)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(1)
     await Promise.resolve()
     jest.advanceTimersByTime(2000)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(2)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(2)
     jest.clearAllTimers()
     eventsClient.getEventsFromJournal.mockRestore()
   })
 
-  it(' Test polling journal twice no content and custom timeout ', async () => {
+  it('Test polling journal twice no content and custom timeout', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient, journallingUrl, {}, { interval: 20000 })
@@ -180,10 +180,10 @@ describe('Polling for journal events', () => {
         getMockImplementation(mock.data.journalPollerNoContentResponse)
     journallingObservable.subscribe()
     jest.advanceTimersByTime(1)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(1)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(1)
     await Promise.resolve()
     jest.advanceTimersByTime(10000)
@@ -191,7 +191,7 @@ describe('Polling for journal events', () => {
     jest.advanceTimersByTime(10000)
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(2)
     jest.advanceTimersByTime(1)
-    expect(eventsClient.getEventsFromJournal).toBeCalled()
+    expect(eventsClient.getEventsFromJournal).toHaveBeenCalled()
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(2)
     jest.clearAllTimers()
     eventsClient.getEventsFromJournal.mockRestore()
@@ -199,14 +199,14 @@ describe('Polling for journal events', () => {
 })
 
 describe('No subscribers to journalling', () => {
-  it(' Test no subscribers ', async () => {
+  it('Test no subscribers', async () => {
     jest.useFakeTimers()
     const eventsClient = await createSdkClient()
     const journalling = new EventsConsumerFromJournal(eventsClient, journallingUrl, options)
     jest.spyOn(journalling, '__checkPollingCondition')
     eventsClient.getEventsFromJournal = getMockImplementation(mock.data.journalPollerNoContentResponse)
     jest.advanceTimersByTime(1)
-    expect(journalling.__checkPollingCondition).toBeCalled()
+    expect(journalling.__checkPollingCondition).toHaveBeenCalled()
     expect(journalling.__checkPollingCondition).toHaveBeenCalledTimes(1)
     jest.advanceTimersByTime(2000)
     expect(eventsClient.getEventsFromJournal).toHaveBeenCalledTimes(0)
