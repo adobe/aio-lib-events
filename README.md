@@ -1,5 +1,5 @@
 <!--
-Copyright 2020 Adobe. All rights reserved.
+Copyright 2019 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,13 +13,10 @@ governing permissions and limitations under the License.
 [![Version](https://img.shields.io/npm/v/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
 [![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-events.svg)](https://npmjs.org/package/@adobe/aio-lib-events)
 [![Build Status](https://travis-ci.com/adobe/aio-lib-events.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-events)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
-[![Greenkeeper badge](https://badges.greenkeeper.io/adobe/aio-lib-events.svg)](https://greenkeeper.io/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Greenkeeper badge](https://badges.greenkeeper.io/adobe/aio-lib-events.svg)](https://greenkeeper.io/)
 [![Codecov Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-events/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-events/)
 
 # Adobe I/O Events Lib
-
-Node Javascript API wrapping the [Adobe I/O Events API](https://www.adobe.io/apis/experienceplatform/events.html).
 
 ### Installing
 
@@ -50,7 +47,7 @@ async function sdkTest() {
 
   // call methods
   try {
-    // use one of the get methods
+    // get profiles by custom filters
     const result = await client.getSomething({})
     console.log(result)
 
@@ -129,8 +126,6 @@ and max number of retries</p>
 <dd></dd>
 <dt><a href="#EventsJournalPollingOptions">EventsJournalPollingOptions</a> : <code>object</code></dt>
 <dd></dd>
-<dt><a href="#SignatureOptions">SignatureOptions</a> : <code>object</code></dt>
-<dd></dd>
 </dl>
 
 <a name="EventsCoreAPI"></a>
@@ -170,7 +165,7 @@ and max number of retries
     * [.publishEvent(cloudEvent)](#EventsCoreAPI+publishEvent) ⇒ <code>Promise.&lt;string&gt;</code>
     * [.getEventsFromJournal(journalUrl, [eventsJournalOptions], [fetchResponseHeaders])](#EventsCoreAPI+getEventsFromJournal) ⇒ <code>Promise.&lt;object&gt;</code>
     * [.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions])](#EventsCoreAPI+getEventsObservableFromJournal) ⇒ <code>Observable</code>
-    * [.verifyDigitalSignatureForEvent(event, recipientClientId, [signatureOptions])](#EventsCoreAPI+verifyDigitalSignatureForEvent) ⇒ <code>boolean</code>
+    * [.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions)](#EventsCoreAPI+verifyDigitalSignatureForEvent) ⇒ <code>boolean</code>
 
 <a name="EventsCoreAPI+httpOptions"></a>
 
@@ -514,7 +509,7 @@ and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operato
 
 <a name="EventsCoreAPI+verifyDigitalSignatureForEvent"></a>
 
-### eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, [signatureOptions]) ⇒ <code>boolean</code>
+### eventsCoreAPI.verifyDigitalSignatureForEvent(event, recipientClientId, signatureOptions) ⇒ <code>boolean</code>
 Authenticating events by verifying digital signature
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
@@ -522,10 +517,9 @@ Authenticating events by verifying digital signature
 
 | Param | Type | Description |
 | --- | --- | --- |
-| event | <code>object</code> | JSON payload delivered to the registered webhook URL |
-| recipientClientId | <code>string</code> | Target recipient client id retrieved from the Adobe I/O Console integration |
-| [signatureOptions] | [<code>SignatureOptions</code>](#SignatureOptions) | Map of digital signature header fields defined in SignatureOptions |
-
+| event | <code>\*</code> | JSON payload delivered to the registered webhook URL |
+| recipientClientId | <code>\*</code> | Target recipient client id retrieved from the Adobe I/O Console integration |
+| signatureOptions | <code>\*</code> | map of all digital signature header values consisting fields as below digiSignature1 : Value of digital signature retrieved from the x-adobe-digital-signature1 header in each POST request to webhook digiSignature2 : Value of digital signature retrieved from the x-adobe-digital-signature2 header in each POST request to webhook publicKeyPath1 : Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header in each POST request to webhook publicKeyPath2 : Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header in each POST request to webhook |
 
 <a name="init"></a>
 
@@ -627,7 +621,7 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | description | <code>string</code> | The description of the registration |
 | [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
 | events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
-| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
+| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
 | [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
 
 <a name="RegistrationUpdateModel"></a>
@@ -642,7 +636,7 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | description | <code>string</code> | The description of the registration |
 | [webhook_url] | <code>string</code> | A valid webhook url where the events would be delivered for webhook or webhook_batch delivery_type |
 | events_of_interest | [<code>Array.&lt;EventsOfInterest&gt;</code>](#EventsOfInterest) | The events for which the registration is to be subscribed to |
-| delivery_type | <code>string</code> | Delivery type can either be webhook, webhook_batch or journal. |
+| delivery_type | <code>string</code> | Delivery type can either be webhook|webhook_batch|journal. |
 | [enabled] | <code>string</code> | Enable or disable the registration. Default true. |
 
 <a name="Page"></a>
@@ -677,19 +671,6 @@ Returns a Promise that resolves with a new EventsCoreAPI object.
 | Name | Type | Description |
 | --- | --- | --- |
 | [interval] | <code>number</code> | Interval at which to poll the journal; If not provided, a default value will be used (optional) |
-
-<a name="SignatureOptions"></a>
-
-## SignatureOptions : <code>object</code>
-**Kind**: global typedef  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| [digiSignature1] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature1 header |
-| [digiSignature2] | <code>string</code> | Value of digital signature retrieved from the x-adobe-digital-signature2 header |
-| [publicKeyPath1] | <code>string</code> | Relative path of ioevents public key retrieved from the x-adobe-public-key1-path header |
-| [publicKeyPath2] | <code>string</code> | Relative path of ioevents public key retrieved from the x-adobe-public-key2-path header |
 
 ### Debug Logs
 

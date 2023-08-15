@@ -750,6 +750,22 @@ const journalResponseHeader204 = {
   }
 }
 
+const journalResponseHeader204InvalidTime = {
+  status: 204,
+  headers: {
+    link: [
+      '</events/organizations/orgId/integrations/integId/regId>; rel="events"',
+      '</events-fast/organizations/orgId/integrations/integId/regId?since=position-1>; rel="next"',
+      '</count/organizations/orgId/integrations/integId/regId?since=position-1>; rel="count"',
+      '</events/organizations/orgId/integrations/integId/regId?latest=true>; rel="latest"',
+      '</events/organizations/orgId/integrations/integId/regId?since={position}&limit={count}>; rel="page"',
+      '</events/organizations/orgId/integrations/integId/regId?seek={duration}&limit={count}>; rel="seek"',
+      '</events-validate/organizations/orgId/integrations/integId/regId?since=position-1>; rel="validate"'
+    ],
+    'retry-after': 'not::a::valid::date'
+  }
+}
+
 const journalResponseHeader204MissingLinks = {
   status: 204,
   headers: {
@@ -903,6 +919,7 @@ const data = {
   journalResponseHeader204,
   journalResponseHeader204MissingLinks,
   journalResponseHeader204DateTime,
+  journalResponseHeader204InvalidTime,
   journalPollerResponse,
   journalPollerNoContentResponse,
   journalPollerNoContentMissingRetryAfter,

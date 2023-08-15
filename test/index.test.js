@@ -25,9 +25,13 @@ const mockHttpExponentialBackoff = jest.fn(() => ({
   exponentialBackoff: mockExponentialBackoff
 }))
 
-jest.mock('@adobe/aio-lib-core-networking', () => ({
-  HttpExponentialBackoff: mockHttpExponentialBackoff
-}))
+jest.mock('@adobe/aio-lib-core-networking', () => {
+  const originalModule = jest.requireActual('@adobe/aio-lib-core-networking')
+  return {
+    ...originalModule,
+    HttpExponentialBackoff: mockHttpExponentialBackoff
+  }
+})
 
 const sdk = require('../src')
 const mock = require('./mock')
@@ -636,6 +640,13 @@ describe('Fetch from journalling', () => {
     const res2 = await sdkClient.getEventsFromJournal(journalUrl)
     expect(res2.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
     expect(res2.retryAfter).toBe(10000)
+  })
+  it('204 response on fetch from journal with invalid retry after', async () => {
+    const sdkClient = await createSdkClient()
+    exponentialBackoffMockReturnValue(undefined, mock.data.journalResponseHeader204InvalidTime)
+    const res2 = await sdkClient.getEventsFromJournal(journalUrl)
+    expect(res2.link.next).toBe('http://journal-url/events-fast/organizations/orgId/integrations/integId/regId?since=position-1')
+    expect(res2.retryAfter).toBe(undefined)
   })
   it('204 response on fetch from journal with retry after as date time string', async () => {
     const sdkClient = await createSdkClient()
