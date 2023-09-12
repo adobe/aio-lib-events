@@ -38,6 +38,8 @@ const EVENTS_INGRESS_URL = {
   stage: 'https://eventsingress-stage.adobe.io'
 }
 
+const APPLICATION_HAL_JSON = 'application/hal+json'
+
 /**
  * @typedef {object} EventsCoreAPIOptions
  * @property {number} [timeout] Http request timeout in ms (optional)
@@ -51,7 +53,6 @@ const EVENTS_INGRESS_URL = {
  * @param {string} organizationId The organization id from your integration
  * @param {string} apiKey The api key from your integration
  * @param {string} accessToken JWT Token for the integration with IO Management API scope
- * @param {string} [env] the CLI env which is either stage/prod. prod by default
  * @param {EventsCoreAPIOptions} [httpOptions] Options to configure API calls
  * @returns {Promise<EventsCoreAPI>} returns object of the class EventsCoreAPI
  */
@@ -145,6 +146,7 @@ class EventsCoreAPI {
    */
   getAllProviders (consumerOrgId, providerOptions = {}) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const filterOptions = providerOptions.filterBy
     if (filterOptions && filterOptions.providerMetadataIds && filterOptions.providerMetadataId) {
       return Promise.reject(new codes.ERROR_GET_ALL_PROVIDERS({ messageValues: 'Only one of providerMetadataIds or providerMetadataId can be set' }))
@@ -166,6 +168,7 @@ class EventsCoreAPI {
    */
   getProvider (providerId, fetchEventMetadata = false) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}`)
     const urlWithQueryParams = helpers.appendQueryParams(url, { eventmetadata: fetchEventMetadata })
@@ -190,6 +193,7 @@ class EventsCoreAPI {
    */
   createProvider (consumerOrgId, projectId, workspaceId, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('POST', headers,
       JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers`)
@@ -209,6 +213,7 @@ class EventsCoreAPI {
    */
   updateProvider (consumerOrgId, projectId, workspaceId, providerId, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('PUT', headers,
       JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}`)
@@ -244,6 +249,7 @@ class EventsCoreAPI {
    */
   getProviderMetadata () {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl('/events/providermetadata')
     const sdkDetails = { requestOptions, url }
@@ -264,6 +270,7 @@ class EventsCoreAPI {
    */
   getAllEventMetadataForProvider (providerId) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}/eventmetadata`)
     const sdkDetails = { requestOptions, url }
@@ -279,6 +286,7 @@ class EventsCoreAPI {
    */
   getEventMetadataForProvider (providerId, eventCode) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/providers/${providerId}/eventmetadata/${eventCode}`)
     const sdkDetails = { requestOptions, url }
@@ -304,6 +312,7 @@ class EventsCoreAPI {
    */
   createEventMetadataForProvider (consumerOrgId, projectId, workspaceId, providerId, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata`)
     const sdkDetails = { requestOptions, url }
@@ -323,6 +332,7 @@ class EventsCoreAPI {
    */
   updateEventMetadataForProvider (consumerOrgId, projectId, workspaceId, providerId, eventCode, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('PUT', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/providers/${providerId}/eventmetadata/${eventCode}`)
     const sdkDetails = { requestOptions, url }
@@ -396,6 +406,7 @@ class EventsCoreAPI {
    */
   createRegistration (consumerOrgId, projectId, workspaceId, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('POST', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
     const sdkDetails = { requestOptions, url }
@@ -423,6 +434,7 @@ class EventsCoreAPI {
    */
   updateRegistration (consumerOrgId, projectId, workspaceId, registrationId, body) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('PUT', headers, JSON.stringify(body))
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
     const sdkDetails = { requestOptions, url }
@@ -440,6 +452,7 @@ class EventsCoreAPI {
    */
   getRegistration (consumerOrgId, projectId, workspaceId, registrationId) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations/${registrationId}`)
     const sdkDetails = { requestOptions, url }
@@ -456,6 +469,7 @@ class EventsCoreAPI {
    */
   getAllRegistrationsForWorkspace (consumerOrgId, projectId, workspaceId) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/${projectId}/${workspaceId}/registrations`)
     const sdkDetails = { requestOptions, url }
@@ -476,6 +490,7 @@ class EventsCoreAPI {
    */
   getAllRegistrationsForOrg (consumerOrgId, page = {}) {
     const headers = {}
+    headers.Accept = APPLICATION_HAL_JSON
     const requestOptions = this.__createRequest('GET', headers)
     const url = this.__getUrl(`/events/${consumerOrgId}/registrations`)
     const urlWithQueryParams = helpers.appendQueryParams(url, page)

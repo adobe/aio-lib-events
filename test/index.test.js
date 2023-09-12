@@ -547,6 +547,7 @@ describe('Get registration with retries', () => {
       {
         body: undefined,
         headers: {
+          Accept: 'application/hal+json',
           Authorization: '***',
           'Content-Type': 'application/json',
           'x-api-key': '***',
