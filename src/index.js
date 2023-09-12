@@ -24,8 +24,19 @@ const logger = require('@adobe/aio-lib-core-logging')(loggerNamespace,
 const { codes } = require('./SDKErrors')
 const { HttpExponentialBackoff, parseRetryAfterHeader } = require('@adobe/aio-lib-core-networking')
 const fetchRetryClient = new HttpExponentialBackoff()
+const { DEFAULT_ENV, getCliEnv } = require('@adobe/aio-lib-env')
 
 const EventsConsumerFromJournal = require('./journalling')
+
+const EVENTS_BASE_URL = {
+  prod: 'https://api.adobe.io',
+  stage: 'https://api-stage.adobe.io'
+}
+
+const EVENTS_INGRESS_URL = {
+  prod: 'https://eventsingress.adobe.io',
+  stage: 'https://eventsingress-stage.adobe.io'
+}
 
 /**
  * @typedef {object} EventsCoreAPIOptions
@@ -40,14 +51,15 @@ const EventsConsumerFromJournal = require('./journalling')
  * @param {string} organizationId The organization id from your integration
  * @param {string} apiKey The api key from your integration
  * @param {string} accessToken JWT Token for the integration with IO Management API scope
+ * @param {string} [env] the CLI env which is either stage/prod. prod by default
  * @param {EventsCoreAPIOptions} [httpOptions] Options to configure API calls
  * @returns {Promise<EventsCoreAPI>} returns object of the class EventsCoreAPI
  */
 function init (organizationId, apiKey, accessToken, httpOptions) {
   return new Promise((resolve, reject) => {
     const clientWrapper = new EventsCoreAPI()
-
-    clientWrapper.init(organizationId, apiKey, accessToken, httpOptions)
+    const env = getCliEnv()
+    clientWrapper.init(organizationId, apiKey, accessToken, env, httpOptions)
       .then(initializedSDK => {
         logger.debug('sdk initialized successfully')
         resolve(initializedSDK)
@@ -72,10 +84,11 @@ class EventsCoreAPI {
    * @param {string} organizationId The organization id from your integration
    * @param {string} apiKey The api key from your integration
    * @param {string} accessToken JWT Token for the integration with IO Management API scope
+   * @param {string} env the CLI environment
    * @param {EventsCoreAPIOptions} [httpOptions] Options to configure API calls
    * @returns {Promise<EventsCoreAPI>} returns object of the class EventsCoreAPI
    */
-  async init (organizationId, apiKey, accessToken, httpOptions) {
+  async init (organizationId, apiKey, accessToken, env, httpOptions) {
     const initErrors = []
     if (!organizationId) {
       initErrors.push('organizationId')
@@ -91,6 +104,7 @@ class EventsCoreAPI {
       const sdkDetails = { organizationId, apiKey, accessToken }
       throw new codes.ERROR_SDK_INITIALIZATION({ sdkDetails, messageValues: `${initErrors.join(', ')}` })
     }
+
     /** Http options {retries, timeout} */
     this.httpOptions = httpOptions
     /** The organization id from your integration */
@@ -100,7 +114,7 @@ class EventsCoreAPI {
     /** The JWT Token for the integration with IO Management API scope */
     this.accessToken = accessToken
     /** Initialise base and Ingress URLs */
-    this.__initLibURLs()
+    this.__initLibURLs(env)
 
     return this
   }
@@ -740,10 +754,16 @@ class EventsCoreAPI {
     return this.httpOptions.eventsBaseURL + path
   }
 
-  __initLibURLs () {
+  __initLibURLs (env) {
     this.httpOptions = this.httpOptions || {}
-    this.httpOptions.eventsBaseURL = this.httpOptions.eventsBaseURL || 'https://api.adobe.io'
-    this.httpOptions.eventsIngressURL = this.httpOptions.eventsIngressURL || 'https://eventsingress.adobe.io'
+    let eventsBaseUrl = EVENTS_BASE_URL[env]
+    if (!eventsBaseUrl) {
+      eventsBaseUrl = EVENTS_BASE_URL[DEFAULT_ENV]
+      env = DEFAULT_ENV
+    }
+    const eventsIngressUrl = EVENTS_INGRESS_URL[env]
+    this.httpOptions.eventsBaseURL = this.httpOptions.eventsBaseURL || eventsBaseUrl
+    this.httpOptions.eventsIngressURL = this.httpOptions.eventsIngressURL || eventsIngressUrl
   }
 }
 

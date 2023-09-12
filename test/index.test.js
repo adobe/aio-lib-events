@@ -33,9 +33,12 @@ jest.mock('@adobe/aio-lib-core-networking', () => {
   }
 })
 
+jest.mock('@adobe/aio-lib-env')
+
 const sdk = require('../src')
 const mock = require('./mock')
 const errorSDK = require('../src/SDKErrors')
+const { getCliEnv } = require('@adobe/aio-lib-env')
 const fetch = require('node-fetch')
 const { Response } = jest.requireActual('node-fetch')
 const { HttpExponentialBackoff } = require('@adobe/aio-lib-core-networking')
@@ -48,8 +51,10 @@ const gOrganizationId = 'test-org'
 const gApiKey = 'test-apikey'
 const gAccessToken = 'test-token'
 const journalUrl = 'http://journal-url/events/organizations/orgId/integrations/integId/regId'
-const EVENTS_BASE_URL = 'https://api.adobe.io/events'
+const EVENTS_BASE_URL = 'https://api.adobe.io'
 const EVENTS_INGRESS_URL = 'https://eventsingress.adobe.io'
+const EVENTS_BASE_URL_STAGE = 'https://api-stage.adobe.io'
+const EVENTS_INGRESS_URL_STAGE = 'https://eventsingress-stage.adobe.io'
 const CONFLICTING_ID = 'conflictingId'
 
 // /////////////////////////////////////////////
@@ -62,17 +67,17 @@ const createSdkClient = async () => {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  getCliEnv.mockReturnValue('prod')
 })
 
 // /////////////////////////////////////////////
 
 describe('SDK init test', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
   it('sdk init test', async () => {
-    const options = {
-      eventsBaseURL: EVENTS_BASE_URL,
-      eventsIngressURL: EVENTS_INGRESS_URL
-    }
-    const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, options)
+    const sdkClient = await createSdkClient()
     expect(sdkClient.organizationId).toBe(gOrganizationId)
     expect(sdkClient.apiKey).toBe(gApiKey)
     expect(sdkClient.accessToken).toBe(gAccessToken)
@@ -80,10 +85,34 @@ describe('SDK init test', () => {
     expect(sdkClient.httpOptions.eventsIngressURL).toBe(EVENTS_INGRESS_URL)
   })
   it('sdk init test with URL options', async () => {
-    const sdkClient = await createSdkClient()
+    const options = {
+      eventsBaseURL: 'http://localhost:8080',
+      eventsIngressURL: 'http://localhost:9080'
+    }
+    const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, options)
     expect(sdkClient.organizationId).toBe(gOrganizationId)
     expect(sdkClient.apiKey).toBe(gApiKey)
     expect(sdkClient.accessToken).toBe(gAccessToken)
+    expect(sdkClient.httpOptions.eventsBaseURL).toBe('http://localhost:8080')
+    expect(sdkClient.httpOptions.eventsIngressURL).toBe('http://localhost:9080')
+  })
+  it('sdk init test with getCliEnv returning stage', async () => {
+    getCliEnv.mockReturnValue('stage')
+    const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken)
+    expect(sdkClient.organizationId).toBe(gOrganizationId)
+    expect(sdkClient.apiKey).toBe(gApiKey)
+    expect(sdkClient.accessToken).toBe(gAccessToken)
+    expect(sdkClient.httpOptions.eventsBaseURL).toBe(EVENTS_BASE_URL_STAGE)
+    expect(sdkClient.httpOptions.eventsIngressURL).toBe(EVENTS_INGRESS_URL_STAGE)
+  })
+  it('sdk init test with getCliEnv returning undefined', async () => {
+    getCliEnv.mockReturnValue(undefined)
+    const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken)
+    expect(sdkClient.organizationId).toBe(gOrganizationId)
+    expect(sdkClient.apiKey).toBe(gApiKey)
+    expect(sdkClient.accessToken).toBe(gAccessToken)
+    expect(sdkClient.httpOptions.eventsBaseURL).toBe(EVENTS_BASE_URL)
+    expect(sdkClient.httpOptions.eventsIngressURL).toBe(EVENTS_INGRESS_URL)
   })
   it('sdk init test - no imsOrgId', async () => {
     return expect(sdk.init(null, gApiKey, gAccessToken)).rejects.toEqual(
@@ -449,7 +478,7 @@ describe('Get all registration', () => {
     const res = await sdkClient.getAllRegistrationsForWorkspace('consumerId', 'projectId', 'workspaceId')
     expect(res._embedded.registrations.length).toBe(3)
     const regs = res._embedded.registrations
-    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/events/consumerId/projectId/workspaceId/registrations')
     expect(regs[0].id).toBe(30000)
     expect(regs[1].webhook_status).toBe('hook_unreachable')
     expect(regs[2].delivery_type).toBe('journal')
@@ -466,7 +495,7 @@ describe('Get a registration', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.createRegistrationResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId')
-    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/events/consumerId/projectId/workspaceId/registrations/registrationId')
     expect(res.id).toBe(248723)
     expect(res.webhook_status).toBe('verified')
     expect(res.enabled).toBe(true)
@@ -483,10 +512,10 @@ describe('Get all registrations for org', () => {
     const sdkClient = await createSdkClient()
     exponentialBackoffMockReturnValue(mock.data.getAllRegistrationsForOrgResponse, { status: 200, statusText: 'OK' })
     const res = await sdkClient.getAllRegistrationsForOrg('consumerId', { page: 1, size: 2 })
-    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=1&size=2')
-    expect(res._links.first.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
-    expect(res._links.last.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=19&size=2')
-    expect(res._links.prev.href).toBe(EVENTS_BASE_URL + '/consumerId/registrations?page=0&size=2')
+    expect(res._links.self.href).toBe(EVENTS_BASE_URL + '/events/consumerId/registrations?page=1&size=2')
+    expect(res._links.first.href).toBe(EVENTS_BASE_URL + '/events/consumerId/registrations?page=0&size=2')
+    expect(res._links.last.href).toBe(EVENTS_BASE_URL + '/events/consumerId/registrations?page=19&size=2')
+    expect(res._links.prev.href).toBe(EVENTS_BASE_URL + '/events/consumerId/registrations?page=0&size=2')
     expect(res._embedded.registrations.length).toBe(2)
     expect(res.page.numberOfElements).toBe(2)
     expect(res.page.totalElements).toBe(19)
@@ -514,7 +543,7 @@ describe('Get registration with retries', () => {
         expect(e.code).toEqual(error.code)
       })
     expect(fetchRetry.exponentialBackoff).toHaveBeenCalledWith(
-      EVENTS_BASE_URL + '/consumerId/projectId/workspaceId/registrations/registrationId',
+      EVENTS_BASE_URL + '/events/consumerId/projectId/workspaceId/registrations/registrationId',
       {
         body: undefined,
         headers: {
