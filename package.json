@@ -18,11 +18,11 @@
     "jsdoc": "jsdoc2md -t ./docs/readme_template.md ./src/index.js > README.md"
   },
   "dependencies": {
-    "@adobe/aio-lib-core-errors": "^3.1.1",
-    "@adobe/aio-lib-core-logging": "^2.0.0",
-    "@adobe/aio-lib-core-networking": "^4.1.0",
-    "@adobe/aio-lib-state": "^2.0.1",
-    "@adobe/aio-lib-env": "^2.0.0",
+    "@adobe/aio-lib-core-errors": "^4",
+    "@adobe/aio-lib-core-logging": "^3",
+    "@adobe/aio-lib-core-networking": "^5",
+    "@adobe/aio-lib-state": "^3",
+    "@adobe/aio-lib-env": "^3",
     "crypto-js": "^4.0.0",
     "http-link-header": "^1.0.2",
     "node-fetch": "^2.6.0",
