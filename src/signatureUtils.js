@@ -9,7 +9,6 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 const validUrl = require('valid-url')
-const helpers = require('./helpers')
 const stateLib = require('@adobe/aio-lib-state')
 const fetch = require('node-fetch')
 const crypto = require('crypto')
@@ -48,7 +47,7 @@ async function verifyDigitalSignature (signatureOptions, recipientClientId, rawS
 }
 
 /**
- * Feteched the pem encoded public keys either from the state lib cache or directly via cloud front url
+ * Fetch the pem encoded public keys either from the state lib cache or directly via cloud front url
  *
  * @param {*} pubKeyUrl1 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
  * @param {*} pubKeyUrl2 cloud front url of format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
@@ -62,7 +61,7 @@ async function fetchPemEncodedPublicKeys (pubKeyUrl1, pubKeyUrl2) {
     pubKey2Pem = await fetchPubKeyFromCacheOrApi(pubKeyUrl2, state)
   } catch (error) {
     logger.error('error occurred while fetching pem encoded public keys either from cache or public key urls due to %s', error.message)
-    return helpers.exportFunctions.genErrorResponse(500, 'Error occurred while fetching pem encoded Public Key')
+    throw error
   }
   return [pubKey1Pem, pubKey2Pem]
 }
@@ -126,11 +125,11 @@ async function getKeyFromCache (state, publicKeyFileNameAsKey) {
      *     "expiration":"24h timestamp"
      * }
      */
-    return keyObj.value
+    return keyObj?.value
   } catch (error) {
     logger.error('aio lib state get error due to => %s', error.message)
+    throw error
   }
-  return null
 }
 
 /**
@@ -141,7 +140,7 @@ async function getKeyFromCache (state, publicKeyFileNameAsKey) {
  */
 async function getPubKeyFileName (pubKeyUrl) {
   // public key url is the cloud front url in this format https://static.adobeioevents.com/prod/keys/pub-key-<random-uuid>.pem
-  return pubKeyUrl.substring(pubKeyUrl.lastIndexOf('/') + 1)
+  return pubKeyUrl?.substring(pubKeyUrl.lastIndexOf('/') + 1)
 }
 
 /**
@@ -152,18 +151,15 @@ async function getPubKeyFileName (pubKeyUrl) {
  * @returns {string} public key
  */
 async function fetchPublicKeyFromCloudFront (publicKeyUrl) {
-  let pubKey
-  await fetch(publicKeyUrl)
-    .then(response => response.text())
-    .then(text => {
-      logger.info('successfully fetched the public key %s from cloud front url %s', text, publicKeyUrl)
-      pubKey = text
-    })
-    .catch(error => {
-      logger.error('error fetching the public key from cloud front url %s due to => %s', publicKeyUrl, error.message)
-      return helpers.exportFunctions.genErrorResponse(500, error.message)
-    })
-  return pubKey
+  try {
+    const response = await fetch(publicKeyUrl)
+    const pubKey = await response.text()
+    logger.info('successfully fetched the public key %s from cloud front url %s', pubKey, publicKeyUrl)
+    return pubKey
+  } catch (e) {
+    logger.error('error fetching the public key from cloud front url %s due to => %s', publicKeyUrl, e.message)
+    throw e
+  }
 }
 
 /**

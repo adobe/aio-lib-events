@@ -24,6 +24,10 @@ const {
   Response
 } = jest.requireActual('node-fetch')
 
+beforeEach(() => {
+  jest.clearAllMocks()
+})
+
 describe('Invalid Cloud Front Public Key Urls Test', () => {
   it('verify pem public keys fetched with invalid urls', async () => {
     const url1 = 'www.invalidcloudfront.net'
@@ -73,50 +77,29 @@ describe('Test Verify Signature Helper With Invalid Key', () => {
 describe('Test Fetch Key from CloudFront with Invalid Pub Key Url', () => {
   it('verify for invalid pub key', async () => {
     const invalidCloudFrontUrl = undefined
-    fetch.mockImplementation(() => {
-      return Promise.resolve(Error)
-    })
-    await signatureUtils.fetchPublicKeyFromCloudFront(invalidCloudFrontUrl)
-      .then(res => {
-        throw new Error('invalid url')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e instanceof Error).toBe(true)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.message).toEqual('invalid url')
-      })
+    const error = new Error('invalid url')
+    fetch.mockRejectedValue(error)
+
+    await expect(signatureUtils.fetchPublicKeyFromCloudFront(invalidCloudFrontUrl))
+      .rejects.toThrow(error)
   })
 })
 describe('Test Fetch Pem Encoded Public Keys', () => {
   it('verify for invalid pub key url throws', async () => {
     const invalidCloudFrontUrl = undefined
-    fetch.mockImplementation(() => {
-      return Promise.resolve(Error)
-    })
-    await signatureUtils.fetchPemEncodedPublicKeys(invalidCloudFrontUrl)
-      .then(res => {
-        throw new Error('invalid url')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e instanceof Error).toBe(true)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.message).toEqual('invalid url')
-      })
+    const error = new Error('invalid url')
+    fetch.mockRejectedValue(error)
+
+    await expect(signatureUtils.fetchPemEncodedPublicKeys(invalidCloudFrontUrl))
+      .rejects.toThrow(error)
   })
 })
 describe('Test Get Key from Cache', () => {
   it('get key from cache throws', async () => {
-    await signatureUtils.getKeyFromCache('state', 'invalid-url')
-      .then(res => {
-        throw new Error('lib state get error')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e instanceof Error).toBe(true)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.message).toEqual('lib state get error')
-      })
+    const error = new Error('lib state get error')
+    mockStateInstance.get.mockRejectedValue(error)
+
+    await expect(signatureUtils.getKeyFromCache(mockStateInstance, 'invalid-url'))
+      .rejects.toThrow(error)
   })
 })

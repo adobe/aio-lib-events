@@ -532,16 +532,9 @@ describe('Get registration with retries', () => {
     const sdkClient = await sdk.init(gOrganizationId, gApiKey, gAccessToken, { retries: 3 })
     const error = new errorSDK.codes.ERROR_GET_REGISTRATION()
     exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
-    await sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId')
-      .then(res => {
-        throw new Error(' No error response')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.name).toEqual(error.name)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.code).toEqual(error.code)
-      })
+
+    await expect(sdkClient.getRegistration('consumerId', 'projectId', 'workspaceId', 'registrationId'))
+      .rejects.toThrow(expect.objectContaining({ name: error.name, code: error.code }))
     expect(fetchRetry.exponentialBackoff).toHaveBeenCalledWith(
       EVENTS_BASE_URL + '/events/consumerId/projectId/workspaceId/registrations/registrationId',
       {
@@ -601,16 +594,8 @@ describe('Publish event with retries', () => {
     const retryOnSpy = jest.spyOn(sdkClient, '__getRetryOn')
     const error = new errorSDK.codes.ERROR_PUBLISH_EVENT()
     exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: 'https://eventsingress.adobe.io' })
-    await sdkClient.publishEvent(mock.data.cloudEventEmptyPayload)
-      .then(res => {
-        throw new Error(' No error response')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.name).toEqual(error.name)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.code).toEqual(error.code)
-      })
+    await expect(sdkClient.publishEvent(mock.data.cloudEventEmptyPayload))
+      .rejects.toThrow(expect.objectContaining({ name: error.name, code: error.code }))
     expect(retryOnSpy).toHaveBeenCalledWith(3)
     retryOnSpy.mockRestore()
   })
@@ -711,16 +696,8 @@ describe('Fetch from journalling', () => {
     const retryOnSpy = jest.spyOn(sdkClient, '__getRetryOn')
     const error = new errorSDK.codes.ERROR_GET_JOURNAL_DATA()
     exponentialBackoffMockReturnValue({}, { status: 500, statusText: 'Internal Server Error', url: journalUrl })
-    await sdkClient.getEventsFromJournal(journalUrl)
-      .then(res => {
-        throw new Error(' No error response')
-      })
-      .catch(e => {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.name).toEqual(error.name)
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect(e.code).toEqual(error.code)
-      })
+    await expect(sdkClient.getEventsFromJournal(journalUrl))
+      .rejects.toThrow(expect.objectContaining({ name: error.name, code: error.code }))
     expect(retryOnSpy).toHaveBeenCalledWith(3)
     retryOnSpy.mockRestore()
   })
