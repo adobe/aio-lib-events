@@ -111,6 +111,7 @@ test('fetch journalling position', async () => {
 test('publish event', async () => {
   // fire event
   const publish = await sdkClient.publishEvent({
+    specversion: '1.0',
     id: 'test-' + randomNumber,
     source: 'urn:uuid:' + providerId,
     time: ZonedDateTime.now(ZoneOffset.UTC).toString(),
