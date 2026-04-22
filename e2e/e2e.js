@@ -116,6 +116,7 @@ test('publish event', async () => {
     source: 'urn:uuid:' + providerId,
     time: ZonedDateTime.now(ZoneOffset.UTC).toString(),
     type: eventCode,
+    datacontenttype: 'application/json',
     data: {
       test: 'eventsSDKe2e_' + randomNumber
     }
