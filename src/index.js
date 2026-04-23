@@ -615,10 +615,10 @@ class EventsCoreAPI {
    * @property {number} [interval] Interval at which to poll the journal; If not provided, a default value will be used (optional)
    */
   /**
-   * getEventsObservableFromJournal returns an RxJS <a href="https://rxjs-dev.firebaseapp.com/guide/observable">Observable</a>
+   * getEventsObservableFromJournal returns an RxJS <a href="https://rxjs.dev/guide/observable">Observable</a>
    *
-   * One can go through the extensive documentation on <a href="https://rxjs-dev.firebaseapp.com/guide/overview">RxJS</a> in order to learn more
-   * and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operators">RxJS Operators</a> to act on emitted events.
+   * One can go through the extensive documentation on <a href="https://rxjs.dev/guide/overview">RxJS</a> in order to learn more
+   * and leverage the various <a href="https://rxjs.dev/guide/operators">RxJS Operators</a> to act on emitted events.
    *
    * @param {string} journalUrl URL of the journal or 'next' link to read from (required)
    * @param {EventsJournalOptions} [eventsJournalOptions] Query options to send with the Journal URL
