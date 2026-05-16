@@ -6,6 +6,9 @@ on:
     # run daily at midnight
     - cron: '0 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     uses: adobe/aio-reusable-workflows/.github/workflows/daily.yml@main
