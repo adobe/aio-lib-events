@@ -493,10 +493,10 @@ Get events from a journal.
 <a name="EventsCoreAPI+getEventsObservableFromJournal"></a>
 
 ### eventsCoreAPI.getEventsObservableFromJournal(journalUrl, [eventsJournalOptions], [eventsJournalPollingOptions]) ⇒ <code>Observable</code>
-getEventsObservableFromJournal returns an RxJS <a href="https://rxjs-dev.firebaseapp.com/guide/observable">Observable</a>
+getEventsObservableFromJournal returns an RxJS <a href="https://rxjs.dev/guide/observable">Observable</a>
 
-One can go through the extensive documentation on <a href="https://rxjs-dev.firebaseapp.com/guide/overview">RxJS</a> in order to learn more
-and leverage the various <a href="https://rxjs-dev.firebaseapp.com/guide/operators">RxJS Operators</a> to act on emitted events.
+One can go through the extensive documentation on <a href="https://rxjs.dev/guide/overview">RxJS</a> in order to learn more
+and leverage the various <a href="https://rxjs.dev/guide/operators">RxJS Operators</a> to act on emitted events.
 
 **Kind**: instance method of [<code>EventsCoreAPI</code>](#EventsCoreAPI)  
 **Returns**: <code>Observable</code> - observable to which the user can subscribe to in order to listen to events  
